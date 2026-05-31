@@ -1,8 +1,8 @@
 name: Deploy site to GitHub Pages
 
-# Build the Vite site and publish dist/ to GitHub Pages. Enable Pages in the
-# repo settings (Source: GitHub Actions) before the first run. base "./" in
-# vite.config.js keeps assets working under the project subpath.
+# Build the Vite site and publish dist/ to GitHub Pages.
+# Enable Pages in the repo settings with Source set to GitHub Actions.
+# Keep Vite's base "./" so assets work under the project subpath.
 
 on:
   push:
@@ -18,28 +18,30 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build
         env:
-          # Supabase connection, injected from repo Actions secrets/variables.
-          # If unset, the build is seed-only: the site renders from bundled data
-          # and admin sign-in is disabled until the secrets are added.
+          # Inject the Supabase connection from repo Actions secrets and variables.
+          # Leave these unset to build a seed-only public site with admin sign-in disabled.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_TABLE: ${{ vars.VITE_SUPABASE_TABLE }}
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
         with:
           enablement: true
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
