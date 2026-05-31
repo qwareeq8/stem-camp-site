@@ -1,0 +1,9 @@
+[
+  { "id": "f-handout", "name": "PY-STEM Student Handout Packet", "category": "Handouts", "type": "docx", "path": "files/PY_STEM_Student_Handout_Packet.docx", "size": "52 KB", "desc": "All twelve PY-STEM station handouts for campers." },
+  { "id": "f-instructor", "name": "PY-STEM Instructor Guide Packet", "category": "Handouts", "type": "docx", "path": "files/PY_STEM_Instructor_Guide_Packet.docx", "size": "48 KB", "desc": "Facilitation arc, materials, and debrief for each station." },
+  { "id": "f-scores", "name": "Score Sheets and Leaderboard", "category": "Scoring", "type": "docx", "path": "files/PY_STEM_Score_Sheets_and_Leaderboard.docx", "size": "44 KB", "desc": "Printable rubric score sheets; each rubric sums to 100." },
+  { "id": "f-signs", "name": "Station Signs", "category": "Signage", "type": "docx", "path": "files/PY_STEM_Station_Signs.docx", "size": "40 KB", "desc": "Printable signs for each station bench." },
+  { "id": "f-pyb03", "name": "PYB-03 Pulley Rescue Relay (Handout)", "category": "Handouts", "type": "pdf", "path": "files/PYB_03_Pulley_Rescue_Relay_Student_Handout.pdf", "size": "60 KB", "desc": "Backup station student handout." },
+  { "id": "f-pyb04", "name": "PYB-04 Barcode Checksum Rescue (Handout)", "category": "Handouts", "type": "pdf", "path": "files/PYB_04_Barcode_Checksum_Rescue_Student_Handout.pdf", "size": "60 KB", "desc": "Backup station student handout." },
+  { "id": "f-buylist", "name": "Materials Buy List", "category": "Logistics", "type": "csv", "path": "files/buy_list.csv", "size": "8 KB", "desc": "135 materials aggregated across all stations, with per-station quantities." }
+]

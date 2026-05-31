@@ -1,0 +1,934 @@
+{
+  "modules": [
+    {
+      "file": "theme.js",
+      "defines": [
+        "T",
+        "CAMP",
+        "f"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 0
+      }
+    },
+    {
+      "file": "ui/hooks.js",
+      "defines": [
+        "useRAF",
+        "useTimeouts",
+        "usePointerDrag"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 0,
+        "modules": 0
+      }
+    },
+    {
+      "file": "ui/primitives.jsx",
+      "defines": [
+        "Btn",
+        "Slider",
+        "Tag",
+        "Corners",
+        "Field",
+        "Readout",
+        "Caption"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 1
+      }
+    },
+    {
+      "file": "icons.jsx",
+      "defines": [
+        "CAT_ICON",
+        "DEMO_ICON",
+        "PHASE_ICON",
+        "IconChip"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 29,
+        "modules": 0
+      }
+    },
+    {
+      "file": "data/decks.js",
+      "defines": [
+        "CATMAP",
+        "TREES_DECK",
+        "PY_DECK",
+        "TREESB_DECK",
+        "PYB_DECK"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 0
+      }
+    },
+    {
+      "file": "components/demos/DemoMudwatt.jsx",
+      "defines": [
+        "DemoMudwatt"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoCapillary.jsx",
+      "defines": [
+        "DemoCapillary"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoOobleck.jsx",
+      "defines": [
+        "DemoOobleck"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 0,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoSamara.jsx",
+      "defines": [
+        "DemoSamara"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoTreering.jsx",
+      "defines": [
+        "DemoTreering"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/demos/DemoLotus.jsx",
+      "defines": [
+        "DemoLotus"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoMagnet.jsx",
+      "defines": [
+        "DemoMagnet"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoCam.jsx",
+      "defines": [
+        "DemoCam"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoWave.jsx",
+      "defines": [
+        "DemoWave"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoPinhole.jsx",
+      "defines": [
+        "DemoPinhole"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoHover.jsx",
+      "defines": [
+        "DemoHover"
+      ],
+      "imports": {
+        "react": 4,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoSpectra.jsx",
+      "defines": [
+        "DemoSpectra"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/demos/DemoBookbot.jsx",
+      "defines": [
+        "DemoBookbot"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/DemoRamp.jsx",
+      "defines": [
+        "DemoRamp"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/demos/index.js",
+      "defines": [
+        "DEMOS"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 14
+      }
+    },
+    {
+      "file": "components/shared.jsx",
+      "defines": [
+        "Ill",
+        "CAMPUS_MAP_LAYOUT",
+        "CAMPUS_BASE_TEMP",
+        "CAMPUS_TYPE_LABEL",
+        "campusGrid",
+        "heatColor",
+        "TYPE_CHIP_COLOR",
+        "TypeGlyph",
+        "HeatTile"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraCircuit.jsx",
+      "defines": [
+        "ExtraCircuit"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraMicroclimate.jsx",
+      "defines": [
+        "ExtraMicroclimate"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraSiting.jsx",
+      "defines": [
+        "ExtraSiting"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraOneVar.jsx",
+      "defines": [
+        "ExtraOneVar"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraXylem.jsx",
+      "defines": [
+        "ExtraXylem"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraGreenhouse.jsx",
+      "defines": [
+        "ExtraGreenhouse"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraTour.jsx",
+      "defines": [
+        "ExtraTour"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 2,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraPinecone.jsx",
+      "defines": [
+        "ExtraPinecone"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraBilayer.jsx",
+      "defines": [
+        "ExtraBilayer"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraPollinatorNet.jsx",
+      "defines": [
+        "ExtraPollinatorNet"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraClump.jsx",
+      "defines": [
+        "ExtraClump"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraObservation.jsx",
+      "defines": [
+        "ExtraObservation"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 1,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraFoodWeb.jsx",
+      "defines": [
+        "ExtraFoodWeb"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraResilience.jsx",
+      "defines": [
+        "ExtraResilience"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 7,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraCascade.jsx",
+      "defines": [
+        "ExtraCascade"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 5,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraCER.jsx",
+      "defines": [
+        "ExtraCER"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 4,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraRoughCoat.jsx",
+      "defines": [
+        "ExtraRoughCoat"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraStomata.jsx",
+      "defines": [
+        "ExtraStomata"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraSampling.jsx",
+      "defines": [
+        "ExtraSampling"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraPathPlan.jsx",
+      "defines": [
+        "ExtraPathPlan"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraStrengthWeight.jsx",
+      "defines": [
+        "ExtraStrengthWeight"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraReliability.jsx",
+      "defines": [
+        "ExtraReliability"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraSoundMedia.jsx",
+      "defines": [
+        "ExtraSoundMedia"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraHRRecovery.jsx",
+      "defines": [
+        "ExtraHRRecovery"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraReactionTime.jsx",
+      "defines": [
+        "ExtraReactionTime"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraMedian.jsx",
+      "defines": [
+        "ExtraMedian"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraSonarRange.jsx",
+      "defines": [
+        "ExtraSonarRange"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraAperture.jsx",
+      "defines": [
+        "ExtraAperture"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraCenterMass.jsx",
+      "defines": [
+        "ExtraCenterMass"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraForceMap.jsx",
+      "defines": [
+        "ExtraForceMap"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraGlide.jsx",
+      "defines": [
+        "ExtraGlide"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraSpectraFingerprint.jsx",
+      "defines": [
+        "ExtraSpectraFingerprint"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraSearch.jsx",
+      "defines": [
+        "ExtraSearch"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraDecision.jsx",
+      "defines": [
+        "ExtraDecision"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraRootsAnchor.jsx",
+      "defines": [
+        "ExtraRootsAnchor"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraRunoff.jsx",
+      "defines": [
+        "ExtraRunoff"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 1,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraTriangulate.jsx",
+      "defines": [
+        "ExtraTriangulate"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraAccuracy.jsx",
+      "defines": [
+        "ExtraAccuracy"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 2,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraHeatGrid.jsx",
+      "defines": [
+        "ExtraHeatGrid"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 0,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraCoolRoute.jsx",
+      "defines": [
+        "ExtraCoolRoute"
+      ],
+      "imports": {
+        "react": 3,
+        "lucide": 2,
+        "modules": 4
+      }
+    },
+    {
+      "file": "components/extras/ExtraPhotoO2.jsx",
+      "defines": [
+        "ExtraPhotoO2"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraControls.jsx",
+      "defines": [
+        "ExtraControls"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraPressure.jsx",
+      "defines": [
+        "ExtraPressure"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraStress.jsx",
+      "defines": [
+        "ExtraStress"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraDomino.jsx",
+      "defines": [
+        "ExtraDomino"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraGap.jsx",
+      "defines": [
+        "ExtraGap"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
+      "file": "components/extras/ExtraPulley.jsx",
+      "defines": [
+        "ExtraPulley"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraVector.jsx",
+      "defines": [
+        "ExtraVector"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraChecksum.jsx",
+      "defines": [
+        "ExtraChecksum"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 1,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/ExtraDetect.jsx",
+      "defines": [
+        "ExtraDetect"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 1,
+        "modules": 2
+      }
+    },
+    {
+      "file": "components/extras/index.js",
+      "defines": [
+        "EXTRAS"
+      ],
+      "imports": {
+        "react": 0,
+        "lucide": 0,
+        "modules": 50
+      }
+    },
+    {
+      "file": "Presentation.jsx",
+      "defines": [
+        "splitPts",
+        "SlideFrame",
+        "Presentation"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 9,
+        "modules": 6
+      }
+    },
+    {
+      "file": "Home.jsx",
+      "defines": [
+        "HomeMotif",
+        "StationCard",
+        "BackupCard",
+        "Home"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 1,
+        "modules": 4
+      }
+    },
+    {
+      "file": "App.jsx",
+      "defines": [
+        "App"
+      ],
+      "imports": {
+        "react": 1,
+        "lucide": 0,
+        "modules": 4
+      }
+    }
+  ],
+  "publicExportNames": [
+    "DEMOS",
+    "EXTRAS",
+    "CATMAP",
+    "TREES_DECK",
+    "PY_DECK",
+    "TREESB_DECK",
+    "PYB_DECK",
+    "Presentation",
+    "Home",
+    "ExtraCircuit",
+    "ExtraMicroclimate",
+    "ExtraSiting",
+    "ExtraOneVar",
+    "ExtraXylem",
+    "ExtraGreenhouse",
+    "ExtraTour",
+    "ExtraPinecone",
+    "ExtraBilayer",
+    "ExtraPollinatorNet",
+    "ExtraClump",
+    "ExtraObservation",
+    "ExtraFoodWeb",
+    "ExtraResilience",
+    "ExtraCascade",
+    "ExtraCER",
+    "ExtraRoughCoat",
+    "ExtraStomata",
+    "ExtraSampling",
+    "ExtraPathPlan",
+    "ExtraStrengthWeight",
+    "ExtraReliability",
+    "ExtraSoundMedia",
+    "ExtraHRRecovery",
+    "ExtraReactionTime",
+    "ExtraMedian",
+    "ExtraSonarRange",
+    "ExtraAperture",
+    "ExtraCenterMass",
+    "ExtraForceMap",
+    "ExtraGlide",
+    "ExtraSpectraFingerprint",
+    "ExtraSearch",
+    "ExtraDecision",
+    "ExtraRootsAnchor",
+    "ExtraRunoff",
+    "ExtraTriangulate",
+    "ExtraAccuracy",
+    "ExtraHeatGrid",
+    "ExtraCoolRoute",
+    "ExtraPhotoO2",
+    "ExtraControls",
+    "ExtraPressure",
+    "ExtraStress",
+    "ExtraDomino",
+    "ExtraGap",
+    "ExtraPulley",
+    "ExtraVector",
+    "ExtraChecksum",
+    "ExtraDetect",
+    "DemoMudwatt",
+    "DemoCapillary",
+    "DemoOobleck",
+    "DemoSamara",
+    "DemoTreering",
+    "DemoLotus",
+    "DemoMagnet",
+    "DemoCam",
+    "DemoWave",
+    "DemoPinhole",
+    "DemoHover",
+    "DemoSpectra",
+    "DemoBookbot",
+    "DemoRamp"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "siteTitle": "STEM Camp Field Notebook",
+  "tagline": "Two camps, one notebook. Build it, measure it, defend it with data.",
+  "year": 2026,
+  "dates": "June 22 to 26 and July 6 to 10, 2026",
+  "location": "Hosted by Temple University College of Engineering",
+  "supabase": {
+    "url": "",
+    "anonKey": "",
+    "table": "collections"
+  },
+  "camps": [
+    { "id": "trees", "name": "From Trees to Tech", "sub": "Field. Forest. Future.", "accent": "#b04a2f", "tagline": "Nature as engineer: ecology, biomimicry, sensors, climate resilience.", "dates": "June 22 to 26, 2026", "startDate": "2026-06-22", "endDate": "2026-06-26", "campus": "Ambler Campus" },
+    { "id": "pystem", "name": "PY-STEM", "sub": "Signal. System. Science.", "accent": "#c77a2b", "tagline": "Applied STEM: biomedical, waves, optics, mechanics, materials, algorithms.", "dates": "July 6 to 10, 2026", "startDate": "2026-07-06", "endDate": "2026-07-10", "campus": "Main Campus" }
+  ]
+}

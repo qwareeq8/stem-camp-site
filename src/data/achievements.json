@@ -1,0 +1,10 @@
+[
+  { "id": "aw-data-detective", "name": "Data Detective", "icon": "search", "desc": "Sharpest evidence of the day: clean data and an inference that holds up.", "earnedBy": [] },
+  { "id": "aw-safety-captain", "name": "Safety Captain", "icon": "shield", "desc": "Ran the station with PPE on and zero safety flags.", "earnedBy": [] },
+  { "id": "aw-prototype-mvp", "name": "Prototype MVP", "icon": "wrench", "desc": "The build that carried the team: reliable and well made.", "earnedBy": [] },
+  { "id": "aw-best-teammate", "name": "Best Teammate", "icon": "users", "desc": "Lifted the whole crew across the rotating roles.", "earnedBy": [] },
+  { "id": "aw-best-redesign", "name": "Best Redesign", "icon": "redesign", "desc": "Changed one variable and measurably improved the result.", "earnedBy": [] },
+  { "id": "aw-cleanest-cleanup", "name": "Cleanest Cleanup", "icon": "sparkles", "desc": "Left the bench spotless and the materials reset.", "earnedBy": [] },
+  { "id": "aw-most-creative", "name": "Most Creative Design", "icon": "idea", "desc": "The most original approach that still met the win condition.", "earnedBy": [] },
+  { "id": "aw-comeback", "name": "Comeback of the Day", "icon": "comeback", "desc": "Earned the comeback bonus: a 20-point redesign gain or a strong evidence defense.", "earnedBy": [] }
+]
