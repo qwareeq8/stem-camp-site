@@ -57,10 +57,17 @@ function ExtraSiting() {
             <text x="20" y="15" fill={C} style={f.mono(700, 12, { upper: true, tracking: 0.04 })}>Evidence-based siting</text>
             <text x="20" y="27" fill={T.mute} style={f.mono(500, 8, { upper: true, tracking: 0.08 })}>{placed ? "drag the sensor to move it" : "predict first: where should the sensor go?"}</text>
 
+            <defs>
+              <clipPath id="siting-map-clip">
+                <rect x="16" y="34" width="408" height="184" rx="3" />
+              </clipPath>
+            </defs>
             <rect x="16" y="34" width="408" height="184" rx="3" fill={T.paper2} stroke={T.rule12} strokeWidth="1" />
-            {/* microclimate tints */}
-            <circle cx={TREE.x} cy={TREE.y} r="86" fill={waterC} opacity="0.13" />
-            <circle cx={PAVE.x} cy={PAVE.y} r="88" fill={A} opacity="0.16" />
+            {/* microclimate tints, clipped to the map so they do not spill past its edges */}
+            <g clipPath="url(#siting-map-clip)">
+              <circle cx={TREE.x} cy={TREE.y} r="86" fill={waterC} opacity="0.13" />
+              <circle cx={PAVE.x} cy={PAVE.y} r="88" fill={A} opacity="0.16" />
+            </g>
             {/* disturbance path */}
             <line x1={PA.x} y1={PA.y} x2={PB.x} y2={PB.y} stroke={T.mute} strokeWidth="6" opacity="0.3" />
             <line x1={PA.x} y1={PA.y} x2={PB.x} y2={PB.y} stroke={T.mute} strokeWidth="1" strokeDasharray="5 5" opacity="0.7" />

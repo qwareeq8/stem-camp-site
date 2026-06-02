@@ -2,7 +2,7 @@
 // labels, .card/.table/.badge/.btn). The slide nav, work-block timer, demo mount,
 // and every transition timing are preserved exactly; only the chrome is re-skinned.
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ListChecks, Pause, Play, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pause, Play, RotateCcw, TableOfContents, X } from "lucide-react";
 import { DEMOS } from "./components/demos/index.js";
 import { EXTRAS } from "./components/extras/index.js";
 import { PYB_DECK, PY_DECK, TREESB_DECK, TREES_DECK } from "./data/decks.js";
@@ -131,7 +131,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
             <ArrowLeft size={13} strokeWidth={2.2} /> Back
           </button>
           <button onClick={() => setNavOpen(true)} className="btn ghost focusable" style={{ padding: "7px 12px" }}>
-            <ListChecks size={13} strokeWidth={2.2} /> Index
+            <TableOfContents size={13} strokeWidth={2.2} /> Index
           </button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -365,8 +365,9 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
       {/* ===== index drawer: jump to any slide or station without going home ===== */}
       {navOpen && (
         <>
-          <div onClick={() => setNavOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(28,24,20,.34)", zIndex: 2200 }} />
-          <aside role="dialog" aria-modal="true" aria-label="Deck index" style={{ position: "fixed", left: 0, top: "var(--nav-h)", bottom: 0, height: "auto", width: "min(320px, calc(100vw - 28px))", background: T.surface, borderRight: `1px solid ${T.rule22}`, zIndex: 2201, overflowY: "auto", padding: "18px 16px 28px", boxShadow: "3px 0 22px rgba(0,0,0,.16)" }}>
+          {/* transparent catcher: the index stays open while you jump; clicking the deck outside it closes it */}
+          <div onClick={() => setNavOpen(false)} style={{ position: "fixed", inset: 0, background: "transparent", zIndex: 2200 }} />
+          <aside role="dialog" aria-modal="false" aria-label="Deck index" style={{ position: "fixed", left: 0, top: "var(--nav-h)", bottom: 0, height: "auto", width: "min(320px, calc(100vw - 28px))", background: T.surface, borderRight: `1px solid ${T.rule22}`, zIndex: 2201, overflowY: "auto", padding: "18px 16px 28px", boxShadow: "3px 0 22px rgba(0,0,0,.16)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
               <div className="section-title" style={{ margin: 0 }}>Index</div>
               <button onClick={() => setNavOpen(false)} aria-label="Close index" className="btn ghost focusable" style={{ padding: "5px 8px" }}><X size={15} strokeWidth={2.2} /></button>
@@ -374,7 +375,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
             <div className="meta" style={{ marginBottom: 10 }}>{act.code} {"·"} this station</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 18 }}>
               {slides.map((s, i) => (
-                <button key={i} onClick={() => { setPage(i); setNavOpen(false); }} className="focusable"
+                <button key={i} onClick={() => setPage(i)} className="focusable"
                   style={{ display: "flex", gap: 8, alignItems: "baseline", textAlign: "left", border: "none", cursor: "pointer",
                     background: i === page ? T.primaryTint : "transparent", borderLeft: `2px solid ${i === page ? T.primary : "transparent"}`,
                     borderRadius: 6, padding: "7px 9px", color: i === page ? T.primaryDark : T.ink, ...f.sans(i === page ? 600 : 400, 12.5, { lh: 1.3 }) }}>
@@ -390,7 +391,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
                   {list.map((a) => {
                     const cur = a.code === act.code;
                     return (
-                      <button key={a.code} onClick={() => { setNavOpen(false); onJump(a); }} className="focusable"
+                      <button key={a.code} onClick={() => onJump(a)} className="focusable"
                         style={{ display: "flex", gap: 8, alignItems: "baseline", textAlign: "left", border: "none", cursor: "pointer",
                           background: cur ? T.primaryTint : "transparent", borderRadius: 6, padding: "6px 9px", color: cur ? T.primaryDark : T.ink,
                           ...f.sans(cur ? 600 : 400, 12, { lh: 1.25 }) }}>

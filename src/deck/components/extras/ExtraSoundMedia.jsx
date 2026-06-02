@@ -100,12 +100,12 @@ function ExtraSoundMedia() {
           })}
           {leakAmt > 0.35 && <text x={(leaks[0] + leaks[1]) / 2} y={yC - hThroat - 42} textAnchor="middle" fill={warnC} style={f.mono(700, 9, { upper: true, tracking: 0.12 })}>sound leaks out</text>}
 
-          {/* ear */}
+          {/* ear: pinna with the concha facing the tube on the left */}
           <g transform={"translate(" + earX + " " + yC + ")"}>
-            <path d="M 7 -11 C -8 -14, -12 1, -6 9 C -3 13, 6 13, 9 6" fill={T.paper2} stroke={T.ink} strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
-            <path d="M 3 -6 C -4 -6, -6 2, -1 6" fill="none" stroke={T.ink} strokeWidth="1" opacity="0.6" />
-            <ellipse cx="-4" cy="1.5" rx="2.8" ry="3.6" fill={C} opacity="0.4" stroke={T.ink} strokeWidth="0.7" />
-            <circle cx="-4.5" cy="1.5" r="1.3" fill={T.ink} />
+            <path d="M 1 -13 C 10 -14, 13 -5, 10 4 C 8 10, 4 14, -1 13 C -6 12, -8 6, -6 1 C -8 -3, -6 -10, 1 -13 Z" fill={T.paper2} stroke={T.ink} strokeWidth="1.4" strokeLinejoin="round" />
+            <path d="M 4 -8 C 8 -3, 7 4, 2 8" fill="none" stroke={T.ink} strokeWidth="1" opacity="0.55" strokeLinecap="round" />
+            <ellipse cx="-2" cy="0" rx="3.2" ry="4.4" fill={C} opacity="0.4" stroke={T.ink} strokeWidth="0.7" />
+            <circle cx="-2.5" cy="0" r="1.5" fill={T.ink} />
           </g>
           <text x={earX + 2} y={yC + 30} textAnchor="middle" fill={T.mute} style={f.mono(600, 8, { upper: true, tracking: 0.12 })}>ear</text>
 

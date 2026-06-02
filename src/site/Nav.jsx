@@ -17,16 +17,9 @@ const LINKS = [
 ];
 
 function Mark() {
-  return (
-    <svg className="mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 21V11" stroke="#9D2235" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M12 13c-3.2 0-5-1.9-5-5 3.2 0 5 1.9 5 5Z" fill="#9D2235" opacity="0.85" />
-      <path d="M12 11c0-3 1.8-5 5-5 0 3-1.8 5-5 5Z" fill="#7A1A29" opacity="0.85" />
-      <circle cx="12" cy="21" r="1.5" fill="#9D2235" />
-      <path d="M12 17h4.5M16.5 17v-3" stroke="#BCA685" strokeWidth="1.3" strokeLinecap="round" />
-      <circle cx="16.5" cy="14" r="1.2" fill="#BCA685" />
-    </svg>
-  );
+  // Tree-and-circuit emblem served from public/logo.svg (BASE_URL keeps the path
+  // correct under the GitHub Pages project subpath).
+  return <img className="mark" src={`${import.meta.env.BASE_URL}logo.svg`} alt="" aria-hidden="true" width="22" height="22" />;
 }
 
 export default function Nav() {
