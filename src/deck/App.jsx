@@ -18,13 +18,12 @@ function App() {
   const onJump = (a) => { setCamp(a.camp || "trees"); setSel(a); };
 
   return (
-    <div className="stemdeck" style={{ background: T.paper, color: T.ink }}>
+    <div className="stemdeck" style={{ background: T.surface, color: T.ink }}>
       {sel ? (
         <Presentation
           key={sel.code}
           act={enrich(sel)}
           accent={themeFor(sel).acc}
-          ink={themeFor(sel).ink}
           campKey={sel.camp}
           onBack={() => { setCamp(sel.camp); setSel(null); }}
           onJump={onJump}

@@ -133,6 +133,12 @@ const SCHEMAS = {
       path: { type: "string", required: true },
       size: { type: "string", required: false },
       desc: { type: "string", required: false },
+      // Optional grouping hints used by the public Files page: camp ("trees" |
+      // "pystem" | "" for program-wide), the activity code a doc belongs to,
+      // and kind ("handout" | "guide" | "") for per-activity documents.
+      camp: { type: "string", required: false },
+      code: { type: "string", required: false },
+      kind: { type: "string", required: false },
     },
   },
   config: {

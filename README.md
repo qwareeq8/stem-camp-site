@@ -1,32 +1,39 @@
 # STEM Camp Field Notebook
 
-A static, GitHub-Pages-ready site for the two summer STEM camps, From Trees to
-Tech and PY-STEM. It has two parts:
+A static, GitHub Pages site for the two summer STEM camps, From Trees to Tech
+and PY-STEM. The project has two parts.
 
-1. **The interactive deck** (`src/deck/`): the camp's 64-component interactive
-   slide deck, modularized from a single 704 KB file into focused ES modules
-   with zero behavior change. It is the centerpiece of the site (the `/deck`
-   route).
-2. **The site** (`src/site/`): a field-notebook web app with the deck plus a
-   schedule, leaderboard, teams, achievements, prizes, tickets, a ticket store,
-   and a files/resources area, with a form-based, Supabase-auth-gated admin console for
-   authoring all of it. Data lives in a Supabase (Postgres) table, read at runtime
-   with the bundled JSON as an offline fallback so the public site always renders
-   with no credential. The site ships with the made-up participants cleared (empty
-   teams, roster, scores, and tickets) so a real camp starts from a blank
-   notebook; the real schedule, award and prize definitions, and files stay as a
-   starting point. `DeckPage` and `Admin` are lazy-loaded, so the initial bundle a
-   visitor downloads stays small; the deck loads only on `/deck`, split into
-   several cacheable chunks.
+1. **The interactive deck** (`src/deck/`) is the camp's 64-component slide deck.
+   It was modularized from a single file of roughly 700 KB into focused ES
+   modules with no behavior change, and it is the centerpiece of the site at the
+   `/deck` route.
+2. **The site** (`src/site/`) is a field-notebook web app. It wraps the deck
+   with a schedule, a leaderboard, teams, achievements, prizes, tickets, a
+   ticket store, and a document library, and it adds a form-based,
+   Supabase-authenticated admin console for authoring all of it. Data lives in a
+   Supabase (Postgres) table that the app reads at runtime, with the bundled JSON
+   as an offline fallback so the public site always renders without a credential.
+   The site ships with the sample participants cleared (empty teams, roster,
+   scores, and tickets) so a real camp starts from a blank notebook, while the
+   real schedule, the award and prize definitions, and the document library ship
+   populated as a starting point. The `DeckPage` and `Admin` routes are
+   lazy-loaded, so the initial bundle stays small and the deck loads only on
+   `/deck`, split into several cacheable chunks.
+
+The `/deck` route is a viewport-locked pane: the deck pins below the navigation
+bar, its slides scroll inside the deck card under the deck's own header, and that
+route shows no footer.
 
 ## Quick start
 
 ```bash
 npm install
-npm run dev        # Start the local dev server.
+npm run dev        # Start the local development server.
 npm run build      # Build the production site into dist/.
 npm run preview    # Serve the built dist/ locally.
 ```
+
+The project targets Node 24, which is the version the deploy workflow uses.
 
 ## Project structure
 
@@ -34,43 +41,63 @@ npm run preview    # Serve the built dist/ locally.
 src/
   deck/                 modularized interactive deck
     theme.js            palette, camp identity, font helpers
-    icons.jsx           lucide imports + icon maps + IconChip
+    icons.jsx           lucide imports, icon maps, IconChip
     ui/                 hooks.js, primitives.jsx
-    data/decks.js       the four activity arrays + CATMAP
+    data/decks.js       the four activity arrays and CATMAP
     components/         one file per Demo*/Extra*, plus shared.jsx and the
                         EXTRAS/DEMOS routing maps
     Presentation.jsx, Home.jsx, App.jsx
-    index.js            public surface (default App + all named exports)
+    index.js            public surface (default App plus all named exports)
   site/                 the website
     App.jsx             router (HashRouter routes)
     Nav.jsx, Footer.jsx
     ui.jsx              shared primitives (Page, Card, Badge, Btn, ...)
     styles.css          field-notebook stylesheet
-    lib/                supabaseStore.js (Supabase-backed data layer) + store.js
-                        re-export, supabaseAuth.js (email/password gate) +
+    lib/                supabaseStore.js (Supabase-backed data layer) and store.js
+                        re-export, supabaseAuth.js (email and password gate) and
                         auth.js re-export, supabaseClient.js (lazy SDK),
                         schemas.js (write validation), scoring.js
     pages/              Home, DeckPage, Schedule, Leaderboard, Teams,
                         Achievements, Store, Files, Admin (lazy), NotFound
-      admin/            form editors (one per collection) + shared.jsx contract
-                        + RawJsonEditor (the Advanced fallback)
+      admin/            form editors (one per collection), shared.jsx contract,
+                        and RawJsonEditor (the Advanced fallback)
     lib/sampleData.js   the demo data set the "Load sample data" button restores
   data/                 JSON seeds: config, teams, members, scores, tickets,
-                        catalog, schedule, achievements, prizes, files (teams/
-                        members/scores/tickets/catalog ship empty; the rest ship
-                        populated)
-supabase/               schema.sql (table + RLS), seed.sql (generated, optional)
-public/files/           downloadable docs + buy_list.csv
-tools/                  build/verify scripts (deck tests, screenshots,
-                        gen_seed.mjs, admin_preview.mjs)
+                        catalog, schedule, achievements, prizes, files (teams,
+                        members, scores, tickets, and catalog ship empty; the
+                        rest ship populated)
+supabase/               schema.sql (table and RLS), seed.sql (generated, optional)
+public/files/           the 77 downloadable program documents and buy_list.csv
+tools/                  build and verification scripts (deck tests, screenshots,
+                        content import, seed generation)
 reference/Deck.mono.jsx the pre-theme monolith (provenance baseline; deck:diff differs)
 ```
+
+## Document library
+
+The site publishes the full set of camp documents so campers and facilitators can
+download them. The `public/files/` directory holds 77 files: a student handout
+and an instructor guide for each of the 32 graded stations across both camps,
+the eight backup activities, each camp's packet, score sheets, and signage, the
+master curriculum and operations guide, the printable reward and competition kit,
+the staff setup and safety checklist, the Amazon procurement workbook, and the
+`buy_list.csv` shopping list.
+
+The Files page lets a visitor filter by camp and search by title, and it pairs
+each activity's handout and guide on one card. The Schedule adds a quick link to
+the handout and guide beside each graded block.
+
+Run `node tools/gen_files.mjs` to refresh this set from the source archive. It
+copies the documents into `public/files/`, regenerates `src/data/files.json` with
+the per-file metadata that the Files page and the admin Files editor consume, and
+keeps `supabase/seed.sql` in lockstep. Publishing the site makes every instructor
+guide publicly downloadable, which is intended.
 
 ## The deck modularization
 
 The deck was split with `tools/split_deck.cjs`, which slices each top-level
-declaration **verbatim** and generates only the import/export headers, so no
-component body is ever reauthored. Equivalence is verified:
+declaration **verbatim** and generates only the import and export headers, so no
+component body is ever reauthored. Two scripts verify equivalence.
 
 ```bash
 npm run deck:test   # Render all 64 deck components server-side.
@@ -85,7 +112,7 @@ a current byte-for-byte identity target.
 ## Data layer and admin
 
 All site data is JSON, stored as whole-collection blobs. The backend is
-**Supabase** (Postgres + PostgREST + Auth + Row Level Security). Each collection
+**Supabase** (Postgres, PostgREST, Auth, and Row Level Security). Each collection
 is one row in a `collections(name text primary key, data jsonb, updated_at)`
 table, which mirrors the bundled `src/data/*.json` model exactly, so schema
 validation is unchanged. See `supabase/schema.sql`.
@@ -93,80 +120,109 @@ validation is unchanged. See `supabase/schema.sql`.
 **Authoring console (forms).** The admin console (`/admin`) is a tabbed set of
 form editors, one per collection (Setup, Teams, Roster, Scores, Schedule, Awards,
 Tickets, Catalog, Prizes, Files), plus an "Advanced (JSON)" tab that keeps a raw
-editor as a fallback. The editors share one small contract (`src/site/pages/admin/shared.jsx`)
-and all go through the same validate-then-`commitCollection` path. The Schedule
-editor edits each day and its timed blocks; a block with no station code is a
-field visit, lunch, or other custom event. The roster uses **aliases**, never
-real names. A "Load sample data" button fills the site from
-`src/site/lib/sampleData.js` as a local-only preview (never written to Supabase),
-and "Reset all to seed" clears it.
+editor as a fallback. The editors share one small contract
+(`src/site/pages/admin/shared.jsx`), and they all go through the same
+validate-then-`commitCollection` path. The Schedule editor edits each day and its
+timed blocks; a block with no station code is a field visit, a lunch, or another
+custom event. The roster uses **aliases**, never real names. A "Load sample data"
+button fills the site from `src/site/lib/sampleData.js` as a local-only preview
+that is never written to Supabase, and "Reset all to seed" clears it.
 
-**Tickets.** A per-team reward currency (a camp-facing layer, not from the
-source kit): the `tickets` collection is a ledger of `{ teamId, amount, reason,
-ts }` entries, a positive amount grants and a negative redeems, and a team's
-balance is the running sum. Balances show on Teams, the Leaderboard, and the ticket
-Store; the admin grants and deducts them on the Tickets tab. The `catalog`
-collection is the ticket store (redeemable rewards with a cost in tickets), shown
-publicly at `/store`; redeeming a reward on the Tickets tab appends a negative
-ledger entry and records who picked it up (an alias).
+**Tickets.** Tickets are a per-team reward currency, a camp-facing layer that is
+not part of the source kit. The `tickets` collection is a ledger of
+`{ teamId, amount, reason, ts }` entries: a positive amount grants tickets and a
+negative amount redeems them, and a team's balance is the running sum. Balances
+show on Teams, the Leaderboard, and the ticket Store, and the admin grants and
+deducts them on the Tickets tab. The `catalog` collection is the ticket store of
+redeemable rewards priced in tickets, shown publicly at `/store`. Redeeming a
+reward on the Tickets tab appends a negative ledger entry and records the alias of
+whoever picked it up.
 
 **Read path (public, no credential).** On load the site fetches each collection
-from PostgREST with the publishable anon key (a plain `fetch`, so the
-`@supabase/supabase-js` SDK stays out of the initial bundle) through
-`src/site/lib/supabaseStore.js`. If the fetch fails, Supabase is unconfigured,
-or no row exists yet, it falls back to the compiled-in `src/data/*.json` seed,
-so the public site always renders with no credential. Saved changes appear to
-visitors on their next load (no CDN lag, no redeploy).
+from PostgREST with the publishable anon key, using a plain `fetch` so the
+`@supabase/supabase-js` SDK stays out of the initial bundle, through
+`src/site/lib/supabaseStore.js`. If the fetch fails, Supabase is unconfigured, or
+no row exists yet, the site falls back to the compiled-in `src/data/*.json` seed,
+so it always renders without a credential. Saved changes appear to visitors on
+their next load, with no CDN lag and no redeploy.
 
-**Write path (admin, session required).** Save in the admin console upserts the
-edited JSON to the table through `supabase-js` (loaded on demand), using the
+**Write path (admin, session required).** Saving in the admin console upserts the
+edited JSON to the table through `supabase-js`, which loads on demand, using the
 signed-in admin's session. The JSON is validated against a small per-collection
 schema (`src/site/lib/schemas.js`) before any network call. Row Level Security
-enforces the gate: anon may read, only an authenticated admin may write.
+enforces the gate: anyone may read, and only an authenticated admin may write.
 **Download JSON** remains as a no-auth fallback.
 
 **Config and secrets.** The project URL and publishable anon key come from
 `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`), with an
-optional non-secret `supabase` block in `src/data/config.json` as a local-dev
-fallback. Both are baked into the build; the anon key is designed to be public
-and is safe to expose (RLS does the enforcing). Empty or unset values mean
-seed-only: the site still renders and admin sign-in is disabled. No service-role
-key ever reaches the browser.
+optional non-secret `supabase` block in `src/data/config.json` as a
+local-development fallback. Both values are baked into the build. The anon key is
+designed to be public and is safe to expose, because RLS does the enforcing.
+Empty or unset values mean seed-only: the site still renders and admin sign-in is
+disabled. No service-role key ever reaches the browser.
 
-**Admin auth (Supabase email/password).** The admin signs in with the single
-Supabase Auth account created for the camp; Supabase issues a JWT held in this
-browser, and RLS uses it to allow writes. Reading the public bundle grants no
-write: only a holder of valid admin credentials gets a write-capable session.
-Create the one account and disable open sign-ups (or restrict writes by email,
-see `supabase/schema.sql`). The SDK is loaded only on demand (sign-in, an
-existing-session restore, or a save), so public visitors never download it.
+**Admin auth (Supabase email and password).** The admin signs in with the single
+Supabase Auth account created for the camp. Supabase issues a JWT that the browser
+holds, and RLS uses it to allow writes. Reading the public bundle grants no write,
+because only a holder of valid admin credentials gets a write-capable session.
+Create the one account and disable open sign-ups, or restrict writes by email as
+shown in `supabase/schema.sql`. The SDK loads only on demand, during sign-in, an
+existing-session restore, or a save, so public visitors never download it.
 
 **Public-read caveat (important).** The table's read policy makes **every
 collection publicly readable**, which is intended for a public leaderboard and
-schedule. Authentication guards writes only. Store only data safe to be public
-(team names, scores, schedule, public achievements). Do **not** put personal
-data, contact details, private notes, or anything sensitive about minors into
-the database.
+schedule. Authentication guards writes only. Store only data that is safe to be
+public, such as team names, scores, the schedule, and public achievements. Do
+**not** put personal data, contact details, private notes, or anything sensitive
+about minors into the database.
+
+## Testing and verification
+
+The project verifies itself with build-time gates rather than a unit-test suite.
+Run all of them before publishing, and expect each to stay green.
+
+```bash
+npm run build                                          # Build dist/.
+npm run deck:test                                      # Expect 64 components, 0 failures.
+node tools/build_audit.mjs && node tools/montage.mjs   # Expect 64 cells, 0 render errors.
+SAMPLE=1 node tools/shoot.mjs / /schedule /files /leaderboard /teams /store /achievements /admin /deck
+MOBILE=1 SAMPLE=1 node tools/shoot.mjs / /schedule /files /leaderboard /teams /store /achievements /admin /deck
+```
+
+Both screenshot runs must report nine of nine routes with `pageerrors=0`. The one
+console error per route is the expected Supabase-not-configured fallback. The
+montage prints six SVG console warnings (a negative `<rect>` height and a NaN
+transform) that come from the deck demos; they are known soft findings, not
+regressions. `SAMPLE=1` injects demo data into the screenshots, and `MOBILE=1`
+renders at the 390 px viewport.
 
 ## Deploy to GitHub Pages
 
-Deployment is handled by the GitHub Actions workflow at
-`.github/workflows/deploy.yml`.
+The GitHub Actions workflow at `.github/workflows/deploy.yml` handles deployment.
 
 1. Create a Supabase project.
 2. Run `supabase/schema.sql` in the Supabase SQL editor.
-3. Optionally run `supabase/seed.sql` to pre-populate schedule, awards, prizes,
-   files, and config.
+3. Run `supabase/seed.sql` to pre-populate the schedule, awards, prizes, files,
+   and config. Re-run it whenever the documents change so the live site shows the
+   full 77-file library.
 4. Create one Supabase Auth admin account.
 5. Disable open email sign-ups in Supabase.
-6. Add GitHub Actions secrets named `VITE_SUPABASE_URL` and
-   `VITE_SUPABASE_ANON_KEY`.
+6. Add the GitHub Actions secrets `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 7. Add the optional GitHub Actions variable `VITE_SUPABASE_TABLE=collections`.
-8. Set GitHub Pages source to **GitHub Actions**.
-9. Push `main`, or manually run the `Deploy site to GitHub Pages` workflow.
+8. Set the GitHub Pages source to **GitHub Actions**.
+9. Push `main`, or run the `Deploy site to GitHub Pages` workflow manually.
 
 Without the Actions secrets, the deployed site still renders from bundled seed
-data, but admin sign-in is disabled.
+data, but admin sign-in is disabled. `vite.config.js` sets `base: "./"` and the
+app uses `HashRouter`, so deep links work under any project subpath with no server
+rewrites.
 
-`vite.config.js` uses `base: "./"` and the app uses `HashRouter`, so deep links
-work under any project subpath with no server rewrites.
+## License
+
+This repository is private. The `package.json` sets `"private": true`, and the
+project ships no open-source license, so all rights are reserved by the camp
+organizers. Add a `LICENSE` file before sharing the code if you intend to grant
+reuse rights. The documents under `public/files/` are camp course materials,
+published so that campers and facilitators can download them.
+</content>
+</invoke>

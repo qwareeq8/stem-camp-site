@@ -29,10 +29,13 @@ export default function Store() {
       sub="Tickets are a camp-facing reward currency on top of the real points and awards. Earn them for teamwork, safety, and clean data, then redeem them for the rewards below."
     >
       <SectionTitle>Rewards you can redeem</SectionTitle>
+      <p className="muted" style={{ margin: "-2px 0 12px", fontSize: 13 }}>
+        Redeemed in person at the camp store with a facilitator; balances update on the leaderboard.
+      </p>
       {catalog.length === 0 ? (
         <Empty>No rewards listed yet. An admin adds redeemable rewards from the data console.</Empty>
       ) : (
-        <div className="grid cols-3">
+        <div className="grid auto">
           {catalog.map((c) => {
             const cost = Number(c.cost) || 0;
             return (
@@ -56,20 +59,25 @@ export default function Store() {
       {allTeams.length === 0 ? (
         <Empty>No teams yet. Balances appear once teams are added and tickets are granted.</Empty>
       ) : (
-        <div className="grid cols-3">
-          {allTeams.map((team) => (
-            <Card key={team.id}>
-              <div className="row">
-                <span style={{ fontWeight: 600 }}>{team.name}</span>
-                <span className="spacer" />
-                <CampBadge camp={team.camp} />
-              </div>
-              <div className="row" style={{ marginTop: 10, alignItems: "baseline", gap: 8 }}>
-                <span className="mono" style={{ fontSize: 28, fontWeight: 600, lineHeight: 1 }}>{balances[team.id] || 0}</span>
-                <span className="mono muted" style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>tickets</span>
-              </div>
-            </Card>
-          ))}
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Team</th>
+                <th scope="col" style={{ width: 120 }}>Camp</th>
+                <th scope="col" style={{ width: 110, textAlign: "right" }}>Tickets</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allTeams.map((team) => (
+                <tr key={team.id}>
+                  <td style={{ fontWeight: 600 }}>{team.name}</td>
+                  <td><CampBadge camp={team.camp} /></td>
+                  <td className="mono" style={{ textAlign: "right", fontSize: 16, fontWeight: 600 }}>{balances[team.id] || 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </Page>

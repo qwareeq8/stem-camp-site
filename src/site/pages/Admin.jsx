@@ -42,7 +42,8 @@ const TABS = [
   { id: "advanced", label: "Advanced", Comp: RawJsonEditor },
 ];
 
-// Collections the "Reset all" button restores and the sample button may touch.
+// Collections the "Reset all" button restores to the site's starting data.
+// (The "Load sample" button touches only the subset present in SAMPLE_DATA.)
 const ALL_COLLECTIONS = [
   "teams", "members", "scores", "tickets", "catalog",
   "schedule", "achievements", "prizes", "files", "config",
@@ -91,7 +92,7 @@ function LoginGate({ login }) {
             </div>
             <div className="field">
               <label htmlFor="admin-password">Password</label>
-              <div className="row" style={{ gap: 8, flexWrap: "nowrap" }}>
+              <div className="row" style={{ gap: 8, flexWrap: "nowrap", alignItems: "stretch" }}>
                 <input
                   id="admin-password"
                   className="input mono"
@@ -108,6 +109,7 @@ function LoginGate({ login }) {
                 <Btn
                   type="button"
                   variant="ghost"
+                  className="icon"
                   onClick={() => setShow((s) => !s)}
                   aria-pressed={show}
                   aria-label={show ? "Hide password" : "Show password"}
@@ -120,7 +122,7 @@ function LoginGate({ login }) {
               </p>
             </div>
             <div className="row">
-              <Btn type="submit" variant="accent" disabled={busy}>
+              <Btn type="submit" variant="accent" disabled={busy || !configured}>
                 <Lock size={14} aria-hidden="true" /> {busy ? "Signing in..." : "Sign in"}
               </Btn>
             </div>
@@ -137,7 +139,7 @@ function LoginGate({ login }) {
           </form>
         </Card>
         {!configured && (
-          <div className="notice" role="note">
+          <div className="notice info" role="note">
             <strong style={{ display: "block", marginBottom: 6 }}>Admin connection not configured</strong>
             The public site still opens with its starting data.
           </div>

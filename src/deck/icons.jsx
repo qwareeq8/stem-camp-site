@@ -1,5 +1,6 @@
 // Lucide icon imports plus the category, demo, and phase icon maps and the IconChip coin badge.
 import { Activity, Bot, Boxes, Cog, Compass, Cpu, Droplet, Droplets, Eye, Flower2, Layers, Leaf, Lightbulb, ListOrdered, Magnet as MagnetIcon, MessageSquare, Microscope, Mountain, Network, Ruler, Sparkles, Sprout, Telescope, Timer, TreeDeciduous, Trophy, Waves as WavesIcon, Wind, Zap } from "lucide-react";
+import { T } from "./theme.js";
 
 const CAT_ICON = {
   bioenergy: Zap, biomed: Activity, biomimicry: Leaf, cs: Cpu,
@@ -22,9 +23,8 @@ function IconChip({ icon: Ico, color, size = 28, stroke = 1.9 }) {
     <span aria-hidden style={{
       display: "inline-flex", alignItems: "center", justifyContent: "center",
       width: size, height: size, borderRadius: "50%", flex: "0 0 auto",
-      background: `radial-gradient(circle at 36% 30%, #ffffff, ${color}22 72%, ${color}14)`,
-      border: `1px solid ${color}4d`,
-      boxShadow: `inset 0 1px 1px #ffffffaa, 0 1px 2px ${color}33`,
+      background: T.paper,
+      border: `1px solid ${T.rule22}`,
     }}>
       <Ico size={ic} strokeWidth={stroke} color={color} />
     </span>

@@ -1,6 +1,9 @@
-// Site router and layout. The deck route renders in-flow inside the normal
-// layout, so the nav and footer stay visible and the deck scrolls with the page.
-// On mount the app hydrates every data collection from Supabase (PostgREST) so
+// Site router and layout. Most routes flow in the normal scrolling page with the
+// nav and footer. The deck route is the exception: it locks to the viewport
+// (height = 100dvh minus the sticky nav, footer omitted) so the deck pins below
+// the nav and its slides scroll inside the deck card instead of sliding under the
+// sticky site nav. On mount the app hydrates every data collection from Supabase
+// (PostgREST) so
 // visitors see committed changes without a redeploy; any failure silently leaves
 // the bundled seed in place, so the public site always renders.
 //
@@ -9,7 +12,7 @@
 // async chunks only when their route is visited, so the initial bundle that every
 // visitor downloads stays small.
 import { Suspense, lazy, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { hydrateAll } from "./lib/store.js";
 import Nav from "./Nav.jsx";
 import Footer from "./Footer.jsx";
@@ -43,10 +46,13 @@ export default function App() {
     // Fire-and-forget: live data on success, bundled seed on any failure.
     hydrateAll();
   }, []);
+  // The deck route is viewport-locked (see the layout note above); every other
+  // route scrolls normally with a footer.
+  const isDeck = useLocation().pathname === "/deck";
   return (
     <>
       <Nav />
-      <main>
+      <main className={isDeck ? "main-deck" : undefined}>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -62,7 +68,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      {!isDeck && <Footer />}
     </>
   );
 }

@@ -1,6 +1,6 @@
 // Teams: rosters and crews grouped by camp. Each card shows the team name,
 // camp badge, motto, member roster with role badges, and a footer with the
-// team total and stations scored (from the shared scoring math).
+// team total, ticket balance, and stations scored (from the shared scoring math).
 import { useCollection, useConfig } from "../lib/store.js";
 import { teamTotals, ticketBalances } from "../lib/scoring.js";
 import { Page, Card, Badge, SectionTitle, CampBadge, Empty } from "../ui.jsx";
@@ -68,7 +68,7 @@ export default function Teams() {
             <SectionTitle>
               {camp.name} &middot; {campTeams.length} {campTeams.length === 1 ? "team" : "teams"}
             </SectionTitle>
-            <div className="grid cols-2" style={{ marginBottom: 18, alignItems: "start" }}>
+            <div className="grid auto" style={{ marginBottom: 18, alignItems: "start" }}>
               {campTeams.map((team) => {
                 const stats = byId[team.id] || { total: 0, stations: 0 };
                 const crew = roster[team.id] || [];
@@ -90,16 +90,12 @@ export default function Teams() {
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          width: 34,
-                          height: 34,
-                          borderRadius: 8,
-                          border: "1px solid var(--rule22)",
+                          width: 28,
                           color: camp.accent,
-                          background: "var(--paper)",
                           flexShrink: 0,
                         }}
                       >
-                        <Emblem size={18} strokeWidth={1.8} />
+                        <Emblem size={24} strokeWidth={1.8} />
                       </span>
                       <h3 style={{ fontSize: 26, color: camp.accent }}>{team.name}</h3>
                     </div>

@@ -1,7 +1,8 @@
 // Theme tokens, camp palettes (Trees / PY-STEM), and font helpers shared across the deck.
 
 const T = {
-  paper:    "#FFFFFF",        // surface (Temple)
+  paper:    "#FFFFFF",        // surface (Temple): card fills + demo art stay white
+  surface:  "#FAFAF8",        // warm shell background (matches site --paper); roots/headers/nav use this
   paper2:   "#F2F1EE",        // surfaceAlt
   paper3:   "#E7E6E2",        // deeper alt
   ink:      "#222222",        // text (Temple brand black)
@@ -18,7 +19,13 @@ const T = {
   treesInk: "#2a5736",
   treesAcc: "#b04a2f",
   pyInk:    "#1c3257",
-  pyAcc:    "#c77a2b",
+  pyAcc:    "#A85F12",        // darkened amber so it passes WCAG AA as text on warm paper
+  // site brand (Cherry) + AA-safe small-text status colors, used in SHELL chrome only:
+  primary:     "#9D2235",
+  primaryDark: "#7A1A29",
+  primaryTint: "#F3E1E4",
+  warnText:    "#8A5310",
+  okText:      "#1E5C32",
 };
 const CAMP = {
   trees:  { ink: T.treesInk, acc: T.treesAcc, label: "From Trees to Tech",

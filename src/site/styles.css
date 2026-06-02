@@ -100,7 +100,7 @@ p { margin: 0 0 0.8em; }
 .page-head { margin-bottom: 26px; padding-bottom: 18px; border-bottom: 1.5px solid var(--ink); }
 .page-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary); margin-bottom: 8px; }
 .page-title { font-size: clamp(30px, 5vw, 46px); font-weight: 600; }
-.page-sub { color: var(--ink2); margin-top: 10px; max-width: 60ch; font-size: 16px; }
+.page-sub { color: var(--ink2); margin-top: 10px; max-width: 60ch; font-size: 16px; text-wrap: balance; }
 
 .section-title { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin: 30px 0 12px; display: flex; align-items: center; gap: 10px; }
 .section-title::after { content: ""; flex: 1; height: 1px; background: var(--rule12); }
@@ -408,10 +408,19 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .mono { font-family: var(--mono); }
 .empty { padding: 40px; text-align: center; color: var(--mute); border: 1px dashed var(--rule22); border-radius: var(--radius); background: var(--paper2); }
 .notice { font-size: 13px; color: var(--ink2); background: rgba(157, 34, 53, 0.08); border: 1px solid rgba(157, 34, 53, 0.25); border-radius: 8px; padding: 10px 13px; }
+/* neutral/info variant: a benign notice (e.g. "connection not configured") should
+   not wear the Cherry warning tint, which stays reserved for genuine cautions. */
+.notice.info { background: var(--paper2); border-color: var(--rule22); }
+/* inline "see more" links on the home cards: read as Cherry links, not muted captions */
+.see-more { color: var(--primary); }
+.see-more:hover { text-decoration: underline; }
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .spacer { flex: 1; }
-.progress { height: 8px; border-radius: 999px; background: var(--paper3); overflow: hidden; }
+.progress { height: 8px; border-radius: 999px; background: var(--paper3); overflow: hidden; box-shadow: inset 0 0 0 1px var(--rule12); }
 .progress > span { display: block; height: 100%; background: var(--accent); }
+/* compact standings bar shown only on the narrow leaderboard (the Progress column is
+   hidden on phones); keeps the standings visualization on mobile */
+.lb-progress-m { display: none; }
 
 /* ---- admin console ---- */
 .adm-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
@@ -536,8 +545,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .footer-contact-name { color: var(--mute); font-family: var(--mono); font-size: 11px; font-weight: 650; letter-spacing: 0.02em; white-space: nowrap; }
 .footer-actions { display: flex; gap: 6px; align-items: center; justify-content: flex-end; }
 .footer-icon-link {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -559,29 +568,129 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 .deck-host:focus { outline: none; }
 .deck-host:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.deck-host-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  border: 0;
-  border-radius: 0;
-  overflow: auto;
-  background: var(--paper);
+
+/* deck route: a viewport-locked pane. The route fills the height below the sticky
+   nav with no page scroll (the footer is omitted on /deck in App.jsx), so the deck
+   pins under the nav and slides scroll INSIDE the deck card -- never under the nav.
+   The deck-host hugs its content (flex 0 1 auto) so short slides do not strand the
+   bottom controls, and caps + scrolls internally when a slide is taller than the pane. */
+.main-deck { height: calc(100dvh - var(--nav-h)); overflow: hidden; }
+.deck-page { height: 100%; padding: 22px 0 16px; display: flex; flex-direction: column; }
+.deck-page .container { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.deck-page .page-head { margin-bottom: 14px; }
+.deck-page .deck-host { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+
+/* deck shell, themed in the site's vocabulary (static rules only -- no keyframes) */
+.deck-host .deck-landing { padding: 24px 26px 30px; }
+.deck-host .smallcaps { font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.deck-host .ticker { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.deck-host .focusable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.deck-host button.card { font: inherit; text-align: left; cursor: pointer; width: 100%; }
+.deck-host .camp-tile.is-active { border-color: var(--ink); box-shadow: inset 0 3px 0 var(--primary); }
+@media (max-width: 640px) { .deck-host .deck-landing { padding: 18px 14px 24px; } }
+@media (max-width: 640px) { .deck-host th.deck-kit-qty, .deck-host td.deck-kit-qty { text-align: left !important; } }
+
+/* top-align schedule rows and pin the code badge to the right edge so it anchors to a
+   column instead of floating in the middle of the row (desktop); mobile keeps its own order */
+.sched-row { align-items: flex-start; }
+.sched-row .badge { margin-left: auto; }
+
+/* ---- schedule per-activity document links ---- */
+.block-docs { row-gap: 4px; }
+.block-doc {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--ink2); border-bottom: 1px solid var(--rule22);
+  padding: 5px 0 2px; min-height: 28px;
 }
-.deck-host-fullscreen .stemdeck {
-  min-height: 100vh;
+.block-doc:hover { color: var(--primary); border-color: rgba(157, 34, 53, 0.4); }
+.block-doc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- files / document library ---- */
+.files-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
-.deck-fullscreen-exit {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 2100;
-  background: rgba(250, 250, 248, 0.92);
-  backdrop-filter: blur(8px);
+.files-chips { gap: 6px; }
+.files-search { position: relative; flex: 1; min-width: 220px; max-width: 360px; }
+.files-search .input { padding-left: 34px; padding-right: 32px; }
+.files-search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--mute); pointer-events: none; }
+.files-search-clear {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px;
+  background: transparent; color: var(--mute); cursor: pointer;
 }
-body.deck-fullscreen-active {
-  overflow: hidden;
+.files-search-clear:hover { background: var(--paper3); color: var(--ink); }
+.files-search-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.doc-camp-head {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 21px; margin: 34px 0 12px;
 }
+.doc-section { margin-bottom: 4px; }
+.section-title .doc-count {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  color: var(--ink2); background: var(--paper3);
+  border-radius: 999px; padding: 1px 8px; letter-spacing: 0.02em;
+}
+
+.doc-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.doc-card {
+  display: flex; flex-direction: column; gap: 7px;
+  background: var(--paper2); border: 1px solid var(--rule22);
+  border-radius: var(--radius); padding: 13px 15px;
+}
+a.doc-card { color: inherit; }
+a.doc-card:hover { border-color: var(--ink); transform: translateY(-1px); transition: 120ms; }
+a.doc-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.doc-row { display: flex; align-items: flex-start; gap: 9px; }
+.doc-icon { color: var(--mute); flex-shrink: 0; margin-top: 2px; }
+.doc-name { font-size: 15.5px; font-weight: 500; line-height: 1.22; margin: 0; flex: 1; min-width: 0; }
+.doc-desc {
+  margin: 0; color: var(--ink2); font-size: 12.5px; line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.doc-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 6px; }
+.doc-meta { font-size: 10.5px; color: var(--mute); letter-spacing: 0.03em; }
+/* A bordered pill so a single-document card reads as clearly clickable as the
+   two-button activity cards. The whole card is the link; this is the signifier. */
+.doc-get {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);
+  border: 1px solid var(--ink); border-radius: 8px; padding: 7px 10px; min-height: 30px; background: var(--paper);
+}
+a.doc-card:hover .doc-get { color: var(--primary); border-color: rgba(157, 34, 53, 0.4); }
+.doc-actions { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; padding-top: 6px; }
+.doc-dl { flex: 1; justify-content: center; padding: 7px 10px; font-size: 11px; min-height: 30px; }
+
+/* Auto-flowing card track: fills the row and self-collapses without fixed counts,
+   so an odd card count never strands a blank half-row of paper. */
+.grid.auto { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+/* On-brand placeholder tone (distinct from typed --ink) for form inputs. */
+.input::placeholder { color: var(--mute); opacity: 1; }
+
+/* ---- home hero: two columns so the wide right gutter carries the sessions ---- */
+.hero-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 30px; align-items: center; }
+.hero-aside { border: 1px solid var(--rule22); border-radius: var(--radius); background: var(--paper); padding: 14px 16px; }
+.hero-aside-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); margin-bottom: 10px; }
+.hero-session { padding: 9px 0; border-top: 1px solid var(--rule12); }
+.hero-session:first-of-type { border-top: 0; padding-top: 0; }
+.hero-session-name { font-family: var(--serif); font-size: 18px; font-weight: 600; margin-top: 5px; }
+
+/* schedule / up-next rows: time column is a class so a small screen can free it */
+.block-time { width: 110px; flex-shrink: 0; }
+.up-next-time { width: 92px; flex-shrink: 0; }
+
+/* achievements: pin recipient pills to a shared baseline across a row */
+.award-card { display: flex; flex-direction: column; }
+.award-recipients { margin-top: auto; padding-top: 12px; }
+.award-foot { margin-top: auto; }
 
 /* ---- responsive ---- */
 @media (max-width: 860px) {
@@ -593,9 +702,28 @@ body.deck-fullscreen-active {
   .nav-links.open { display: flex; }
   .nav-links a { padding: 10px 8px; }
   .nav-toggle { display: inline-flex; }
-  .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+  /* content grids collapse to one column; the 4-up quick stats stay 2x2 (the
+     860px rule) so four facts do not become four tall near-empty rows */
+  .grid.cols-2, .grid.cols-3, .grid.auto { grid-template-columns: 1fr; }
+  /* home hero stacks: text, then the sessions panel */
+  .hero-grid { grid-template-columns: 1fr; gap: 20px; }
+  /* schedule + up-next rows stack so the activity title gets the full width */
+  /* flex-basis uses !important to beat the inline `flex:1` on the title element,
+     forcing it onto its own full-width line below the time + code badge */
+  .sched-row { row-gap: 4px; }
+  .sched-row .block-time { width: auto; order: 0; }
+  .sched-row .badge { order: 1; margin-left: auto; }
+  .sched-row > div { order: 2; flex-basis: 100% !important; }
+  .up-next-row { row-gap: 4px; }
+  .up-next-row .up-next-time { width: auto; order: 0; }
+  .up-next-row .badge { order: 1; margin-left: auto; }
+  .up-next-row .up-next-title { order: 2; flex-basis: 100% !important; }
   /* iOS Safari auto-zooms a focused field whose font-size is under 16px */
   .input { font-size: 16px; }
+  /* files: let the search bar take the full width below the camp chips */
+  .files-toolbar { gap: 10px; }
+  .files-search { max-width: none; width: 100%; }
+  .doc-grid { grid-template-columns: 1fr; }
   .setup-basic-grid,
   .setup-dates-row,
   .setup-camp-meta-grid,
@@ -615,8 +743,11 @@ body.deck-fullscreen-active {
   .schedule-block-actions { justify-content: flex-start; }
   .adm-row-actions { opacity: 1; }
   .award-recipient-row .adm-grid { grid-template-columns: minmax(0, 1fr) 82px 34px !important; }
-  /* leaderboard: drop the decorative Progress column on phones so the 5-column
-     standings fit without horizontal scroll (the Total number carries it) */
-  .table th:nth-child(4), .table td:nth-child(4) { display: none; }
+  /* leaderboard (4-col): drop the decorative Progress column and the motto, and
+     keep team names on one line so phone rows stay compact */
+  .lb-table th:nth-child(3), .lb-table td:nth-child(3) { display: none; }
+  .lb-motto { display: none; }
+  .lb-progress-m { display: block; margin-top: 6px; }
+  .lb-name { white-space: nowrap; }
   .table th, .table td { padding: 9px 8px; }
 }

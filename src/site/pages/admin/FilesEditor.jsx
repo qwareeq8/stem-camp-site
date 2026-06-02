@@ -8,8 +8,18 @@ import {
   TextField, SelectField, TextAreaField, makeId, updateAt, removeAt, moveAt,
 } from "./shared.jsx";
 
-const CATEGORY_OPTIONS = ["Handouts", "Scoring", "Signage", "Logistics"];
-const TYPE_OPTIONS = ["docx", "pdf", "csv", "xlsx", "other"];
+const CATEGORY_OPTIONS = ["Activity", "Packet", "Scoring", "Signage", "Program", "Logistics"];
+const TYPE_OPTIONS = ["pdf", "docx", "xlsx", "csv", "other"];
+const CAMP_OPTIONS = [
+  { value: "", label: "Program-wide" },
+  { value: "trees", label: "From Trees to Tech" },
+  { value: "pystem", label: "PY-STEM" },
+];
+const KIND_OPTIONS = [
+  { value: "", label: "Standalone" },
+  { value: "handout", label: "Handout (campers)" },
+  { value: "guide", label: "Guide (facilitators)" },
+];
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return "";
@@ -72,7 +82,7 @@ export default function FilesEditor() {
   function addFile() {
     ed.setDraft([
       ...files,
-      { id: makeId("f"), name: "", category: "Handouts", type: "pdf", path: "", size: "", desc: "" },
+      { id: makeId("f"), name: "", category: "Activity", type: "pdf", path: "", size: "", desc: "", camp: "", code: "", kind: "" },
     ]);
   }
 
@@ -125,8 +135,30 @@ export default function FilesEditor() {
               label="Path"
               value={f.path}
               onChange={(v) => set(i, { path: v })}
-              placeholder="files/handout.docx"
+              placeholder="files/handout.pdf"
               mono
+            />
+          </div>
+          <div className="adm-grid" style={{ gridColumn: "1 / -1", gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+            <SelectField
+              label="Camp"
+              value={f.camp || ""}
+              onChange={(v) => set(i, { camp: v })}
+              options={CAMP_OPTIONS}
+            />
+            <TextField
+              label="Activity code"
+              value={f.code || ""}
+              onChange={(v) => set(i, { code: v })}
+              placeholder="TTT-01"
+              hint="Pairs a handout and guide on the Files page."
+              mono
+            />
+            <SelectField
+              label="Kind"
+              value={f.kind || ""}
+              onChange={(v) => set(i, { kind: v })}
+              options={KIND_OPTIONS}
             />
           </div>
           <div style={{ gridColumn: "1 / -1" }}>

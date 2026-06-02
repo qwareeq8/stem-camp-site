@@ -24,6 +24,9 @@ export default function Leaderboard() {
   const ranked = allRows.map((r, i) => ({ ...r, rank: i + 1 }));
   const rows = ranked.filter((r) => filter === "all" || r.camp === filter);
   const ceiling = maxTotal(allRows);
+  // Bars are proportional to the leader's total, so tightly-bunched totals read as a
+  // tight race instead of a blowout; the numeric Total column carries the exact figure.
+  const barPct = (total) => (ceiling > 0 ? Math.round((total / ceiling) * 100) : 100);
 
   // Group raw score entries by team for the per-station breakdown.
   const byTeam = {};
@@ -55,12 +58,11 @@ export default function Leaderboard() {
         <Empty>No standings yet. Scores will appear here once stations are judged.</Empty>
       ) : (
         <div className="table-wrap">
-          <table className="table">
+          <table className="table lb-table">
             <thead>
               <tr>
                 <th scope="col" style={{ width: 64 }}>Rank</th>
                 <th scope="col">Team</th>
-                <th scope="col" style={{ width: 120 }}>Stations</th>
                 <th scope="col" style={{ minWidth: 160 }}>Progress</th>
                 <th scope="col" style={{ width: 96, textAlign: "right" }}>Total</th>
               </tr>
@@ -75,13 +77,14 @@ export default function Leaderboard() {
                     </td>
                     <td>
                       <div className="row" style={{ gap: 10 }}>
-                        <span style={{ fontWeight: lead ? 700 : 600 }}>{t.name}</span>
+                        <span className="lb-name" style={{ fontWeight: lead ? 700 : 600 }}>{t.name}</span>
                         <CampBadge camp={t.camp} />
                       </div>
-                      {t.motto && <div className="muted" style={{ fontSize: 12 }}>{t.motto}</div>}
+                      <div className="lb-progress-m"><Progress value={barPct(t.total)} max={100} /></div>
+                      {t.motto && <div className="muted lb-motto" style={{ fontSize: 12 }}>{t.motto}</div>}
+                      <div className="mono muted" style={{ fontSize: 11, marginTop: 2 }}>{t.stations} stations scored</div>
                     </td>
-                    <td className="mono muted">{t.stations}</td>
-                    <td><Progress value={t.total} max={ceiling} /></td>
+                    <td><Progress value={barPct(t.total)} max={100} /></td>
                     <td className="mono" style={{ textAlign: "right", fontSize: lead ? 22 : 18, fontWeight: 600 }}>
                       {t.total}
                     </td>

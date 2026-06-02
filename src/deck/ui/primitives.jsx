@@ -6,12 +6,12 @@ function Btn({ children, onClick, color = T.ink, active, disabled, small, icon: 
     <button onClick={onClick} disabled={disabled} title={title} className="focusable"
       style={{
         display: "inline-flex", alignItems: "center", gap: 7,
-        padding: small ? "5px 11px" : "7px 14px",
-        borderRadius: 2,
+        padding: small ? "6px 12px" : "9px 15px",
+        borderRadius: 8,
         border: `1px solid ${active ? color : T.ink}`,
         background: active ? color : "transparent",
         color: active ? T.paper : color,
-        ...f.sans(600, small ? 11.5 : 13, { tracking: 0.04, upper: true }),
+        ...f.mono(600, small ? 11 : 12, { tracking: 0.06, upper: true }),
         cursor: disabled ? "default" : "pointer",
         opacity: disabled ? 0.32 : 1,
         transition: "background .18s, color .18s",
@@ -39,12 +39,13 @@ function Slider({ val, set, min, max, step = 1, color = T.ink, label, suffix }) 
 function Tag({ children, color = T.ink, style: sx }) {
   return (
     <span style={{
-      display: "inline-flex", alignItems: "center", gap: 5,
-      padding: "2px 7px",
-      borderRadius: 1,
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: "3px 9px",
+      borderRadius: 999,
       border: `1px solid ${color}`,
+      background: T.paper,
       color,
-      ...f.mono(600, 10, { tracking: 0.12, upper: true }),
+      ...f.mono(600, 10.5, { tracking: 0.06, upper: true }),
       ...sx,
     }}>
       {children}

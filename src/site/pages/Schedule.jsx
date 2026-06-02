@@ -3,9 +3,10 @@
 // filter focuses on one week or shows both. Camp dates and campus come from the
 // config camps[] entries; each schedule day carries a camp id so the weeks never
 // interleave.
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useCollection, useConfig } from "../lib/store.js";
 import { Page, Card, Badge, SectionTitle, CampBadge } from "../ui.jsx";
+import { FileText, BookOpen } from "lucide-react";
 
 const FILTERS = [
   { id: "all", label: "Both weeks" },
@@ -13,11 +14,24 @@ const FILTERS = [
   { id: "pystem", label: "PY-STEM" },
 ];
 
+const docHref = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\/+/, "")}`;
+
 export default function Schedule() {
   const schedule = useCollection("schedule");
+  const files = useCollection("files");
   const cfg = useConfig();
   const [filter, setFilter] = useState("all");
   const camps = (cfg.camps || []).filter((c) => filter === "all" || c.id === filter);
+
+  // Map each station code to its handout and guide so a block can link straight
+  // to its documents (see the Files page for the full library).
+  const docsByCode = useMemo(() => {
+    const m = {};
+    for (const f of files) {
+      if (f.category === "Activity" && f.code && f.kind) (m[f.code] ||= {})[f.kind] = f.path;
+    }
+    return m;
+  }, [files]);
 
   return (
     <Page
@@ -69,13 +83,31 @@ export default function Schedule() {
                   {(day.blocks || []).map((b, i, arr) => (
                     <div
                       key={(b.code || b.start || "") + "-" + i}
-                      className="row"
+                      className="row sched-row"
                       style={{ padding: "10px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule12)" : "none" }}
                     >
-                      <span className="mono muted" style={{ fontSize: 13, width: 110 }}>{b.start}&ndash;{b.end}</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 500 }}>{b.title}</div>
+                      <span className="mono muted block-time" style={{ fontSize: 13 }}>{b.start}&ndash;{b.end}</span>
+                      <div style={{ minWidth: 0 }}>
+                        {/* Scored stations read as ink headings. Unscored break rows
+                            (Lunch, showcases, defenses) stay muted so they sit quieter
+                            than stations, but get a heavier weight so the title out-ranks
+                            its own muted location subtext instead of blending into it. */}
+                        <div style={{ fontWeight: b.code ? 500 : 600, color: b.code ? "var(--ink)" : "var(--mute)" }}>{b.title}</div>
                         {b.location && <div className="muted" style={{ fontSize: 13 }}>{b.location}</div>}
+                        {b.code && docsByCode[b.code] && (
+                          <div className="row block-docs" style={{ gap: 12, marginTop: 5 }}>
+                            {docsByCode[b.code].handout && (
+                              <a className="block-doc mono" href={docHref(docsByCode[b.code].handout)} download>
+                                <FileText size={12} aria-hidden="true" /> Handout
+                              </a>
+                            )}
+                            {docsByCode[b.code].guide && (
+                              <a className="block-doc mono" href={docHref(docsByCode[b.code].guide)} download>
+                                <BookOpen size={12} aria-hidden="true" /> Guide
+                              </a>
+                            )}
+                          </div>
+                        )}
                       </div>
                       {b.code && <Badge tone={(b.camp || day.camp) === "trees" ? "trees" : "py"}>{b.code}</Badge>}
                     </div>

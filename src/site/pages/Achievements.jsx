@@ -73,13 +73,13 @@ export default function Achievements() {
       {achievements.length === 0 ? (
         <Empty>No awards logged yet.</Empty>
       ) : (
-        <div className="grid cols-3">
+        <div className="grid auto">
           {achievements.map((a) => {
             const Icon = ICONS[a.icon] || Award;
             const earned = awardRecipients(a.earnedBy);
             const earnedCount = earned.reduce((sum, recipient) => sum + recipient.count, 0);
             return (
-              <Card key={a.id} ticks>
+              <Card key={a.id} ticks className="award-card">
                 <div className="row" style={{ marginBottom: 12 }}>
                   <span
                     aria-hidden="true"
@@ -102,7 +102,7 @@ export default function Achievements() {
                 </div>
                 <h3 style={{ fontSize: 21, marginBottom: 6 }}>{a.name}</h3>
                 <p className="muted" style={{ margin: 0, fontSize: 14 }}>{a.desc}</p>
-                <div className="row" style={{ gap: 6, marginTop: 12 }}>
+                <div className="row award-recipients" style={{ gap: 6 }}>
                   {earned.length === 0 ? (
                     <span className="mono muted" style={{ fontSize: 11 }}>Not yet awarded</span>
                   ) : (
@@ -127,7 +127,7 @@ export default function Achievements() {
       ) : (
         <div className="grid cols-2">
           {prizes.map((p) => (
-            <Card key={p.id}>
+            <Card key={p.id} className="award-card">
               <div className="row" style={{ marginBottom: 10 }}>
                 <Badge tone={TIER_TONE[p.tier]}>{p.tier}</Badge>
                 <span className="spacer" />
@@ -135,7 +135,7 @@ export default function Achievements() {
               </div>
               <h3 style={{ fontSize: 22, marginBottom: 6 }}>{p.name}</h3>
               <p style={{ margin: "0 0 10px", fontSize: 15 }}>{p.desc}</p>
-              <div className="mono muted" style={{ fontSize: 12 }}>{p.criteria}</div>
+              <div className="mono muted award-foot" style={{ fontSize: 12 }}>{p.criteria}</div>
             </Card>
           ))}
         </div>

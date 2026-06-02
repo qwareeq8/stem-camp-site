@@ -91,17 +91,37 @@ export default function Home() {
       <div className="container">
         {/* hero */}
         <Card ticks padLg style={{ marginBottom: 22, background: "var(--paper2)" }}>
-          <div className="page-eyebrow">
-            {cfg.dates}
-            {cfg.dates && hostedBy ? " · " : ""}
-            {hostedBy}
-          </div>
-          <h1 style={{ fontSize: "clamp(34px, 6vw, 60px)", maxWidth: "16ch", marginTop: 6 }}>{cfg.siteTitle}</h1>
-          <p className="page-sub" style={{ fontSize: 17 }}>{cfg.tagline}</p>
-          <div className="row" style={{ marginTop: 18 }}>
-            <Btn to="/deck" variant="accent">Open the interactive deck</Btn>
-            <Btn to="/schedule" variant="ghost">View schedule</Btn>
-            <Btn to="/leaderboard" variant="ghost">Leaderboard</Btn>
+          <div className="hero-grid">
+            <div>
+              <div className="page-eyebrow">
+                {cfg.dates}
+                {cfg.dates && hostedBy ? " · " : ""}
+                {hostedBy}
+              </div>
+              <h1 style={{ fontSize: "clamp(34px, 6vw, 60px)", maxWidth: "16ch", marginTop: 6 }}>{cfg.siteTitle}</h1>
+              <p className="page-sub" style={{ fontSize: 17 }}>{cfg.tagline}</p>
+              <div className="row" style={{ marginTop: 18 }}>
+                <Btn to="/deck" variant="accent">Open the interactive deck</Btn>
+                <Btn to="/schedule" variant="ghost">View schedule</Btn>
+                <Btn to="/leaderboard" variant="ghost">Leaderboard</Btn>
+              </div>
+            </div>
+            {cfg.camps && cfg.camps.length > 0 && (
+              <div className="hero-aside">
+                <div className="hero-aside-label">Two sessions</div>
+                {cfg.camps.map((c) => (
+                  <div key={c.id} className="hero-session">
+                    <CampBadge camp={c.id} />
+                    <div className="hero-session-name" style={{ color: c.accent }}>{c.name}</div>
+                    <div className="mono muted" style={{ fontSize: 12, marginTop: 2 }}>
+                      {c.dates}
+                      {c.dates && campusLabel(c.campus) ? " · " : ""}
+                      {campusLabel(c.campus)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
 
@@ -136,6 +156,9 @@ export default function Home() {
                     {campus}
                   </div>
                 )}
+                <div className="mono" style={{ marginTop: 14, color: "var(--primary)", fontSize: 11.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  Open the deck &rarr;
+                </div>
               </Card>
             );
           })}
@@ -160,7 +183,7 @@ export default function Home() {
                   </div>
                 ))
               )}
-              <Link to="/leaderboard" className="mono muted" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Full standings &rarr;</Link>
+              <Link to="/leaderboard" className="mono see-more" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Full standings &rarr;</Link>
             </Card>
           </div>
           <div>
@@ -170,13 +193,13 @@ export default function Home() {
                 <>
                   <div className="meta" style={{ marginBottom: 10 }}>{day0.theme}</div>
                   {(day0.blocks || []).slice(0, 4).map((b, i, arr) => (
-                    <div key={(b.code || b.start || "") + "-" + i} className="row" style={{ padding: "7px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule12)" : "none" }}>
-                      <span className="mono muted" style={{ fontSize: 12, width: 92 }}>{b.start}-{b.end}</span>
-                      <span style={{ flex: 1 }}>{b.title}</span>
+                    <div key={(b.code || b.start || "") + "-" + i} className="row up-next-row" style={{ padding: "7px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--rule12)" : "none" }}>
+                      <span className="mono muted up-next-time" style={{ fontSize: 12 }}>{b.start}-{b.end}</span>
+                      <span className="up-next-title" style={{ flex: 1 }}>{b.title}</span>
                       {b.code && <Badge tone={(b.camp || day0.camp) === "trees" ? "trees" : "py"}>{b.code}</Badge>}
                     </div>
                   ))}
-                  <Link to="/schedule" className="mono muted" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Full schedule &rarr;</Link>
+                  <Link to="/schedule" className="mono see-more" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Full schedule &rarr;</Link>
                 </>
               ) : <div className="muted">No schedule yet.</div>}
             </Card>
