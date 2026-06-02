@@ -10,7 +10,7 @@
     "table": "collections"
   },
   "camps": [
-    { "id": "trees", "name": "From Trees to Tech", "sub": "Field. Forest. Future.", "accent": "#b04a2f", "tagline": "Nature as engineer: ecology, biomimicry, sensors, climate resilience.", "dates": "June 22 to 26, 2026", "startDate": "2026-06-22", "endDate": "2026-06-26", "campus": "Ambler Campus" },
-    { "id": "pystem", "name": "PY-STEM", "sub": "Signal. System. Science.", "accent": "#A85F12", "tagline": "Applied STEM: biomedical, waves, optics, mechanics, materials, algorithms.", "dates": "July 6 to 10, 2026", "startDate": "2026-07-06", "endDate": "2026-07-10", "campus": "Main Campus" }
+    { "id": "trees", "name": "From Trees to Tech", "sub": "Field. Forest. Future.", "accent": "#b04a2f", "tagline": "Nature as engineer: ecology, biomimicry, sensors, climate resilience.", "dates": "June 22 to 26, 2026", "startDate": "2026-06-22", "endDate": "2026-06-26", "campus": "Ambler Campus · Dixon 104" },
+    { "id": "pystem", "name": "PY-STEM", "sub": "Signal. System. Science.", "accent": "#A85F12", "tagline": "Applied STEM: biomedical, waves, optics, mechanics, materials, algorithms.", "dates": "July 6 to 10, 2026", "startDate": "2026-07-06", "endDate": "2026-07-10", "campus": "Main Campus · COE 102" }
   ]
 }
