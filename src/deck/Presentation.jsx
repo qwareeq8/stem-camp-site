@@ -150,7 +150,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
 
       {/* progress hairline */}
       <div style={{ height: 2, background: T.rule12, position: "relative" }}>
-        <div style={{ height: 2, background: T.primary, width: `${((page + 1) / total) * 100}%`,
+        <div style={{ height: 2, background: C, width: `${((page + 1) / total) * 100}%`,
           transition: "width .45s cubic-bezier(.22,1,.36,1)" }} />
       </div>
 
@@ -350,7 +350,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
               <span aria-hidden style={{
                 display: "block",
                 width: i === page ? 22 : 8, height: 4, borderRadius: 999,
-                background: i === page ? T.primary : T.rule22,
+                background: i === page ? C : T.rule22,
                 transition: "width .3s, background .25s",
               }} />
             </button>
@@ -377,8 +377,8 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
               {slides.map((s, i) => (
                 <button key={i} onClick={() => setPage(i)} className="focusable"
                   style={{ display: "flex", gap: 8, alignItems: "baseline", textAlign: "left", border: "none", cursor: "pointer",
-                    background: i === page ? T.primaryTint : "transparent", borderLeft: `2px solid ${i === page ? T.primary : "transparent"}`,
-                    borderRadius: 6, padding: "7px 9px", color: i === page ? T.primaryDark : T.ink, ...f.sans(i === page ? 600 : 400, 12.5, { lh: 1.3 }) }}>
+                    background: i === page ? `${C}1A` : "transparent", borderLeft: `2px solid ${i === page ? C : "transparent"}`,
+                    borderRadius: 6, padding: "7px 9px", color: i === page ? C : T.ink, ...f.sans(i === page ? 600 : 400, 12.5, { lh: 1.3 }) }}>
                   <span className="meta" style={{ minWidth: 18 }}>{String(i + 1).padStart(2, "0")}</span>
                   <span>{slideLabel(s)}</span>
                 </button>
@@ -393,7 +393,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
                     return (
                       <button key={a.code} onClick={() => onJump(a)} className="focusable"
                         style={{ display: "flex", gap: 8, alignItems: "baseline", textAlign: "left", border: "none", cursor: "pointer",
-                          background: cur ? T.primaryTint : "transparent", borderRadius: 6, padding: "6px 9px", color: cur ? T.primaryDark : T.ink,
+                          background: cur ? `${C}1A` : "transparent", borderRadius: 6, padding: "6px 9px", color: cur ? C : T.ink,
                           ...f.sans(cur ? 600 : 400, 12, { lh: 1.25 }) }}>
                         <span className="meta" style={{ minWidth: 38 }}>{a.code}</span>
                         <span>{a.t}</span>

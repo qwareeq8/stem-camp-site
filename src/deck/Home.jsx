@@ -76,6 +76,7 @@ function Home({ onSelect, camp, setCamp }) {
           return (
             <button key={k} role="tab" aria-selected={active}
               className={`card card-link focusable camp-tile${active ? " is-active" : ""}`}
+              style={{ "--camp-acc": t.acc }}
               onClick={() => { setCamp(k); setFilter("all"); }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                 <span className={`badge ${k === "trees" ? "trees" : "py"}`}>{k === "trees" ? "Trees" : "PY-STEM"}</span>
