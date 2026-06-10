@@ -18,6 +18,23 @@ create table if not exists public.collections (
   updated_at  timestamptz not null default now()
 );
 
+-- Keep updated_at server-authoritative: the database stamps every insert and
+-- update, so client clock skew never reaches the table.
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end
+$$;
+
+drop trigger if exists collections_touch on public.collections;
+create trigger collections_touch
+  before insert or update on public.collections
+  for each row execute function public.touch_updated_at();
+
 alter table public.collections enable row level security;
 
 -- Allow public reads because the leaderboard, schedule, teams, and achievements are meant to be visible without signing in.
@@ -30,7 +47,12 @@ create policy "collections public read"
   using (true);
 
 -- Allow authenticated writes only, so only a signed-in admin may insert or update rows.
--- Disable sign-ups so the only writer is the camp admin account.
+--
+-- IMPORTANT: this policy alone trusts every authenticated account. It is safe
+-- only because the camp creates exactly one account and disables open
+-- sign-ups (see the header). If sign-ups could ever be enabled, or more
+-- accounts exist, switch to the email-restricted policy at the bottom of this
+-- file, which pins writes to the single admin address.
 drop policy if exists "collections auth insert" on public.collections;
 create policy "collections auth insert"
   on public.collections
@@ -46,9 +68,10 @@ create policy "collections auth update"
   using (true)
   with check (true);
 
--- Use this optional stricter write gate if you cannot disable sign-ups.
--- Restrict writes to one email by replacing the two write policies above with the policy below.
--- Leave the app unchanged.
+-- Recommended hardening: restrict writes to the one admin email so the gate
+-- holds even if sign-ups are ever re-enabled or a second account appears.
+-- Replace the two write policies above with the policy below (fill in the
+-- real admin address). The app needs no change.
 --
 -- drop policy if exists "collections auth insert" on public.collections;
 -- drop policy if exists "collections auth update" on public.collections;
