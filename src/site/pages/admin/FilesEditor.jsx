@@ -2,7 +2,7 @@
 // Each file has a name, a category, a type, a public path, a human-readable
 // size, and a short description. The path is relative to public/, so the actual
 // file must be placed under public/files for the download link to resolve.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useEditor, SaveBar, RowCard, AddButton, EmptyRows,
   TextField, SelectField, TextAreaField, makeId, updateAt, removeAt, moveAt,
@@ -36,6 +36,12 @@ function fileHref(path) {
 
 function AutoSizeField({ path, value, onChange }) {
   const [status, setStatus] = useState("");
+  // The HEAD check below runs once per path change, not per parent render, so
+  // the current size and setter are read through a ref instead of effect deps.
+  const latest = useRef({ value, onChange });
+  useEffect(() => {
+    latest.current = { value, onChange };
+  });
 
   useEffect(() => {
     if (!path) {
@@ -50,19 +56,20 @@ function AutoSizeField({ path, value, onChange }) {
         const length = Number(res.headers.get("content-length"));
         const size = formatBytes(length);
         if (cancelled) return;
+        const { value: current, onChange: change } = latest.current;
         if (res.ok && size) {
           setStatus("");
-          if (size !== value) onChange(size);
+          if (size !== current) change(size);
         } else {
-          setStatus(value || "Size unavailable");
+          setStatus(current || "Size unavailable");
         }
       } catch {
-        if (!cancelled) setStatus(value || "Size unavailable");
+        if (!cancelled) setStatus(latest.current.value || "Size unavailable");
       }
     }
     readSize();
     return () => { cancelled = true; };
-  }, [path, value, onChange]);
+  }, [path]);
 
   return (
     <div className="field">
@@ -149,7 +156,7 @@ export default function FilesEditor() {
             <TextField
               label="Activity code"
               value={f.code || ""}
-              onChange={(v) => set(i, { code: v })}
+              onChange={(v) => set(i, { code: v.trim() })}
               placeholder="TTT-01"
               hint="Pairs a handout and guide on the Files page."
               mono

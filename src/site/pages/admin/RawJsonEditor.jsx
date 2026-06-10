@@ -3,9 +3,10 @@
 // allows, including fields the forms do not surface. It runs the same
 // validate-then-commit path as the forms, so a malformed edit is rejected before
 // any network call.
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getCollection,
+  useCollection,
   commitCollection,
   resetCollection,
   isOverridden,
@@ -14,7 +15,7 @@ import {
 import { validate } from "../../lib/schemas.js";
 import { Card, Badge, Btn, SectionTitle, downloadJson } from "../../ui.jsx";
 import { Database, Save, RotateCcw, Download } from "lucide-react";
-import { useEditor, SaveBar, TextField } from "./shared.jsx";
+import { useEditor, SaveBar, TextField, clone, reportDirtyDraft } from "./shared.jsx";
 
 const COLLECTIONS = [
   "teams", "members", "scores", "tickets", "catalog",
@@ -25,7 +26,11 @@ function PublishingConnection() {
   const ed = useEditor("config");
   const cfg = ed.draft || {};
   const supabase = cfg.supabase || {};
-  const setSupabase = (key, value) => ed.setDraft({ ...cfg, supabase: { ...supabase, [key]: value } });
+  // Rebase every edit on the live config so this panel only authors the
+  // supabase block; a raw-JSON save of other config keys on this same screen
+  // is never reverted by saving here.
+  const setSupabase = (key, value) =>
+    ed.setDraft({ ...clone(getCollection("config")), supabase: { ...supabase, [key]: value } });
 
   return (
     <div className="adm-row" style={{ marginBottom: 16 }}>
@@ -57,17 +62,39 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
   const [message, setMessage] = useState(null);
   const [overridden, setOverridden] = useState(() => isOverridden("teams"));
   const configured = isSupabaseConfigured();
+  const live = useCollection(name);
+
+  // True when the textarea no longer matches the stored value. Reported to the
+  // shared dirty registry so the console confirms before a tab switch.
+  const dirty = useMemo(() => {
+    try {
+      return JSON.stringify(JSON.parse(text)) !== JSON.stringify(live);
+    } catch {
+      return text !== JSON.stringify(live, null, 2);
+    }
+  }, [text, live]);
+  useEffect(() => {
+    reportDirtyDraft(`raw:${name}`, dirty);
+    return () => reportDirtyDraft(`raw:${name}`, false);
+  }, [name, dirty]);
+
+  // The store value the textarea was rendered from. When the store moves
+  // (hydrate, panel save) pristine text is refreshed so the editor never
+  // trusts a pre-hydration snapshot; typed edits are never touched.
+  const baseline = useRef(live);
+  useEffect(() => {
+    if (live === baseline.current) return;
+    if (text === JSON.stringify(baseline.current, null, 2)) {
+      setText(JSON.stringify(live, null, 2));
+      setOverridden(isOverridden(name));
+    }
+    baseline.current = live;
+  }, [name, live, text]);
 
   function select(next) {
     if (next === name) return;
-    // Guard against silently discarding unsaved edits: compare the current text
-    // to the stored value and confirm before switching collections.
-    let dirty;
-    try {
-      dirty = JSON.stringify(JSON.parse(text)) !== JSON.stringify(getCollection(name));
-    } catch {
-      dirty = text !== JSON.stringify(getCollection(name), null, 2);
-    }
+    // Guard against silently discarding unsaved edits: confirm before
+    // switching collections while the text differs from the stored value.
     if (dirty && !window.confirm(`Discard unsaved edits to "${name}" and switch to "${next}"?`)) return;
     setName(next);
     setText(JSON.stringify(getCollection(next), null, 2));

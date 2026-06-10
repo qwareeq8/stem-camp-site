@@ -23,6 +23,20 @@ export default function ScoresEditor() {
   const codeLabel = Object.fromEntries(codeOptions.map((c) => [c.value, c.label]));
   const codeOrder = Object.fromEntries(codeOptions.map((c, i) => [c.value, i]));
 
+  // A saved reference whose team or station no longer exists stays visible as
+  // a Missing option instead of a blank select that the next change would
+  // silently overwrite.
+  const teamOptionsFor = (teamId) => (
+    teamId && !teamOptions.some((opt) => opt.value === teamId)
+      ? [{ value: teamId, label: `Missing: ${teamId}` }, ...teamOptions]
+      : teamOptions
+  );
+  const stationOptionsFor = (code) => (
+    code && !codeOptions.some((opt) => opt.value === code)
+      ? [{ value: code, label: `Missing: ${code}` }, ...codeOptions]
+      : codeOptions
+  );
+
   const scores = ed.draft;
   const set = (i, patch) => ed.setDraft(updateAt(scores, i, patch));
   const scoreGroups = Object.values(scores.reduce((acc, score, index) => {
@@ -65,10 +79,17 @@ export default function ScoresEditor() {
     setEmptyStations((current) => current.filter((c) => c !== code));
   }
 
+  // The next station group needs a code no current group uses: the first
+  // unused schedule code, or a blank hand-typed group when the schedule has no
+  // coded blocks yet. undefined means every station is already listed.
+  const usedCodes = new Set([...scoreCodes, ...emptyStations]);
+  const nextStationCode = codeOptions.length
+    ? codeOptions.find((option) => !usedCodes.has(option.value))?.value
+    : (usedCodes.has("") ? undefined : "");
+
   function addStation() {
-    const used = new Set([...scoreCodes, ...emptyStations]);
-    const nextCode = codeOptions.find((option) => !used.has(option.value))?.value || "";
-    setEmptyStations((current) => current.includes(nextCode) ? current : [...current, nextCode]);
+    if (nextStationCode === undefined) return;
+    setEmptyStations((current) => current.includes(nextStationCode) ? current : [...current, nextStationCode]);
   }
 
   function setStationCode(group, code) {
@@ -118,13 +139,13 @@ export default function ScoresEditor() {
                 label="Station"
                 value={group.code}
                 onChange={(v) => setStationCode(group, v)}
-                options={codeOptions}
+                options={stationOptionsFor(group.code)}
               />
             ) : (
               <TextField
                 label="Station"
                 value={group.code}
-                onChange={(v) => setStationCode(group, v)}
+                onChange={(v) => setStationCode(group, v.trim())}
                 placeholder="S1"
                 mono
                 hint="No schedule blocks with codes yet; type the code by hand."
@@ -138,7 +159,7 @@ export default function ScoresEditor() {
                       label="Team"
                       value={score.teamId}
                       onChange={(v) => set(index, { teamId: v })}
-                      options={teamOptions}
+                      options={teamOptionsFor(score.teamId)}
                       hint={teamOptions.length ? undefined : "Add teams on the Teams tab first."}
                     />
                     <NumberField
@@ -172,7 +193,13 @@ export default function ScoresEditor() {
       ))}
 
       <div style={{ marginTop: 4 }}>
-        <AddButton onClick={addStation}>Add station</AddButton>
+        {nextStationCode === undefined ? (
+          <span className="muted" style={{ fontSize: 13 }}>
+            Every schedule station already has a score group.
+          </span>
+        ) : (
+          <AddButton onClick={addStation}>Add station</AddButton>
+        )}
       </div>
 
       <SaveBar ed={ed} />

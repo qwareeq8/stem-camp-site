@@ -109,7 +109,7 @@ export default function ScheduleEditor() {
                   <TextField
                     label="Station code"
                     value={b.code}
-                    onChange={(v) => setBlock(i, j, { code: v })}
+                    onChange={(v) => setBlock(i, j, { code: v.trim() })}
                     placeholder="TTT-03"
                     mono
                   />

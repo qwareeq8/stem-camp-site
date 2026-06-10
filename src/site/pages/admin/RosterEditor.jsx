@@ -2,7 +2,6 @@
 // roster). Each member has an alias display name, the team it rides with, and a
 // role. PRIVACY: the database is publicly readable, so the alias is a display
 // handle only, never a real camper name or any personal detail about a minor.
-import { useEffect } from "react";
 import {
   useEditor, useRefData, SaveBar, RowCard, AddButton, EmptyRows,
   TextField, SelectField, makeId, updateAt, removeAt, moveAt,
@@ -21,20 +20,22 @@ export default function RosterEditor() {
   const members = ed.draft;
   const set = (i, patch) => ed.setDraft(updateAt(members, i, patch));
 
-  useEffect(() => {
-    const next = members.map((m) => (
-      m.role === "counselor" && m.teamId ? { ...m, teamId: "" } : m
-    ));
-    if (JSON.stringify(next) !== JSON.stringify(members)) ed.setDraft(next);
-  }, [members]);
-
   function addMember() {
     ed.setDraft([...members, { id: makeId("m"), name: "", teamId: teamOptions[0]?.value || "", role: "camper" }]);
   }
 
+  // Counselors may ride with a team (the public Teams page shows them in the
+  // crew with a Counselor badge) or stay unassigned. A saved teamId whose team
+  // no longer exists stays visible as a Missing option instead of a blank
+  // select that the next change would silently overwrite.
   function teamOptionsFor(member) {
-    if (member.role === "counselor") return [{ value: "", label: "Not assigned" }];
-    return teamOptions;
+    const options = member.role === "counselor"
+      ? [{ value: "", label: "Not assigned" }, ...teamOptions]
+      : teamOptions;
+    if (member.teamId && !options.some((opt) => opt.value === member.teamId)) {
+      return [{ value: member.teamId, label: `Missing: ${member.teamId}` }, ...options];
+    }
+    return options;
   }
 
   return (
@@ -70,17 +71,16 @@ export default function RosterEditor() {
           />
           <SelectField
             label="Team"
-            value={m.role === "counselor" ? "" : m.teamId}
+            value={m.teamId}
             onChange={(v) => set(i, { teamId: v })}
             options={teamOptionsFor(m)}
-            disabled={m.role === "counselor"}
           />
           <SelectField
             label="Role"
             value={m.role}
             onChange={(v) => set(i, {
               role: v,
-              teamId: v === "counselor" ? "" : m.teamId || teamOptions[0]?.value || "",
+              teamId: m.teamId || (v === "counselor" ? "" : teamOptions[0]?.value || ""),
             })}
             options={ROLE_OPTIONS}
           />

@@ -44,6 +44,14 @@ export default function TeamsEditor() {
   const teams = ed.draft;
   const set = (i, patch) => ed.setDraft(updateAt(teams, i, patch));
 
+  // A saved camp id that no longer exists stays visible as a Missing option
+  // instead of a blank select that the next change would silently overwrite.
+  const campOptionsFor = (team) => (
+    team.camp && !campOptions.some((opt) => opt.value === team.camp)
+      ? [{ value: team.camp, label: `Missing: ${team.camp}` }, ...campOptions]
+      : campOptions
+  );
+
   function addTeam() {
     ed.setDraft([...teams, { id: makeId("t"), name: "", camp: campOptions[0].value, emblem: "circuit", motto: "" }]);
   }
@@ -74,7 +82,7 @@ export default function TeamsEditor() {
           />
           <div className="team-main-grid">
             <TextField label="Team name" value={t.name} onChange={(v) => set(i, { name: v })} placeholder="Moss Circuit" />
-            <SelectField label="Camp" value={t.camp} onChange={(v) => set(i, { camp: v })} options={campOptions} />
+            <SelectField label="Camp" value={t.camp} onChange={(v) => set(i, { camp: v })} options={campOptionsFor(t)} />
             <TextField label="Motto" value={t.motto} onChange={(v) => set(i, { motto: v })} placeholder="Power from the soil up." />
           </div>
         </RowCard>

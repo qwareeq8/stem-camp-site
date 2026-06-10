@@ -8,6 +8,7 @@ import { DayPicker } from "@daypicker/react";
 import "@daypicker/react/style.css";
 import {
   getCollection,
+  useCollection,
   commitCollection,
   resetCollection,
   isOverridden,
@@ -105,20 +106,51 @@ export function moveAt(arr, i, dir) {
   return next;
 }
 
+// Dirty drafts currently mounted, keyed per editor. The console checks this
+// before a tab switch so unsaved edits are never silently discarded.
+const dirtyDrafts = new Set();
+export function reportDirtyDraft(key, dirty) {
+  if (dirty) dirtyDrafts.add(key);
+  else dirtyDrafts.delete(key);
+}
+export function anyDirtyDraft() {
+  return dirtyDrafts.size > 0;
+}
+
 // The per-collection editor state: a working draft plus save/reset/download
 // actions. Editors read ed.draft, write with ed.setDraft, and drop <SaveBar/> in.
 export function useEditor(name) {
-  const [draft, setDraft] = useState(() => clone(getCollection(name)));
+  // Subscribe to the live store so a hydrate that lands after mount is seen.
+  const live = useCollection(name);
+  const [draft, setDraft] = useState(() => clone(live));
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null); // { tone: "ok" | "warn", text }
   const [overridden, setOverridden] = useState(() => isOverridden(name));
+  // The store value the draft was cloned from. When the store moves (hydrate,
+  // raw-JSON save, bulk data op) a pristine draft is refreshed to match; a
+  // dirty draft is never touched.
+  const baseline = useRef(live);
 
   const errors = useMemo(() => validateCollection(name, draft), [name, draft]);
   const configured = isSupabaseConfigured();
   const dirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(getCollection(name)),
-    [name, draft],
+    () => JSON.stringify(draft) !== JSON.stringify(live),
+    [draft, live],
   );
+
+  useEffect(() => {
+    if (live === baseline.current) return;
+    if (JSON.stringify(draft) === JSON.stringify(baseline.current)) {
+      setDraft(clone(live));
+      setOverridden(isOverridden(name));
+    }
+    baseline.current = live;
+  }, [name, live, draft]);
+
+  useEffect(() => {
+    reportDirtyDraft(name, dirty);
+    return () => reportDirtyDraft(name, false);
+  }, [name, dirty]);
 
   async function save() {
     if (errors.length) {
@@ -164,9 +196,9 @@ export function useEditor(name) {
 
 // ---- form field components (bound to a draft, controlled) ----
 
-let fieldSeq = 0;
 function useFieldId(prefix) {
-  return useMemo(() => `${prefix}-${(fieldSeq += 1)}`, [prefix]);
+  const id = useId();
+  return `${prefix}-${id}`;
 }
 
 export function TextField({ label, value, onChange, placeholder, hint, mono, type = "text", step }) {
@@ -213,7 +245,7 @@ export function TimeField({ label, value, onChange }) {
           placeholder="09:00"
           spellCheck={false}
         />
-        <div className="time-step-actions" aria-label={`${label} time controls`}>
+        <div className="time-step-actions" role="group" aria-label={`${label} time controls`}>
           <Btn
             type="button"
             variant="ghost"
@@ -242,6 +274,7 @@ export function DatePickerField({ label, value, onChange, startDate }) {
   const id = useId();
   const popoverId = `${id}-popover`;
   const wrapRef = useRef(null);
+  const triggerRef = useRef(null);
   const selected = dateFromIso(value);
   const defaultMonth = selected || dateFromIso(startDate) || new Date();
   const [open, setOpen] = useState(false);
@@ -254,13 +287,20 @@ export function DatePickerField({ label, value, onChange, startDate }) {
     if (selected) setMonth(selected);
   }, [selected?.getTime()]);
 
+  // Close the popover and return focus to the trigger so a keyboard user keeps
+  // their place (the dialog otherwise unmounts with focus inside it).
+  function close() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
+
   useEffect(() => {
     if (!open) return;
     function onPointerDown(e) {
-      if (!wrapRef.current?.contains(e.target)) setOpen(false);
+      if (!wrapRef.current?.contains(e.target)) close();
     }
     function onKeyDown(e) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") close();
     }
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -272,9 +312,11 @@ export function DatePickerField({ label, value, onChange, startDate }) {
 
   return (
     <div className="field date-picker-field" ref={wrapRef}>
-      <label id={`${id}-label`}>{label}</label>
+      <label id={`${id}-label`} htmlFor={`${id}-trigger`}>{label}</label>
       <button
         type="button"
+        id={`${id}-trigger`}
+        ref={triggerRef}
         className="input date-picker-trigger"
         aria-labelledby={`${id}-label`}
         aria-haspopup="dialog"
@@ -295,7 +337,7 @@ export function DatePickerField({ label, value, onChange, startDate }) {
             onSelect={(date) => {
               if (!date) return;
               onChange(isoFromDate(date));
-              setOpen(false);
+              close();
             }}
             startMonth={fromMonth}
             endMonth={toMonth}
@@ -352,21 +394,43 @@ export function SelectField({ label, value, onChange, options, hint, disabled })
 }
 
 export function IconChoiceField({ label, value, onChange, options, className = "" }) {
+  const labelId = useFieldId("icon");
+  const btnRefs = useRef([]);
   const current = value || options[0]?.value || "";
+  // The single tab stop for the radio group; falls back to the first option
+  // when the stored value matches none.
+  const currentIndex = Math.max(0, options.findIndex((o) => o.value === current));
+
+  // Radio-group keyboard model: arrows move (and select) within the group.
+  function onKeyDown(e, index) {
+    const dir =
+      e.key === "ArrowRight" || e.key === "ArrowDown" ? 1
+      : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1
+      : 0;
+    if (!dir) return;
+    e.preventDefault();
+    const next = (index + dir + options.length) % options.length;
+    onChange(options[next].value);
+    btnRefs.current[next]?.focus();
+  }
+
   return (
     <div className={`field icon-choice-field${className ? ` ${className}` : ""}`}>
-      <label>{label}</label>
-      <div className="icon-choice-grid" role="radiogroup" aria-label={label}>
-        {options.map(({ value: optionValue, label: optionLabel, Icon }) => {
+      <label id={labelId}>{label}</label>
+      <div className="icon-choice-grid" role="radiogroup" aria-labelledby={labelId}>
+        {options.map(({ value: optionValue, label: optionLabel, Icon }, index) => {
           const active = optionValue === current;
           return (
             <button
               key={optionValue}
+              ref={(el) => { btnRefs.current[index] = el; }}
               type="button"
               className={`icon-choice${active ? " active" : ""}`}
               onClick={() => onChange(optionValue)}
+              onKeyDown={(e) => onKeyDown(e, index)}
               role="radio"
               aria-checked={active}
+              tabIndex={index === currentIndex ? 0 : -1}
               aria-label={optionLabel}
               title={optionLabel}
             >
@@ -401,21 +465,25 @@ export function TextAreaField({ label, value, onChange, placeholder, hint, rows 
 
 // A single editable record: a bordered card with an optional title and a remove
 // button, plus a CSS-grid body whose columns the caller controls via `cols`.
-export function RowCard({ title, onRemove, onUp, onDown, children, cols = "1fr", className = "" }) {
+// `entityLabel` (or a string `title`) names the row inside the action buttons'
+// accessible names, e.g. "Remove Moss Circuit".
+export function RowCard({ title, entityLabel, onRemove, onUp, onDown, children, cols = "1fr", className = "" }) {
   const hasActions = Boolean(onUp || onDown || onRemove);
+  const subject = entityLabel || (typeof title === "string" ? title : "");
+  const actionName = (verb) => (subject ? `${verb} ${subject}` : verb);
   return (
     <div className={`adm-row${className ? ` ${className}` : ""}`}>
       {title != null && <div className="adm-row-head"><span className="mono">{title}</span></div>}
       {hasActions && (
-        <div className="adm-row-actions" aria-label="Row actions">
+        <div className="adm-row-actions" role="group" aria-label="Row actions">
           {onUp && (
-            <Btn variant="ghost" className="icon" onClick={onUp} aria-label="Move up"><ChevronUp size={13} aria-hidden="true" /></Btn>
+            <Btn variant="ghost" className="icon" onClick={onUp} aria-label={actionName("Move up")}><ChevronUp size={13} aria-hidden="true" /></Btn>
           )}
           {onDown && (
-            <Btn variant="ghost" className="icon" onClick={onDown} aria-label="Move down"><ChevronDown size={13} aria-hidden="true" /></Btn>
+            <Btn variant="ghost" className="icon" onClick={onDown} aria-label={actionName("Move down")}><ChevronDown size={13} aria-hidden="true" /></Btn>
           )}
           {onRemove && (
-            <Btn variant="ghost" className="icon" onClick={onRemove} aria-label="Remove"><Trash2 size={13} aria-hidden="true" /></Btn>
+            <Btn variant="ghost" className="icon" onClick={onRemove} aria-label={actionName("Remove")}><Trash2 size={13} aria-hidden="true" /></Btn>
           )}
         </div>
       )}
@@ -474,14 +542,15 @@ export function SaveBar({ ed }) {
 }
 
 // Used by editors that need the current list of teams/camps/station codes for
-// select inputs. Reads the live store (not a draft) so cross-references resolve.
+// select inputs. Subscribes to the live store (not a draft) so cross-references
+// resolve and pickers refresh when hydration or a save lands.
 export function useRefData() {
-  const teams = getCollection("teams") || [];
-  const members = getCollection("members") || [];
-  const config = getCollection("config") || {};
+  const teams = useCollection("teams") || [];
+  const members = useCollection("members") || [];
+  const config = useCollection("config") || {};
   const camps = config.camps || [];
-  const schedule = getCollection("schedule") || [];
-  const catalog = getCollection("catalog") || [];
+  const schedule = useCollection("schedule") || [];
+  const catalog = useCollection("catalog") || [];
   // Station codes that appear in the schedule, grouped for score/award pickers.
   const codes = [];
   for (const day of schedule) {

@@ -5,7 +5,7 @@
 // then Save upserts to the Supabase table under Row Level Security. Auth guards
 // writes only: the table's read policy makes all data publicly readable, so the
 // roster uses aliases and never real names or anything about minors.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "../lib/auth.js";
 import {
   setCollection,
@@ -15,6 +15,7 @@ import {
 import { SAMPLE_DATA } from "../lib/sampleData.js";
 import { Page, Card, Btn } from "../ui.jsx";
 import { Lock, LogOut, ShieldAlert, Eye, EyeOff } from "lucide-react";
+import { anyDirtyDraft } from "./admin/shared.jsx";
 
 import SetupEditor from "./admin/SetupEditor.jsx";
 import TeamsEditor from "./admin/TeamsEditor.jsx";
@@ -112,7 +113,7 @@ function LoginGate({ login }) {
                   className="icon"
                   onClick={() => setShow((s) => !s)}
                   aria-pressed={show}
-                  aria-label={show ? "Hide password" : "Show password"}
+                  aria-label="Show password"
                 >
                   {show ? <EyeOff size={14} aria-hidden="true" /> : <Eye size={14} aria-hidden="true" />}
                 </Btn>
@@ -155,8 +156,28 @@ function Console({ logout }) {
   // editor so it re-reads the store instead of keeping a stale draft.
   const [version, setVersion] = useState(0);
   const [notice, setNotice] = useState(null);
+  const tabRefs = useRef({});
   const active = TABS.find((t) => t.id === tab) || TABS[0];
   const ActiveEditor = active.Comp;
+
+  // Switching tabs unmounts the active editor, so a dirty draft must be
+  // confirmed away rather than silently discarded. Returns false on cancel.
+  function activateTab(id) {
+    if (id === tab) return true;
+    if (anyDirtyDraft() && !window.confirm("Discard unsaved changes and switch tabs?")) return false;
+    setTab(id);
+    setNotice(null);
+    return true;
+  }
+
+  // Roving tabindex: Left/Right arrows move and select within the tablist.
+  function onTabKeyDown(e, index) {
+    const dir = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    const next = TABS[(index + dir + TABS.length) % TABS.length];
+    if (activateTab(next.id)) tabRefs.current[next.id]?.focus();
+  }
 
   function loadSample() {
     // Local overlay only: never writes to Supabase. Reversible with "Reset all".
@@ -204,25 +225,32 @@ function Console({ logout }) {
       )}
 
       <div className="adm-tabs" role="tablist" aria-label="Data collections">
-        {TABS.map((t) => (
+        {TABS.map((t, i) => (
           <button
             key={t.id}
+            ref={(el) => { tabRefs.current[t.id] = el; }}
+            id={`adm-tab-${t.id}`}
             type="button"
             role="tab"
             aria-selected={t.id === tab}
+            aria-controls={t.id === tab ? "adm-tabpanel" : undefined}
+            tabIndex={t.id === tab ? 0 : -1}
             className={`adm-tab${t.id === tab ? " active" : ""}`}
-            onClick={() => { setTab(t.id); setNotice(null); }}
+            onClick={() => activateTab(t.id)}
+            onKeyDown={(e) => onTabKeyDown(e, i)}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      <ActiveEditor
-        key={`${tab}-${version}`}
-        onLoadSample={loadSample}
-        onResetAll={resetAll}
-      />
+      <div id="adm-tabpanel" role="tabpanel" aria-labelledby={`adm-tab-${tab}`}>
+        <ActiveEditor
+          key={`${tab}-${version}`}
+          onLoadSample={loadSample}
+          onResetAll={resetAll}
+        />
+      </div>
     </Page>
   );
 }

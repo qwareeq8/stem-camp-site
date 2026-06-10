@@ -8,8 +8,10 @@
 // admin's responsibility.
 
 // A field spec is { type, required } where type is one of:
-// "string", "number", "boolean", "array", "object". An item spec validates the
-// elements of an array collection; a record spec validates an object collection.
+// "string", "number", "boolean", "array", "object". An "array" field spec may
+// carry a nested item spec that validates each element as an object. An item
+// spec validates the elements of an array collection; a record spec validates
+// an object collection.
 
 function typeOf(v) {
   if (Array.isArray(v)) return "array";
@@ -31,6 +33,10 @@ function checkFields(obj, fields, path, errors) {
     const actual = typeOf(obj[key]);
     if (actual !== spec.type) {
       errors.push(`${path}.${key}: expected ${spec.type}, got ${actual}`);
+      continue;
+    }
+    if (spec.type === "array" && spec.item) {
+      obj[key].forEach((el, i) => checkFields(el, spec.item, `${path}.${key}[${i}]`, errors));
     }
   }
 }
@@ -86,7 +92,20 @@ const SCHEMAS = {
       day: { type: "string", required: true },
       date: { type: "string", required: false },
       theme: { type: "string", required: false },
-      blocks: { type: "array", required: true },
+      // Each block is one row on the public Schedule page; start/end/title are
+      // what the page renders unconditionally.
+      blocks: {
+        type: "array",
+        required: true,
+        item: {
+          start: { type: "string", required: true },
+          end: { type: "string", required: true },
+          title: { type: "string", required: true },
+          code: { type: "string", required: false },
+          camp: { type: "string", required: false },
+          location: { type: "string", required: false },
+        },
+      },
     },
   },
   achievements: {
@@ -150,7 +169,23 @@ const SCHEMAS = {
       dates: { type: "string", required: false },
       location: { type: "string", required: false },
       supabase: { type: "object", required: false },
-      camps: { type: "array", required: true },
+      // Each camp drives a section on Home, Schedule, Teams, and Store; id is
+      // the join key into teams and schedule rows.
+      camps: {
+        type: "array",
+        required: true,
+        item: {
+          id: { type: "string", required: true },
+          name: { type: "string", required: true },
+          sub: { type: "string", required: false },
+          accent: { type: "string", required: false },
+          tagline: { type: "string", required: false },
+          dates: { type: "string", required: false },
+          startDate: { type: "string", required: false },
+          endDate: { type: "string", required: false },
+          campus: { type: "string", required: false },
+        },
+      },
     },
   },
 };

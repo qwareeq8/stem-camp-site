@@ -3,16 +3,17 @@
 // site title, tagline, hosted-by line, dates, and year. The camps section is a list
 // editor over config.camps, where each camp's id is referenced by teams and the
 // schedule. Publishing connection settings live in Advanced.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import {
   useEditor, SaveBar, RowCard, AddButton,
   TextField, DatePickerField, NumberField, makeId, updateAt, removeAt, moveAt,
 } from "./shared.jsx";
+import { SectionTitle } from "../../ui.jsx";
 
 const ACCENT_OPTIONS = [
   { label: "Trees", value: "#b04a2f" },
-  { label: "PY-STEM", value: "#c77a2b" },
+  { label: "PY-STEM", value: "#A85F12" },
   { label: "Cherry", value: "#9D2235" },
   { label: "Forest", value: "#2a5736" },
 ];
@@ -67,6 +68,39 @@ function hslToHex(hue, saturation, lightness) {
   else if (hue < 300) [r, g, b] = [x, 0, c];
   else [r, g, b] = [c, 0, x];
   return `#${[r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+
+// Camp accents render as small text on the public pages' light paper (Home,
+// Schedule, Teams), so every color the picker offers must meet WCAG AA (4.5:1)
+// against it.
+const PAPER = "#FAFAF8";
+const MIN_CONTRAST = 4.5;
+
+function relativeLuminance(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const [lr, lg, lb] = [r, g, b].map((v) => {
+    const channel = v / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+}
+
+function contrastOnPaper(hex) {
+  const lum = relativeLuminance(hex);
+  const paperLum = relativeLuminance(PAPER);
+  return (Math.max(lum, paperLum) + 0.05) / (Math.min(lum, paperLum) + 0.05);
+}
+
+// Darken a tone just enough to pass AA on paper, keeping the hue recognizable.
+// Tones that already pass come back unchanged.
+function accessibleToneHex(hue, saturation, lightness) {
+  let l = lightness;
+  let hex = hslToHex(hue, saturation, l);
+  while (l > 0 && contrastOnPaper(hex) < MIN_CONTRAST) {
+    l -= 1;
+    hex = hslToHex(hue, saturation, l);
+  }
+  return hex;
 }
 
 function dateParts(value) {
@@ -124,16 +158,10 @@ function DateSummary({ label, value, className = "" }) {
   );
 }
 
-function hostedByLabel(value) {
-  const fallback = "Hosted by Temple University College of Engineering";
-  const clean = String(value || "").replace(/\s+/g, " ").trim();
-  if (!clean || /yusuf qwareeq/i.test(clean)) return fallback;
-  if (/^hosted by\b/i.test(clean)) return clean;
-  return `Hosted by ${clean}`;
-}
-
 function AccentPicker({ value, onChange }) {
   const current = value || ACCENT_OPTIONS[0].value;
+  const id = useId();
+  const popoverId = `${id}-popover`;
   const [open, setOpen] = useState(false);
   const [hue, setHue] = useState(hexToHue(current));
   const wrapRef = useRef(null);
@@ -184,8 +212,9 @@ function AccentPicker({ value, onChange }) {
           className={`accent-swatch accent-custom-trigger${!isPreset ? " active" : ""}`}
           style={!isPreset ? { background: current, color: "#fff" } : undefined}
           onClick={() => setOpen((v) => !v)}
-          role="radio"
-          aria-checked={!isPreset}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={open ? popoverId : undefined}
           aria-label="Custom accent color"
           title="Custom accent"
         >
@@ -193,10 +222,10 @@ function AccentPicker({ value, onChange }) {
         </button>
       </div>
       {open && (
-        <div className="accent-popover" role="dialog" aria-label="Custom accent color">
-          <label className="accent-custom-label" htmlFor="accent-hue">Hue</label>
+        <div id={popoverId} className="accent-popover" role="dialog" aria-label="Custom accent color">
+          <label className="accent-custom-label" htmlFor={`${id}-hue`}>Hue</label>
           <input
-            id="accent-hue"
+            id={`${id}-hue`}
             className="accent-hue-range"
             type="range"
             min="0"
@@ -205,12 +234,12 @@ function AccentPicker({ value, onChange }) {
             onChange={(e) => {
               const nextHue = Number(e.target.value);
               setHue(nextHue);
-              onChange(hslToHex(nextHue, 58, 42));
+              onChange(accessibleToneHex(nextHue, 58, 42));
             }}
           />
           <div className="accent-tone-grid" role="radiogroup" aria-label="Custom accent tone">
             {TONE_OPTIONS.map((tone) => {
-              const color = hslToHex(hue, tone.saturation, tone.lightness);
+              const color = accessibleToneHex(hue, tone.saturation, tone.lightness);
               const active = color.toLowerCase() === String(current).toLowerCase();
               return (
                 <button
@@ -240,20 +269,20 @@ export default function SetupEditor() {
   // Update a top-level config key immutably.
   const setKey = (key, value) => ed.setDraft({ ...cfg, [key]: value });
 
-  useEffect(() => {
-    const normalized = hostedByLabel(cfg.location);
-    if (normalized !== (cfg.location || "")) setKey("location", normalized);
-  }, [cfg.location]);
-
   function withDerivedDates(nextCamps) {
-    return {
+    // Derive a dates label only where picker dates exist; a legacy row may
+    // carry only its hand-written string, which unrelated edits must keep.
+    const next = {
       ...cfg,
-      dates: formatOverallDates(nextCamps),
-      camps: nextCamps.map((camp) => ({
-        ...camp,
-        dates: formatDateRange(camp.startDate, camp.endDate, true),
-      })),
+      camps: nextCamps.map((camp) => (
+        camp.startDate || camp.endDate
+          ? { ...camp, dates: formatDateRange(camp.startDate, camp.endDate, true) }
+          : camp
+      )),
     };
+    const overall = formatOverallDates(next.camps);
+    if (overall) next.dates = overall;
+    return next;
   }
 
   // Camp list helpers: patch, add, remove, and reorder within config.camps.
@@ -276,24 +305,36 @@ export default function SetupEditor() {
         and the schedule reference by id.
       </div>
 
-      <h3 style={{ margin: "0 0 8px" }}>Site basics</h3>
+      <SectionTitle>Site basics</SectionTitle>
       <div className="adm-row setup-site-row">
         <div className="setup-basic-grid">
           <TextField label="Site title" value={cfg.siteTitle} onChange={(v) => setKey("siteTitle", v)} placeholder="STEM Camp Field Notebook" />
           <div className="setup-year-field">
-            <NumberField label="Year" value={cfg.year} onChange={(v) => setKey("year", v)} placeholder="2026" />
+            <NumberField
+              label="Year"
+              value={cfg.year}
+              onChange={(v) => {
+                // Clearing an optional number must DELETE the key, not store
+                // "": the schema check uses hasOwnProperty, so an own
+                // `year: ""` would fail validation and block Save.
+                const next = { ...cfg };
+                if (v === "") delete next.year; else next.year = v;
+                ed.setDraft(next);
+              }}
+              placeholder="2026"
+            />
           </div>
           <div className="setup-wide-field">
             <TextField label="Tagline" value={cfg.tagline} onChange={(v) => setKey("tagline", v)} placeholder="Two camps, one notebook." />
           </div>
           <div className="setup-dates-row">
             <DateSummary label="Dates" value={cfg.dates || formatOverallDates(camps)} className="setup-overall-dates" />
-            <TextField label="Hosted by" value={hostedByLabel(cfg.location)} onChange={(v) => setKey("location", v)} placeholder="Hosted by Temple University College of Engineering" />
+            <TextField label="Hosted by" value={cfg.location} onChange={(v) => setKey("location", v)} placeholder="Hosted by Temple University College of Engineering" />
           </div>
         </div>
       </div>
 
-      <h3 style={{ margin: "0 0 8px" }}>Camps</h3>
+      <SectionTitle>Camps</SectionTitle>
       {camps.map((c, i) => (
         <RowCard
           key={c.id || i}
