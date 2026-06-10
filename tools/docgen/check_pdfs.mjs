@@ -38,6 +38,7 @@ function irFragments(ir) {
   const frags = [];
   const headings = [];
   const tables = [];
+  const writeLabels = new Set();
   const walk = (blocks) => {
     for (const b of blocks) {
       if (b.kind === "table") {
@@ -51,12 +52,14 @@ function irFragments(ir) {
         continue;
       }
       if (b.kind === "sheet") {
-        // Materials sheets render as item cards with their own field labels,
-        // so their spreadsheet header row does not appear verbatim.
+        // Materials sheets render as ledger entries with their own field
+        // labels, so their spreadsheet header row does not appear verbatim,
+        // and the Amazon URL column (11) prints as its search terms.
         const isMaterials = MAT_HEADERS.every((h, i) => (b.rows[0] || [])[i] === h);
         for (const [ri, row] of b.rows.entries()) {
           if (isMaterials && ri === 0) continue;
-          for (const v of row) {
+          for (const [ci, v] of row.entries()) {
+            if (isMaterials && ci === 11) continue;
             if (v && !DROPPED_CELLS.has(v)) frags.push(v);
           }
         }
@@ -67,13 +70,17 @@ function irFragments(ir) {
       // compare on the content runs only, mirroring the renderer.
       const isStep =
         b.runs[0] && /^\d+\s*$/.test(b.runs[0].t.trim()) && (b.hanging || 0) >= 300;
-      const text = (isStep ? b.runs.slice(1) : b.runs)
-        .map((r) => r.t)
-        .join("")
-        .replace(FILL_RE, " ")
-        .replace(/^\s*[•□]\s*/, "")
-        .trim();
+      const raw = (isStep ? b.runs.slice(1) : b.runs).map((r) => r.t).join("");
+      const text = raw.replace(FILL_RE, " ").replace(/^\s*[•□]\s*/, "").trim();
       if (text) frags.push(text);
+      // A write-in row prints its label text beside a ruled fill that
+      // extracts as nothing, so each printed label line is a legitimate
+      // last-line-of-page; remember them for the dangling-label check.
+      if (FILL_RE.test(raw)) {
+        for (const line of text.split("\n")) {
+          if (line.trim()) writeLabels.add(squash(line));
+        }
+      }
       const s = b.runs[0] ? b.runs[0].sz : 0;
       if (s === 21 || s === 18 || (s === 22 && b.runs[0].b) || /^Phase\s+\d/.test(b.runs[0] ? b.runs[0].t : "")) {
         headings.push(text);
@@ -88,7 +95,7 @@ function irFragments(ir) {
           .trim()
       : "";
   walk(ir.blocks);
-  return { frags, headings, tables };
+  return { frags, headings, tables, writeLabels };
 }
 
 // Layout mode preserves the visual line structure (for last-line heading
@@ -111,7 +118,7 @@ function main() {
     const readingPages = pdfPages(pdfPath, "reading");
     const pagesSquashed = readingPages.map(squash);
     const all = pagesSquashed.join("");
-    const { frags, headings, tables } = irFragments(ir);
+    const { frags, headings, tables, writeLabels } = irFragments(ir);
     const problems = [];
 
     for (const f of frags) {
@@ -120,14 +127,44 @@ function main() {
     }
 
     const headKeys = new Set(headings.map(squash).filter(Boolean));
-    for (const [i, page] of pages.entries()) {
+    // Content lines per page, with the printed footer ("... | ... Page N of
+    // M") dropped from the tail.
+    const contentByPage = pages.map((page) => {
       const lines = page.split("\n").map((l) => l.trim()).filter(Boolean);
-      // The printed footer is not part of pdftotext body output (it is, last
-      // lines include "Page N of M"); drop trailing footer lines first.
       let last = lines.length - 1;
       while (last >= 0 && /Page \d+ of \d+|\|/.test(lines[last])) last--;
-      if (last >= 0 && headKeys.has(squash(lines[last]))) {
-        problems.push(`page ${i + 1} ends with heading: ${lines[last].slice(0, 60)}`);
+      return lines.slice(0, last + 1);
+    });
+    const BULLET = /^▪/;
+    const STEP = /^\d{2}\s/;
+    for (const [i, content] of contentByPage.entries()) {
+      if (content.length > 0 && headKeys.has(squash(content[content.length - 1]))) {
+        problems.push(`page ${i + 1} ends with heading: ${content[content.length - 1].slice(0, 60)}`);
+      }
+      // A page whose body is one or two lines is an orphan unless it is a
+      // divider page, which opens with a short all-uppercase display line.
+      const isDivider = content.length > 0 && content[0] === content[0].toUpperCase() && content[0].length < 40;
+      if (content.length > 0 && content.length <= 2 && !isDivider) {
+        problems.push(`page ${i + 1} is nearly blank: ${content.join(" / ").slice(0, 70)}`);
+      }
+      // A short label ending in a colon at the very bottom of a page sits
+      // stranded from the list or table it introduces. Write-in labels are
+      // exempt: their ruled fill prints no text but sits on the same line.
+      const lastLine = content[content.length - 1] || "";
+      if (
+        /:\s*$/.test(lastLine) && lastLine.length < 45 && !lastLine.includes("_") &&
+        !writeLabels.has(squash(lastLine))
+      ) {
+        problems.push(`page ${i + 1} ends with a dangling label: ${lastLine.slice(0, 60)}`);
+      }
+      // A page must not open with the single last item of a list that runs
+      // on from the previous page.
+      const prev = i > 0 ? contentByPage[i - 1] : [];
+      const prevLast = prev[prev.length - 1] || "";
+      for (const marker of [BULLET, STEP]) {
+        if (!marker.test(content[0] || "") || !marker.test(prevLast)) continue;
+        const more = content.slice(1, 6).some((l) => marker.test(l));
+        if (!more) problems.push(`page ${i + 1} starts with a stranded list item: ${content[0].slice(0, 60)}`);
       }
     }
 

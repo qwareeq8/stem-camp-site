@@ -183,9 +183,13 @@ function renderWrite(b) {
 }
 
 function renderListGroup(kind, items) {
+  // Short lists stay on one page so a break never strands a single item;
+  // long lists may break, but never inside an item.
+  const totalText = items.reduce((n, b) => n + textOf(b).length, 0);
+  const keep = items.length <= 4 || totalText < 360 ? " keep" : "";
   if (kind === "step") {
     const lis = items.map((b) => `<li>${renderRuns(b.runs.slice(1))}</li>`).join("\n");
-    return `<ol>\n${lis}\n</ol>`;
+    return `<ol class="steps${keep}">\n${lis}\n</ol>`;
   }
   const strip = (b) => {
     const runs = b.runs.slice();
@@ -195,10 +199,10 @@ function renderListGroup(kind, items) {
   if (kind === "check") {
     const danger = items.filter((b) => b.runs[0].color === "B23A3A").length > items.length / 2;
     const lis = items.map((b) => `<li>${renderRuns(strip(b))}</li>`).join("\n");
-    return `<ul class="checklist${danger ? " role-danger" : ""}">\n${lis}\n</ul>`;
+    return `<ul class="checklist${danger ? " role-danger" : ""}${keep}">\n${lis}\n</ul>`;
   }
   const lis = items.map((b) => `<li>${renderRuns(strip(b))}</li>`).join("\n");
-  return `<ul>\n${lis}\n</ul>`;
+  return `<ul class="bullets${keep}">\n${lis}\n</ul>`;
 }
 
 // ---- tables --------------------------------------------------------------------
@@ -337,6 +341,17 @@ function renderFlow(blocks, camp, opts = {}) {
       out.push(renderListGroup(kind, items));
       continue;
     }
+    if (kind === "probfix") {
+      // Problem-and-fix runs travel as one unit so a lone pair never strands.
+      const items = [];
+      while (i < blocks.length && blocks[i].kind === "p" && classifyPara(blocks[i]) === "probfix") {
+        items.push(blocks[i]);
+        i++;
+      }
+      const inner = items.map(renderProbfix).join("\n");
+      out.push(items.length <= 5 ? `<div class="keep">${inner}</div>` : inner);
+      continue;
+    }
     i++;
     switch (kind) {
       case "eyebrow": {
@@ -358,9 +373,35 @@ function renderFlow(blocks, camp, opts = {}) {
         headerDone = true;
         break;
       }
-      case "h2":
-        out.push(`<h2${roleClassOf(b)}>${esc(textOf(b).trim())}</h2>`);
+      case "h2": {
+        // A short section (the cleanup-and-sources tail, a heading over one
+        // table or a small list) stays whole on one page.
+        let j = i;
+        let hasSources = false;
+        while (j < blocks.length) {
+          const nb = blocks[j];
+          if (nb.kind === "pagebreak") break;
+          if (nb.kind === "table") {
+            if (nb.rows.length > 12) break;
+            j++;
+            continue;
+          }
+          const k = classifyPara(nb);
+          if (k === "eyebrow" || k === "h2" || k === "title" || k === "kicker") break;
+          if (k === "sources") hasSources = true;
+          j++;
+        }
+        const span = j - i;
+        if ((hasSources && span <= 6) || span <= 3) {
+          out.push(`<div class="keep"><h2${roleClassOf(b)}>${esc(textOf(b).trim())}</h2>`);
+          out.push(renderFlow(blocks.slice(i, j), camp, { ...opts, headerDone: true }));
+          out.push("</div>");
+          i = j;
+        } else {
+          out.push(`<h2${roleClassOf(b)}>${esc(textOf(b).trim())}</h2>`);
+        }
         break;
+      }
       case "h3": {
         if (opts.slips && i < blocks.length && blocks[i].kind === "table") {
           out.push(`<div class="keep"><h3>${esc(textOf(b).trim())}</h3>${renderTable(blocks[i])}</div>`);
@@ -403,8 +444,13 @@ function renderFlow(blocks, camp, opts = {}) {
         out.push(`<p class="doc-sub">${esc(textOf(b).trim())}</p>`);
         break;
       default: {
-        const indent = (b.indLeft || 0) >= 200 && !b.hanging ? ' class="indent"' : "";
-        out.push(`<p${indent}>${renderRuns(b.runs)}</p>`);
+        const classes = [];
+        if ((b.indLeft || 0) >= 200 && !b.hanging) classes.push("indent");
+        // A label ending in a colon introduces the next element; never leave
+        // it stranded at the bottom of a page.
+        if (/:\s*$/.test(textOf(b))) classes.push("binds");
+        const cls = classes.length ? ` class="${classes.join(" ")}"` : "";
+        out.push(`<p${cls}>${renderRuns(b.runs)}</p>`);
       }
     }
   }
@@ -510,7 +556,25 @@ function isMaterialsSheet(sheet) {
   return MAT_HEADERS.every((h, i) => (sheet.rows[0] || [])[i] === h);
 }
 
-function renderItemCards(sheet) {
+// Amazon search links read as their search terms in print; anything else
+// keeps its address without the scheme noise.
+function linkLabel(url) {
+  const m = url.match(/[?&]k=([^&\s]+)/);
+  if (m) {
+    let terms = m[1].replace(/\+/g, " ");
+    try {
+      terms = decodeURIComponent(terms);
+    } catch {
+      /* keep the raw terms */
+    }
+    return `Amazon search: ${terms}`;
+  }
+  return url.replace(/^https?:\/\/(www\.)?/, "");
+}
+
+// One compact ledger entry per material line: a name-and-chips header, a mono
+// provenance line, then quantity, sourcing, and note lines only when present.
+function renderLedger(sheet) {
   const rows = sheet.rows.slice(1).filter((r) => r.some((v) => v));
   const F = {
     camp: 0, id: 1, activity: 2, category: 3, name: 4, purpose: 5, consumable: 6,
@@ -518,43 +582,51 @@ function renderItemCards(sheet) {
     status: 14, qtyBuy: 15, subtotal: 16, priority: 17, cheaper: 18, local: 19,
     safety: 20, storage: 21, checked: 22, source: 23, notes: 24,
   };
-  const field = (k, v, wide = false) =>
-    v ? `<div class="field${wide ? " wide" : ""}"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>` : "";
+  const seg = (label, v) => (v ? `<span class="k">${label}</span>${esc(v)}` : "");
+  const segs = (parts) => parts.filter(Boolean).join('<span class="dot">·</span>');
+  const note = (label, v, cls = "") =>
+    v ? `<div class="li-note${cls}"><span class="nk">${label}</span>${esc(v)}</div>` : "";
   return rows
     .map((r) => {
       const tags = [];
-      if (r[F.priority]) tags.push(`<span class="tag ${r[F.priority] === "required" ? "acc" : ""}">${esc(r[F.priority])}</span>`);
-      if (r[F.consumable]) tags.push(`<span class="tag">${esc(r[F.consumable])}</span>`);
+      if (r[F.priority]) tags.push(`<span class="tag${r[F.priority] === "required" ? " acc" : ""}">${esc(r[F.priority])}</span>`);
+      // A zero price means local purchase or borrow; the chips would be noise.
+      if (r[F.unitPrice] && Number(r[F.unitPrice]) !== 0) tags.push(`<span class="tag">${money(r[F.unitPrice])} unit</span>`);
+      if (r[F.subtotal] && Number(r[F.subtotal]) !== 0) tags.push(`<span class="tag acc">${money(r[F.subtotal])} total</span>`);
       if (r[F.status] && /unverified|estimate/.test(r[F.status])) tags.push(`<span class="tag warn">${esc(r[F.status])}</span>`);
-      if (r[F.unitPrice]) tags.push(`<span class="tag">${money(r[F.unitPrice])} unit</span>`);
-      if (r[F.subtotal]) tags.push(`<span class="tag acc">${money(r[F.subtotal])} total</span>`);
-      return `<div class="item-card">
-<div class="item-head"><span class="item-name">${esc(r[F.name])}</span><span class="item-tags">${tags.join("")}</span></div>
-<div class="item-body"><div class="fields">
-${field("For", [r[F.camp], r[F.id]].filter(Boolean).join(" · "))}
-${field("Activity", r[F.activity])}
-${field("Category", r[F.category])}
-${field("Qty needed", r[F.qtyNeeded])}
-${field("Spare qty", r[F.spare])}
-${field("Qty to buy", r[F.qtyBuy])}
-${field("Existing stock", r[F.existing])}
-${field("Local better", r[F.local])}
-${field("ASIN", r[F.asin])}
-${field("Last checked", r[F.checked])}
-${field("Purpose", r[F.purpose], true)}
-${field("Amazon pick", r[F.product], true)}
-${field("Amazon URL", r[F.url], true)}
-${field("Cheaper alt", r[F.cheaper], true)}
-${field("Safety note", r[F.safety], true)}
-${field("Storage", r[F.storage], true)}
-${field("Source", r[F.source], true)}
-${field("Notes", r[F.notes], true)}
-</div></div></div>`;
+      const meta = [r[F.camp], r[F.id], r[F.activity], r[F.category], r[F.consumable], r[F.checked] ? `checked ${r[F.checked]}` : ""]
+        .filter(Boolean)
+        .map(esc)
+        .join("&nbsp;&nbsp;·&nbsp;&nbsp;");
+      const qty = segs([
+        seg("Need", r[F.qtyNeeded]),
+        seg("Spare", r[F.spare]),
+        seg("Buy", r[F.qtyBuy]),
+        seg("On hand", r[F.existing]),
+        seg("Local better", r[F.local]),
+      ]);
+      const pick = segs([
+        seg("Pick", r[F.product]),
+        r[F.url] ? `<span class="k">Find</span>${esc(linkLabel(r[F.url]))}` : "",
+        seg("ASIN", r[F.asin]),
+        seg("Cheaper", r[F.cheaper]),
+      ]);
+      return `<div class="ledger-item">
+<div class="li-head"><span class="li-name">${esc(r[F.name])}</span><span class="li-tags">${tags.join("")}</span></div>
+<div class="li-meta">${meta}</div>
+${qty ? `<div class="li-line">${qty}</div>` : ""}
+${pick ? `<div class="li-line">${pick}</div>` : ""}
+${note("Purpose", r[F.purpose])}
+${note("Safety", r[F.safety], " warn")}
+${note("Storage", r[F.storage])}
+${note("Source", r[F.source])}
+${note("Notes", r[F.notes])}
+</div>`;
     })
     .join("\n");
 }
 
-function sheetTable(sheet, { moneyCols = [], headerRow = 0 } = {}) {
+function sheetTable(sheet, { moneyCols = [], monoCols = [], headerRow = 0, tight = false } = {}) {
   const rows = sheet.rows.slice(headerRow).filter((r) => r.some((v) => v));
   const ncols = Math.max(...rows.map((r) => r.length));
   const used = [];
@@ -563,12 +635,18 @@ function sheetTable(sheet, { moneyCols = [], headerRow = 0 } = {}) {
   const body = rows.slice(1);
   const numeric = used.map((i) => body.every((r) => !r[i] || /^[\d$.,%\s-]+$/.test(r[i])) && body.some((r) => r[i]));
   const fmt = (v, i) => (moneyCols.includes(i) ? money(v) : v);
-  const keep = rows.length <= 12 ? ' class="keep"' : "";
-  let html = `<table${keep}><thead><tr>`;
+  const cellCls = (i, k) => {
+    const classes = [];
+    if (numeric[k]) classes.push("num");
+    if (monoCols.includes(i)) classes.push("mono-cell");
+    return classes.length ? ` class="${classes.join(" ")}"` : "";
+  };
+  const classes = [rows.length <= 12 ? "keep" : "", tight ? "tight" : ""].filter(Boolean);
+  let html = `<table${classes.length ? ` class="${classes.join(" ")}"` : ""}><thead><tr>`;
   html += used.map((i, k) => `<th${numeric[k] ? ' class="num"' : ""}>${esc(head[i] || "")}</th>`).join("");
   html += "</tr></thead><tbody>";
   for (const r of body) {
-    html += "<tr>" + used.map((i, k) => `<td${numeric[k] ? ' class="num"' : ""}>${esc(fmt(r[i] || "", i)) || "&nbsp;"}</td>`).join("") + "</tr>";
+    html += "<tr>" + used.map((i, k) => `<td${cellCls(i, k)}>${esc(fmt(r[i] || "", i)) || "&nbsp;"}</td>`).join("") + "</tr>";
   }
   return html + "</tbody></table>";
 }
@@ -608,14 +686,15 @@ function renderWorkbook(ir, camp, doc) {
   const parts = [head];
   for (const s of ir.blocks) {
     if (s.name === "Dashboard") continue;
-    parts.push(`<h2 class="page-break" style="margin-top:0">${esc(s.name)}</h2>`);
+    const lines = s.rows.length - 1;
+    parts.push(`<h2 class="page-break" style="margin-top:0">${esc(s.name)}<span class="h2-count">${lines} line${lines === 1 ? "" : "s"}</span></h2>`);
     if (isMaterialsSheet(s)) {
-      parts.push(renderItemCards(s));
+      parts.push(renderLedger(s));
     } else if (s.name === "Budget scenarios") {
-      parts.push(sheetTable(s, { moneyCols: [1, 2, 3, 4, 5, 6, 7, 8] }));
+      parts.push(sheetTable(s, { moneyCols: [1, 2, 3, 4, 5, 6, 7, 8], tight: true }));
       parts.push('<p class="table-note">All amounts in US dollars.</p>');
     } else {
-      parts.push(sheetTable(s));
+      parts.push(sheetTable(s, { tight: true }));
     }
   }
   return parts.join("\n");
@@ -629,7 +708,10 @@ function renderBuylist(ir) {
 <p class="doc-sub">Every material aggregated across all stations, with per-station quantities and the stations that use it.</p>
 <hr class="head-rule">
 </div>
-${sheetTable({ name: "", rows: [["Material", "Quantity (per station)", "Stations", "Station count"], ...sheet.rows.slice(1)] })}`;
+${sheetTable(
+    { name: "", rows: [["Material", "Quantity (per station)", "Stations", "Station count"], ...sheet.rows.slice(1)] },
+    { monoCols: [2] }
+  )}`;
 }
 
 // ---- assembly ---------------------------------------------------------------------

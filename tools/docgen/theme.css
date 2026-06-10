@@ -57,8 +57,10 @@ body {
 
 /* ---- pagination discipline ---------------------------------------------- */
 p, li { orphans: 3; widows: 3; }
+li { break-inside: avoid; }
 h1, h2, h3, .eyebrow, .doc-sub { break-after: avoid; break-inside: avoid; }
-.keep, .callout, .cert, .stat-grid, .item-card, .sign { break-inside: avoid; }
+.keep, .callout, .cert, .stat-grid, .ledger-item, .sign { break-inside: avoid; }
+.binds { break-after: avoid; break-inside: avoid; }
 table { border-collapse: collapse; width: 100%; }
 thead { display: table-header-group; }
 tr { break-inside: avoid; }
@@ -235,7 +237,18 @@ td.num, th.num { text-align: right; font-family: var(--mono); font-size: 8.5pt; 
 td.code { font-family: var(--mono); font-size: 8pt; font-weight: 700; color: var(--camp-acc); white-space: nowrap; }
 tr.total td { font-weight: 700; border-top: 1.5pt solid var(--rule2); border-bottom: 0; color: var(--camp-ink); }
 td.blank { background: #fff; min-width: 50pt; }
+td.mono-cell { font-family: var(--mono); font-size: 7.5pt; }
+table.tight { font-size: 8pt; }
+table.tight th { font-size: 6.8pt; padding: 3pt 5pt; }
+table.tight td { padding: 3pt 5pt; overflow-wrap: anywhere; }
 .table-note { font-size: 8pt; color: var(--ink2); margin-top: -6pt; }
+.h2-count {
+  float: right;
+  font-size: 7pt;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink3);
+}
 
 /* ---- write-in fields --------------------------------------------------------- */
 .write { display: flex; align-items: baseline; gap: 6pt; margin: 7pt 0; }
@@ -364,42 +377,35 @@ td.blank { background: #fff; min-width: 50pt; }
   text-transform: uppercase; color: var(--ink2); margin-top: 3pt;
 }
 
-/* ---- item cards (workbook materials sheets) ------------------------------------------------ */
-.item-card {
-  border: 1px solid var(--rule2);
-  border-radius: 6pt;
-  background: #fff;
-  padding: 0;
-  margin: 8pt 0;
-  overflow: hidden;
-}
-.item-card .item-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10pt;
-  background: var(--paper);
-  border-bottom: 1px solid var(--rule);
-  padding: 5pt 10pt;
-}
-.item-card .item-name { font-family: var(--serif); font-weight: 600; font-size: 11.5pt; color: var(--camp-ink); }
-.item-card .item-tags { display: flex; gap: 5pt; flex-wrap: wrap; }
-.item-card .tag {
+/* ---- material ledger (workbook materials sheets) -------------------------------------------- */
+.tag {
   font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--ink2);
   border: 1px solid var(--rule2); border-radius: 999px; padding: 1pt 6pt; white-space: nowrap;
 }
-.item-card .tag.acc { color: var(--camp-acc); border-color: var(--camp-acc); }
-.item-card .tag.warn { color: var(--warn); border-color: var(--warn); }
-.item-card .item-body { padding: 6pt 10pt 7pt; }
-.item-card .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 2pt 18pt; }
-.item-card .field { font-size: 8.5pt; display: flex; gap: 5pt; }
-.item-card .field .k {
-  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--ink3); flex: 0 0 92pt; padding-top: 1.5pt;
+.tag.acc { color: var(--camp-acc); border-color: var(--camp-acc); }
+.tag.warn { color: var(--warn); border-color: var(--warn); }
+.ledger-item { padding: 6pt 0 7pt; border-bottom: 1px solid var(--rule); }
+.ledger-item .li-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10pt; }
+.ledger-item .li-name { font-family: var(--serif); font-weight: 600; font-size: 11pt; color: var(--camp-ink); }
+.ledger-item .li-tags { display: flex; gap: 4pt; flex-wrap: wrap; justify-content: flex-end; }
+.ledger-item .li-meta {
+  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink3); margin-top: 2pt;
 }
-.item-card .field .v { color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
-.item-card .field.wide { grid-column: 1 / -1; }
+.ledger-item .li-line { font-size: 8.5pt; margin-top: 2.5pt; overflow-wrap: anywhere; }
+.ledger-item .li-line .k {
+  font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--camp-acc); margin-right: 3pt;
+}
+.ledger-item .li-line .dot { color: var(--ink3); margin: 0 5pt; }
+.ledger-item .li-note { font-size: 8pt; color: var(--ink2); margin-top: 1.5pt; }
+.ledger-item .li-note .nk {
+  font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink3); margin-right: 3pt;
+}
+.ledger-item .li-note.warn { color: var(--warn); }
+.ledger-item .li-note.warn .nk { color: var(--warn); }
 
 /* ---- footer note ------------------------------------------------------------------------------ */
 .endnote { margin-top: 16pt; padding-top: 8pt; border-top: 1px solid var(--rule); font-size: 8pt; color: var(--ink2); }
