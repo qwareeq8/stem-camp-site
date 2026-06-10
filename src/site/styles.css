@@ -17,10 +17,11 @@
   --warn-text: #8A5310; /* darker amber for small text (passes AA on light) */
   --ok: #2E7D46;      /* success green */
   --ok-text: #1E5C32; /* darker green for small text (passes AA on light) */
+  /* Camp identity mirrors src/deck/theme.js (treesInk/treesAcc/pyInk/pyAcc); kept as the palette reference */
   --trees: #2a5736;
   --trees-acc: #b04a2f;
   --py: #1c3257;
-  --py-acc: #c77a2b;
+  --py-acc: #A85F12;
   /* Temple brand (Cherry, Pantone 201 C) + accent */
   --primary: #9D2235;
   --primary-dark: #7A1A29;

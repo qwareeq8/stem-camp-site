@@ -11,7 +11,6 @@ function App() {
 
   const enrich = (a) => ({
     ...a,
-    campName: a.camp === "trees" ? "From Trees to Tech" : "PY-STEM",
     catLabel: CATMAP[a.cat] ? CATMAP[a.cat].l : a.cat,
   });
   const themeFor = (a) => CAMP[a.camp] || CAMP.trees;

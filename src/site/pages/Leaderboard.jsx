@@ -20,13 +20,19 @@ export default function Leaderboard() {
   const [filter, setFilter] = useState("all");
 
   // Rank across all teams first so positions are absolute, then narrow the view.
+  // Competition ranking: tied totals share a rank and the next rank skips past them.
   const allRows = teamTotals(teams, scores);
-  const ranked = allRows.map((r, i) => ({ ...r, rank: i + 1 }));
+  const ranked = [];
+  allRows.forEach((r, i) => {
+    const rank = i > 0 && r.total === allRows[i - 1].total ? ranked[i - 1].rank : i + 1;
+    ranked.push({ ...r, rank });
+  });
   const rows = ranked.filter((r) => filter === "all" || r.camp === filter);
   const ceiling = maxTotal(allRows);
   // Bars are proportional to the leader's total, so tightly-bunched totals read as a
   // tight race instead of a blowout; the numeric Total column carries the exact figure.
-  const barPct = (total) => (ceiling > 0 ? Math.round((total / ceiling) * 100) : 100);
+  // Until any station is judged the ceiling is 0, so every bar stays empty.
+  const barPct = (total) => (ceiling > 0 ? Math.round((total / ceiling) * 100) : 0);
 
   // Group raw score entries by team for the per-station breakdown.
   const byTeam = {};

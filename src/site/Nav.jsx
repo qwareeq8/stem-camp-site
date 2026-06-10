@@ -45,8 +45,9 @@ export default function Nav() {
             </NavLink>
           ))}
           <NavLink to="/admin" onClick={() => setOpen(false)}
+            aria-label={authed ? "Admin (signed in)" : undefined}
             className={({ isActive }) => (isActive ? "active" : "")}>
-            Admin{authed && <span className="nav-admin-dot" aria-label="signed in" />}
+            Admin{authed && <span className="nav-admin-dot" aria-hidden="true" />}
           </NavLink>
         </div>
       </div>

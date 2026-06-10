@@ -67,16 +67,21 @@ function upcomingSchedule(schedule, year, now = new Date()) {
     .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
   if (!days.length) return null;
 
-  const upcoming = days.find((day) => day.dateKey >= current.key) || days[days.length - 1];
+  const idx = days.findIndex((day) => day.dateKey >= current.key);
+  const upcoming = idx === -1 ? days[days.length - 1] : days[idx];
   const isToday = upcoming.dateKey === current.key;
   if (!isToday) return upcoming;
 
+  // Today: show only the blocks still to come. Once the whole day has wrapped,
+  // advance to the next camp day; the final day keeps its full plan as a recap.
   const blocks = (upcoming.blocks || []).filter((b) => minutesOfDay(b.end) >= current.minutes);
-  return { ...upcoming, blocks: blocks.length ? blocks : upcoming.blocks };
+  if (blocks.length) return { ...upcoming, blocks };
+  return idx + 1 < days.length ? days[idx + 1] : upcoming;
 }
 
 export default function Home() {
   const cfg = useConfig();
+  const camps = cfg.camps || [];
   const teams = useCollection("teams");
   const members = useCollection("members");
   const scores = useCollection("scores");
@@ -106,10 +111,10 @@ export default function Home() {
                 <Btn to="/leaderboard" variant="ghost">Leaderboard</Btn>
               </div>
             </div>
-            {cfg.camps && cfg.camps.length > 0 && (
+            {camps.length > 0 && (
               <div className="hero-aside">
                 <div className="hero-aside-label">Two sessions</div>
-                {cfg.camps.map((c) => (
+                {camps.map((c) => (
                   <div key={c.id} className="hero-session">
                     <CampBadge camp={c.id} />
                     <div className="hero-session-name" style={{ color: c.accent }}>{c.name}</div>
@@ -136,7 +141,7 @@ export default function Home() {
         {/* camps */}
         <SectionTitle>The two camps</SectionTitle>
         <div className="grid cols-2">
-          {cfg.camps.map((c) => {
+          {camps.map((c) => {
             const n = c.id === "trees" ? TREES_DECK.length : PY_DECK.length;
             const campus = campusLabel(c.campus);
             return (

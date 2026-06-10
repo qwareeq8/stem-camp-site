@@ -5,7 +5,7 @@
 // interleave.
 import { useMemo, useState } from "react";
 import { useCollection, useConfig } from "../lib/store.js";
-import { Page, Card, Badge, SectionTitle, CampBadge } from "../ui.jsx";
+import { Page, Card, Badge, SectionTitle, CampBadge, Empty } from "../ui.jsx";
 import { FileText, BookOpen } from "lucide-react";
 
 const FILTERS = [
@@ -22,6 +22,8 @@ export default function Schedule() {
   const cfg = useConfig();
   const [filter, setFilter] = useState("all");
   const camps = (cfg.camps || []).filter((c) => filter === "all" || c.id === filter);
+  // Whether any camp in the current view has schedule days; drives the empty state.
+  const hasDays = camps.some((camp) => schedule.some((d) => d.camp === camp.id));
 
   // Map each station code to its handout and guide so a block can link straight
   // to its documents (see the Files page for the full library).
@@ -53,6 +55,9 @@ export default function Schedule() {
         </div>
       }
     >
+      {!hasDays && (
+        <Empty>No schedule yet. The day-by-day plan appears here once it is published.</Empty>
+      )}
       {camps.map((camp) => {
         const days = schedule.filter((d) => d.camp === camp.id);
         if (!days.length) return null;
@@ -97,12 +102,12 @@ export default function Schedule() {
                         {b.code && docsByCode[b.code] && (
                           <div className="row block-docs" style={{ gap: 12, marginTop: 5 }}>
                             {docsByCode[b.code].handout && (
-                              <a className="block-doc mono" href={docHref(docsByCode[b.code].handout)} download>
+                              <a className="block-doc mono" href={docHref(docsByCode[b.code].handout)} download aria-label={`Download ${b.code} handout`}>
                                 <FileText size={12} aria-hidden="true" /> Handout
                               </a>
                             )}
                             {docsByCode[b.code].guide && (
-                              <a className="block-doc mono" href={docHref(docsByCode[b.code].guide)} download>
+                              <a className="block-doc mono" href={docHref(docsByCode[b.code].guide)} download aria-label={`Download ${b.code} guide`}>
                                 <BookOpen size={12} aria-hidden="true" /> Guide
                               </a>
                             )}

@@ -46,11 +46,11 @@ export function Badge({ children, tone }) {
   return <span className={`badge${tone ? " " + tone : ""}`}>{children}</span>;
 }
 
-export function Btn({ children, to, href, onClick, variant, type = "button", disabled, className = "", ...rest }) {
+export function Btn({ children, to, href, variant, type = "button", disabled, className = "", ...rest }) {
   const cls = `btn${variant ? " " + variant : ""}${className ? " " + className : ""}`;
   if (to && !disabled) return <Link to={to} className={cls} {...rest}>{children}</Link>;
   if (href && !disabled) return <a href={href} className={cls} {...rest}>{children}</a>;
-  return <button type={type} className={cls} onClick={onClick} disabled={disabled} {...rest}>{children}</button>;
+  return <button type={type} className={cls} disabled={disabled} {...rest}>{children}</button>;
 }
 
 export function Empty({ children }) {

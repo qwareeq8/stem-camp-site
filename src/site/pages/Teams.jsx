@@ -51,6 +51,19 @@ export default function Teams() {
     (roster[m.teamId] || (roster[m.teamId] = [])).push(m);
   }
 
+  // Sections by camp (config order), then a bucket for any teams whose camp is
+  // not listed, so no team silently disappears (the Store page does the same).
+  const camps = cfg.camps || [];
+  const sections = camps.map((camp) => ({
+    key: camp.id,
+    label: camp.name,
+    accent: camp.accent,
+    teams: teams.filter((t) => t.camp === camp.id),
+  }));
+  const listed = new Set(camps.map((c) => c.id));
+  const rest = teams.filter((t) => !listed.has(t.camp));
+  if (rest.length > 0) sections.push({ key: "other", label: "Other teams", teams: rest });
+
   return (
     <Page
       eyebrow="Rosters and crews"
@@ -60,13 +73,13 @@ export default function Teams() {
       {teams.length === 0 && (
         <Empty>No teams yet. An admin adds teams and rosters from the data console.</Empty>
       )}
-      {cfg.camps.map((camp) => {
-        const campTeams = teams.filter((t) => t.camp === camp.id);
+      {sections.map((group) => {
+        const campTeams = group.teams;
         if (campTeams.length === 0) return null;
         return (
-          <section key={camp.id} style={{ marginBottom: 10 }}>
+          <section key={group.key} style={{ marginBottom: 10 }}>
             <SectionTitle>
-              {camp.name} &middot; {campTeams.length} {campTeams.length === 1 ? "team" : "teams"}
+              {group.label} &middot; {campTeams.length} {campTeams.length === 1 ? "team" : "teams"}
             </SectionTitle>
             <div className="grid auto" style={{ marginBottom: 18, alignItems: "start" }}>
               {campTeams.map((team) => {
@@ -91,13 +104,13 @@ export default function Teams() {
                           alignItems: "center",
                           justifyContent: "center",
                           width: 28,
-                          color: camp.accent,
+                          color: group.accent,
                           flexShrink: 0,
                         }}
                       >
                         <Emblem size={24} strokeWidth={1.8} />
                       </span>
-                      <h3 style={{ fontSize: 26, color: camp.accent }}>{team.name}</h3>
+                      <h3 style={{ fontSize: 26, color: group.accent }}>{team.name}</h3>
                     </div>
                     {team.motto && (
                       <p className="muted" style={{ marginTop: 6, marginBottom: 0, fontStyle: "italic" }}>
@@ -105,7 +118,7 @@ export default function Teams() {
                       </p>
                     )}
 
-                    <div className="section-title" style={{ marginTop: 18 }}>Roster</div>
+                    <h4 className="section-title" style={{ marginTop: 18 }}>Roster</h4>
                     {crew.length === 0 ? (
                       <Empty>No members assigned yet.</Empty>
                     ) : (
