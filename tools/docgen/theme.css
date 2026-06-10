@@ -1,0 +1,403 @@
+/* Print theme for the camp document library.
+   Mirrors the site's field-notebook design system (src/site/styles.css and
+   src/deck/theme.js): Fraunces for display, Inter for body, JetBrains Mono for
+   eyebrows, labels, and tabular data; hairline rules; warm paper panels; the
+   camp inks and accents for identity. Per-document accents arrive through CSS
+   custom properties set on <body> by render.mjs:
+     --camp-ink, --camp-acc, --camp-tint. */
+
+@font-face { font-family: "Fraunces"; font-weight: 400; font-style: normal; src: url("./fonts/Fraunces-400.ttf"); }
+@font-face { font-family: "Fraunces"; font-weight: 500; font-style: normal; src: url("./fonts/Fraunces-500.ttf"); }
+@font-face { font-family: "Fraunces"; font-weight: 600; font-style: normal; src: url("./fonts/Fraunces-600.ttf"); }
+@font-face { font-family: "Fraunces"; font-weight: 400; font-style: italic; src: url("./fonts/Fraunces-Italic-400.ttf"); }
+@font-face { font-family: "Inter"; font-weight: 400; src: url("./fonts/Inter-400.ttf"); }
+@font-face { font-family: "Inter"; font-weight: 500; src: url("./fonts/Inter-500.ttf"); }
+@font-face { font-family: "Inter"; font-weight: 600; src: url("./fonts/Inter-600.ttf"); }
+@font-face { font-family: "Inter"; font-weight: 700; src: url("./fonts/Inter-700.ttf"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url("./fonts/JetBrainsMono-400.ttf"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 500; src: url("./fonts/JetBrainsMono-500.ttf"); }
+@font-face { font-family: "JetBrains Mono"; font-weight: 700; src: url("./fonts/JetBrainsMono-700.ttf"); }
+
+:root {
+  --ink: #222222;
+  --ink2: #5A564F;
+  --ink3: #8A8D8F;
+  --rule: rgba(34, 34, 34, 0.12);
+  --rule2: rgba(34, 34, 34, 0.22);
+  --paper: #FAFAF8;
+  --paper2: #F2F1EE;
+  --primary: #9D2235;
+  --ok: #1E5C32;
+  --warn: #8A5310;
+  --ok-tint: #EDF3EE;
+  --warn-tint: #F8F0E4;
+  --danger-tint: #F7EAEC;
+  --info-tint: #EBEFF4;
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@page { size: letter; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: var(--sans);
+  font-size: 10pt;
+  line-height: 1.55;
+  color: var(--ink);
+  background: #fff;
+  --camp-ink: var(--ink);
+  --camp-acc: var(--primary);
+  --camp-tint: var(--paper2);
+}
+
+/* ---- pagination discipline ---------------------------------------------- */
+p, li { orphans: 3; widows: 3; }
+h1, h2, h3, .eyebrow, .doc-sub { break-after: avoid; break-inside: avoid; }
+.keep, .callout, .cert, .stat-grid, .item-card, .sign { break-inside: avoid; }
+table { border-collapse: collapse; width: 100%; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+.page-break { break-before: page; }
+
+/* ---- document header ----------------------------------------------------- */
+.doc-head { margin-bottom: 14pt; }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--camp-acc);
+  margin-bottom: 6pt;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 23pt;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
+  color: var(--camp-ink);
+}
+.doc-sub {
+  font-size: 10.5pt;
+  color: var(--ink2);
+  margin-top: 5pt;
+  max-width: 62ch;
+}
+.head-rule {
+  margin-top: 10pt;
+  border: 0;
+  border-top: 1px solid var(--rule2);
+  position: relative;
+  height: 0;
+}
+.head-rule::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 64pt;
+  border-top: 3px solid var(--camp-acc);
+}
+
+/* ---- sections ------------------------------------------------------------ */
+h2 {
+  font-family: var(--mono);
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--camp-ink);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 3pt;
+  margin: 14pt 0 7pt;
+}
+h2.role-warn { color: var(--warn); }
+h2.role-danger { color: var(--primary); }
+h2.role-acc { color: var(--camp-acc); }
+h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 12.5pt;
+  letter-spacing: -0.008em;
+  color: var(--camp-ink);
+  margin: 11pt 0 4pt;
+}
+p { margin: 4pt 0; }
+p .lead { font-weight: 600; color: var(--camp-ink); }
+.small { font-size: 8.5pt; color: var(--ink2); }
+.muted { color: var(--ink2); }
+
+/* ---- lists ---------------------------------------------------------------- */
+ul, ol { margin: 4pt 0 6pt; padding-left: 16pt; }
+li { margin: 2.5pt 0; padding-left: 2pt; }
+ul > li::marker { color: var(--camp-acc); content: "\25AA\00a0\00a0"; font-size: 8pt; }
+ol { counter-reset: step; list-style: none; padding-left: 22pt; }
+ol > li { counter-increment: step; position: relative; }
+ol > li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: -22pt;
+  top: 1pt;
+  font-family: var(--mono);
+  font-size: 8pt;
+  font-weight: 700;
+  color: var(--camp-acc);
+}
+.checklist { list-style: none; padding-left: 18pt; }
+.checklist > li { position: relative; margin: 4.5pt 0; }
+.checklist > li::marker { content: ""; }
+.checklist > li::before {
+  content: "";
+  position: absolute;
+  left: -18pt;
+  top: 2.5pt;
+  width: 8.5pt;
+  height: 8.5pt;
+  border: 1.2pt solid var(--camp-ink);
+  border-radius: 1.5pt;
+  background: #fff;
+}
+.checklist.role-danger > li::before { border-color: var(--primary); }
+.checklist.role-danger > li { color: var(--ink); }
+
+/* ---- phase rows (instructor guides) --------------------------------------- */
+.phase {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10pt;
+  margin: 9pt 0 2pt;
+  break-after: avoid;
+  break-inside: avoid;
+}
+.phase .name { font-family: var(--serif); font-weight: 600; font-size: 11.5pt; color: var(--camp-ink); }
+.phase .time {
+  font-family: var(--mono);
+  font-size: 7.5pt;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--warn);
+  border: 1px solid var(--rule2);
+  border-radius: 999px;
+  padding: 1pt 7pt;
+  white-space: nowrap;
+}
+.phase + p { margin-top: 0; }
+.indent { margin-left: 11pt; }
+
+/* ---- problem / fix -------------------------------------------------------- */
+.probfix { margin: 4.5pt 0; padding-left: 11pt; text-indent: -11pt; }
+.probfix .prob { font-weight: 600; color: var(--primary); }
+.probfix .fix { font-weight: 600; color: var(--ok); }
+
+/* ---- callouts -------------------------------------------------------------- */
+.callout {
+  border: 1px solid var(--rule2);
+  border-left: 3px solid var(--camp-acc);
+  border-radius: 6pt;
+  background: var(--paper);
+  padding: 7pt 10pt;
+  margin: 9pt 0;
+}
+.callout p { margin: 2pt 0; }
+.callout.ok { border-left-color: var(--ok); background: var(--ok-tint); }
+.callout.danger { border-left-color: var(--primary); background: var(--danger-tint); }
+.callout.warn { border-left-color: var(--warn); background: var(--warn-tint); }
+.callout.info { border-left-color: #1c3257; background: var(--info-tint); }
+.callout .lead { font-weight: 600; color: var(--camp-ink); }
+
+/* ---- tables ----------------------------------------------------------------- */
+table { font-size: 9pt; margin: 7pt 0 10pt; }
+th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  background: var(--paper2);
+  border-bottom: 1.5pt solid var(--camp-ink);
+  padding: 4pt 7pt;
+}
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 4pt 7pt;
+  vertical-align: top;
+}
+td.num, th.num { text-align: right; font-family: var(--mono); font-size: 8.5pt; font-variant-numeric: tabular-nums; }
+td.code { font-family: var(--mono); font-size: 8pt; font-weight: 700; color: var(--camp-acc); white-space: nowrap; }
+tr.total td { font-weight: 700; border-top: 1.5pt solid var(--rule2); border-bottom: 0; color: var(--camp-ink); }
+td.blank { background: #fff; min-width: 50pt; }
+.table-note { font-size: 8pt; color: var(--ink2); margin-top: -6pt; }
+
+/* ---- write-in fields --------------------------------------------------------- */
+.write { display: flex; align-items: baseline; gap: 6pt; margin: 7pt 0; }
+.write .label { font-weight: 600; color: var(--camp-ink); white-space: normal; flex-shrink: 0; max-width: 70%; }
+.write .fill { flex: 1 1 40pt; border-bottom: 1px solid var(--rule2); min-height: 1.2em; }
+.blankline { border-bottom: 1px solid var(--rule2); height: 1.55em; margin: 7pt 0; }
+
+/* ---- footnote / sources -------------------------------------------------------- */
+.sources { font-size: 8pt; color: var(--ink2); margin-top: 8pt; padding-top: 5pt; border-top: 1px solid var(--rule); }
+.sources .lead { font-family: var(--mono); font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--camp-ink); }
+
+/* ---- packet cover ---------------------------------------------------------------- */
+.cover { display: flex; flex-direction: column; justify-content: center; min-height: 8.6in; }
+.cover .eyebrow { font-size: 8.5pt; }
+.cover h1 { font-size: 40pt; line-height: 1.04; }
+.cover .cover-kind {
+  font-family: var(--mono);
+  font-size: 11pt;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--camp-acc);
+  margin-top: 10pt;
+}
+.cover .doc-sub { font-size: 12pt; margin-top: 12pt; }
+.cover .toc { margin-top: 26pt; border-top: 1px solid var(--rule2); padding-top: 12pt; columns: 2; column-gap: 28pt; }
+.cover .toc .toc-title {
+  font-family: var(--mono); font-size: 7.5pt; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink2); column-span: all; margin-bottom: 7pt;
+}
+.cover .toc .toc-row { display: flex; gap: 8pt; font-size: 9.5pt; margin: 3pt 0; break-inside: avoid; }
+.cover .toc .toc-row .code { font-family: var(--mono); font-size: 8pt; font-weight: 700; color: var(--camp-acc); padding-top: 1pt; }
+
+/* ---- station signs ------------------------------------------------------------------ */
+.sign {
+  min-height: 9.2in;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 18pt;
+  padding: 0 0.3in;
+}
+.sign .chip {
+  font-family: var(--mono);
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--cat-tint, var(--paper2));
+  border: 1px solid var(--rule2);
+  border-radius: 999px;
+  padding: 5pt 16pt;
+}
+.sign h1 { font-size: 44pt; line-height: 1.05; }
+.sign .mission { font-family: var(--serif); font-style: italic; font-size: 16pt; color: var(--ink2); max-width: 34ch; }
+.sign .loop {
+  font-family: var(--mono);
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--camp-ink);
+  margin-top: 8pt;
+}
+.sign .loop .sep { color: var(--camp-acc); }
+.sign .win {
+  border: 1px solid var(--rule2);
+  border-left: 3px solid var(--camp-acc);
+  border-radius: 8pt;
+  background: var(--paper);
+  font-size: 12.5pt;
+  line-height: 1.5;
+  padding: 12pt 18pt;
+  max-width: 6in;
+  margin-top: 10pt;
+}
+.sign .win .lead { font-family: var(--mono); font-size: 9pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--camp-acc); display: block; margin-bottom: 4pt; }
+
+/* ---- award certificates ---------------------------------------------------------------- */
+.cert {
+  border: 1.5pt solid var(--camp-ink);
+  border-radius: 8pt;
+  padding: 18pt 22pt 16pt;
+  margin: 14pt 0;
+  text-align: center;
+  position: relative;
+  background: #fff;
+}
+.cert::before {
+  content: "";
+  position: absolute;
+  inset: 4pt;
+  border: 1px solid var(--rule2);
+  border-radius: 5pt;
+  pointer-events: none;
+}
+.cert .cert-eyebrow {
+  font-family: var(--mono); font-size: 7.5pt; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--camp-acc);
+}
+.cert .cert-name { font-family: var(--serif); font-weight: 600; font-size: 21pt; color: var(--camp-ink); margin: 7pt 0 4pt; }
+.cert .cert-desc { font-size: 9.5pt; color: var(--ink2); max-width: 48ch; margin: 0 auto; }
+.cert .cert-fields { display: flex; gap: 22pt; justify-content: center; margin-top: 16pt; }
+.cert .cert-field { flex: 1; max-width: 2.6in; text-align: left; }
+.cert .cert-field .fill { border-bottom: 1px solid var(--rule2); height: 1.5em; }
+.cert .cert-field .tag {
+  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink2); margin-top: 2pt;
+}
+
+/* ---- dashboard stats (workbook) ----------------------------------------------------------- */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8pt; margin: 10pt 0; }
+.stat {
+  border: 1px solid var(--rule2);
+  border-radius: 6pt;
+  background: var(--paper);
+  padding: 8pt 10pt;
+}
+.stat .num { font-family: var(--serif); font-weight: 600; font-size: 17pt; color: var(--camp-ink); line-height: 1.1; }
+.stat .lab {
+  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink2); margin-top: 3pt;
+}
+
+/* ---- item cards (workbook materials sheets) ------------------------------------------------ */
+.item-card {
+  border: 1px solid var(--rule2);
+  border-radius: 6pt;
+  background: #fff;
+  padding: 0;
+  margin: 8pt 0;
+  overflow: hidden;
+}
+.item-card .item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10pt;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 5pt 10pt;
+}
+.item-card .item-name { font-family: var(--serif); font-weight: 600; font-size: 11.5pt; color: var(--camp-ink); }
+.item-card .item-tags { display: flex; gap: 5pt; flex-wrap: wrap; }
+.item-card .tag {
+  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink2);
+  border: 1px solid var(--rule2); border-radius: 999px; padding: 1pt 6pt; white-space: nowrap;
+}
+.item-card .tag.acc { color: var(--camp-acc); border-color: var(--camp-acc); }
+.item-card .tag.warn { color: var(--warn); border-color: var(--warn); }
+.item-card .item-body { padding: 6pt 10pt 7pt; }
+.item-card .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 2pt 18pt; }
+.item-card .field { font-size: 8.5pt; display: flex; gap: 5pt; }
+.item-card .field .k {
+  font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink3); flex: 0 0 92pt; padding-top: 1.5pt;
+}
+.item-card .field .v { color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.item-card .field.wide { grid-column: 1 / -1; }
+
+/* ---- footer note ------------------------------------------------------------------------------ */
+.endnote { margin-top: 16pt; padding-top: 8pt; border-top: 1px solid var(--rule); font-size: 8pt; color: var(--ink2); }
