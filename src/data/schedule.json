@@ -36,7 +36,7 @@
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Pollinator Network Draft and Build", "code": "TTT-07", "camp": "trees", "location": "Dixon 104" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:20", "title": "Open swim", "location": "Aquatic Center (2:00 to 3:00 PM)" },
+      { "start": "13:00", "end": "14:20", "title": "Open swim", "location": "Aquatic Center (1:00 to 2:20 PM)" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
       { "start": "14:40", "end": "16:00", "title": "Tree Ring Climate Detective", "code": "TTT-10", "camp": "trees", "location": "Dixon 104" }
     ]
