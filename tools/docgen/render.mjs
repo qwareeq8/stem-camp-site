@@ -132,6 +132,27 @@ function renderProbfix(b) {
 }
 
 function renderWrite(b) {
+  // A label with an embedded line break (the leaderboard's "Team 1 / name:")
+  // renders its leading lines as plain text above the write-in row.
+  const joined = b.runs.map((r) => r.t).join("");
+  const lastBreak = joined.lastIndexOf("\n");
+  if (lastBreak >= 0) {
+    let pos = 0;
+    const before = [];
+    const after = [];
+    for (const r of b.runs) {
+      const end = pos + r.t.length;
+      if (end <= lastBreak) before.push(r);
+      else if (pos > lastBreak) after.push(r);
+      else {
+        if (r.t.slice(0, lastBreak - pos)) before.push({ ...r, t: r.t.slice(0, lastBreak - pos) });
+        if (r.t.slice(lastBreak - pos + 1)) after.push({ ...r, t: r.t.slice(lastBreak - pos + 1) });
+      }
+      pos = end;
+    }
+    return `<p style="margin-bottom:2pt">${renderRuns(before, { stripFills: false })}</p>` +
+      renderWrite({ ...b, runs: after });
+  }
   // One trailing blank stretches to the line end; several blanks (score
   // strips) render as fixed-width inline rules between their labels.
   const segs = [];
@@ -214,10 +235,16 @@ function renderTable(tbl) {
     };
     const inner = c.blocks.map(blockHtml).join("<br>") || "&nbsp;";
     const classes = [];
+    let style = "";
     if (numeric[i]) classes.push("num");
-    if (tag === "td" && CODE_RE.test(cellText(c))) classes.push("code");
+    if (tag === "td" && CODE_RE.test(cellText(c))) {
+      classes.push("code");
+      // Codes keep their camp ink everywhere, so TTB and PYB rows stay
+      // distinguishable even in the warn-accented backup table.
+      style = cellText(c).startsWith("TT") ? ' style="color:#2a5736"' : ' style="color:#1c3257"';
+    }
     const cls = classes.length ? ` class="${classes.join(" ")}"` : "";
-    return `<${tag}${cls}>${inner}</${tag}>`;
+    return `<${tag}${cls}${style}>${inner}</${tag}>`;
   };
   // Short tables stay whole; long ones break between rows with the header
   // row repeating on each page.
@@ -352,9 +379,17 @@ function renderFlow(blocks, camp, opts = {}) {
       case "sources":
         out.push(`<p class="sources"><span class="lead">Sources</span> ${esc(textOf(b).replace(/^Sources:\s*/, ""))}</p>`);
         break;
-      case "write":
-        out.push(renderWrite(b));
+      case "write": {
+        // Keep a write-in row together with its continuation blank lines.
+        const tail = [];
+        while (i < blocks.length && blocks[i].kind === "p" && classifyPara(blocks[i]) === "blankline") {
+          tail.push('<div class="blankline"></div>');
+          i++;
+        }
+        const row = renderWrite(b);
+        out.push(tail.length ? `<div class="keep">${row}\n${tail.join("\n")}</div>` : row);
         break;
+      }
       case "blankline":
         out.push('<div class="blankline"></div>');
         break;
