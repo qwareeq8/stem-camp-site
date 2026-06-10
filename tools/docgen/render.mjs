@@ -399,9 +399,11 @@ function renderPacket(ir, camp, doc) {
   const sub = cover.find((b) => classifyPara(b) === "subtitle" || (sz0(b) === 22 && !b.runs[0].b));
   const toc = [];
   for (const blocks of rest) {
-    const eb = blocks.find((b) => b.kind === "p" && /^ACTIVITY ([A-Z]{3}-\d{2})/.test(textOf(b)));
+    const eb = blocks.find(
+      (b) => b.kind === "p" && classifyPara(b) === "eyebrow" && /\b[A-Z]{3}-\d{2}\b/.test(textOf(b))
+    );
     if (!eb) continue;
-    const code = textOf(eb).match(/([A-Z]{3}-\d{2})/)[1];
+    const code = textOf(eb).match(/\b([A-Z]{3}-\d{2})\b/)[1];
     const t = blocks.find((b) => b.kind === "p" && (sz0(b) || 0) >= 40);
     if (t) toc.push({ code, title: textOf(t).trim() });
   }
