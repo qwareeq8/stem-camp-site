@@ -43,7 +43,7 @@ function sourceFor(entry) {
     "doc-rewards": "05_Rewards_and_Competition/Printable_Reward_and_Competition_Kit.docx",
     "doc-safety": "06_Safety_and_Setup/Staff_Setup_Prep_and_Safety_Checklist.docx",
     "doc-procurement": "04_Shopping_and_Budget/2026_STEM_Camps_Amazon_Procurement_Workbook.xlsx",
-    "doc-buylist": "PUBLIC_CSV", // vendored at public/files/buy_list.csv
+    "doc-buylist": "REPO_CSV", // vendored at tools/docgen/data/buy_list.csv
   };
   return program[entry.id];
 }
@@ -74,7 +74,7 @@ export const DOCS = files.map((entry) => {
     category: entry.category,
     kind: entry.kind,
     template: templateFor(entry),
-    source: src === "PUBLIC_CSV" ? path.join(repo, "public", "files", "buy_list.csv") : path.join(ARCHIVE, src),
+    source: src === "REPO_CSV" ? path.join(here, "data", "buy_list.csv") : path.join(ARCHIVE, src),
     isSheet,
     out: outName,
     slug: outName.replace(/\.pdf$/, ""),
