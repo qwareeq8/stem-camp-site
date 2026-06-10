@@ -132,8 +132,33 @@ function renderProbfix(b) {
 }
 
 function renderWrite(b) {
-  const label = renderRuns(b.runs, { stripFills: true }).trim();
-  return `<div class="write"><span class="label">${label}</span><span class="fill"></span></div>`;
+  // One trailing blank stretches to the line end; several blanks (score
+  // strips) render as fixed-width inline rules between their labels.
+  const segs = [];
+  for (const r of b.runs) {
+    for (const part of r.t.split(/(_{2,})/)) {
+      if (!part) continue;
+      if (/^_{2,}$/.test(part)) segs.push({ fill: part.length });
+      else if (part.trim()) segs.push({ run: { ...r, t: part } });
+    }
+  }
+  const fills = segs.filter((s) => s.fill).length;
+  if (fills <= 1 && segs.length && segs[segs.length - 1].fill) {
+    const label = segs
+      .filter((s) => s.run)
+      .map((s) => renderRuns([s.run], { stripFills: false }))
+      .join(" ")
+      .trim();
+    return `<div class="write"><span class="label">${label}</span><span class="fill"></span></div>`;
+  }
+  const inner = segs
+    .map((s) =>
+      s.fill
+        ? `<span class="ifill" style="min-width:${Math.min(s.fill * 5, 160)}pt"></span>`
+        : renderRuns([s.run], { stripFills: false })
+    )
+    .join(" ");
+  return `<p class="iwrite">${inner}</p>`;
 }
 
 function renderListGroup(kind, items) {
@@ -182,7 +207,12 @@ function renderTable(tbl) {
     numeric[i] = vals.length > 0 && vals.every((v) => /^[\d$.,%\s–-]+$/.test(v));
   }
   const cellHtml = (c, i, tag) => {
-    const inner = c.blocks.map((b) => (b.kind === "table" ? renderTable(b) : renderRuns(b.runs))).join("<br>") || "&nbsp;";
+    const blockHtml = (b) => {
+      if (b.kind === "table") return renderTable(b);
+      if (b.runs.some((r) => FILL_RE.test(r.t))) return renderWrite(b);
+      return renderRuns(b.runs);
+    };
+    const inner = c.blocks.map(blockHtml).join("<br>") || "&nbsp;";
     const classes = [];
     if (numeric[i]) classes.push("num");
     if (tag === "td" && CODE_RE.test(cellText(c))) classes.push("code");

@@ -242,6 +242,8 @@ td.blank { background: #fff; min-width: 50pt; }
 .write .label { font-weight: 600; color: var(--camp-ink); white-space: normal; flex-shrink: 0; max-width: 70%; }
 .write .fill { flex: 1 1 40pt; border-bottom: 1px solid var(--rule2); min-height: 1.2em; }
 .blankline { border-bottom: 1px solid var(--rule2); height: 1.55em; margin: 7pt 0; }
+.iwrite { margin: 7pt 0; }
+.iwrite .ifill { display: inline-block; border-bottom: 1px solid var(--rule2); height: 1em; vertical-align: baseline; }
 
 /* ---- footnote / sources -------------------------------------------------------- */
 .sources { font-size: 8pt; color: var(--ink2); margin-top: 8pt; padding-top: 5pt; border-top: 1px solid var(--rule); }
