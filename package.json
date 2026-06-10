@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "description": "STEM Camp field-notebook site with an interactive deck, public pages, and a Supabase-backed admin console.",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
