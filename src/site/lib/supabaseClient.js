@@ -21,7 +21,7 @@ export async function getSupabase({ url, anonKey }) {
   if (!url || !anonKey) {
     throw new Error("Supabase is not configured (missing project URL or anon key).");
   }
-  clientPromise = import("@supabase/supabase-js").then(({ createClient }) =>
+  const pending = import("@supabase/supabase-js").then(({ createClient }) =>
     createClient(url, anonKey, {
       auth: {
         persistSession: true,
@@ -31,6 +31,10 @@ export async function getSupabase({ url, anonKey }) {
       },
     }),
   );
+  // A failed chunk load is never memoized: drop the cached promise so the next
+  // call retries instead of replaying the same rejection for the whole session.
+  pending.catch(() => { if (clientPromise === pending) clientPromise = null; });
+  clientPromise = pending;
   return clientPromise;
 }
 

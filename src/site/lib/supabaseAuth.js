@@ -8,7 +8,7 @@
 // supabase-js SDK is loaded on demand: a public visitor with no persisted session
 // never imports it; only sign-in or restoring an existing session does.
 import { useSyncExternalStore } from "react";
-import { getSupabase, hasPersistedSession } from "./supabaseClient.js";
+import { getSupabase, hasPersistedSession, SB_STORAGE_KEY } from "./supabaseClient.js";
 import { supabaseCfg } from "./supabaseStore.js";
 
 const listeners = new Set();
@@ -83,13 +83,27 @@ export async function login(email, password) {
   }
 }
 
+// Sign out and clear the persisted session. signOut resolves with { error }
+// instead of throwing, and on a network failure the SDK keeps the local token,
+// so a failed global sign-out falls back to a local-scope sign-out and, as a
+// last resort, removes the persisted token directly. Local state is cleared
+// regardless. Resolves to { ok } or { ok: false, error }.
 export async function logout() {
+  let error = null;
   try {
     const sb = await ensureClient();
-    await sb.auth.signOut();
-  } catch { /* clear locally even if the network call fails */ }
+    ({ error } = await sb.auth.signOut());
+    if (error) ({ error } = await sb.auth.signOut({ scope: "local" }));
+  } catch (err) {
+    error = err;
+  }
+  if (error) {
+    try { localStorage.removeItem(SB_STORAGE_KEY); } catch { /* storage unavailable */ }
+  }
   currentSession = null;
   emit();
+  if (error) return { ok: false, error: (error && error.message) || "Sign out failed." };
+  return { ok: true };
 }
 
 export function getToken() {

@@ -15,7 +15,9 @@
 // store. Any failure (offline, not configured, no row yet) leaves the
 // compiled-in seed in place, so the public site always renders. useCollection
 // returns the seed/overlay synchronously on first paint and re-renders when the
-// live value arrives.
+// live value arrives. A persisted local overlay (setCollection) outranks the
+// live value until it is committed or reset, so hydration never clobbers a
+// local-only edit.
 //
 // Write path (admin, session required): commitCollection validates the edited
 // JSON against its schema, then upserts the row through supabase-js (loaded on
@@ -45,12 +47,6 @@ const SEEDS = { teams, members, scores, tickets, catalog, schedule, achievements
 const PREFIX = "stemcamp:";
 const listeners = new Set();
 const cache = {};
-
-function devWarn(...args) {
-  try {
-    if (import.meta.env && import.meta.env.DEV) console.warn(...args);
-  } catch { /* import.meta unavailable */ }
-}
 
 // ---- local overlay + cache (offline fallback) ----
 
@@ -138,7 +134,8 @@ export function isSupabaseConfigured() {
 
 // Fetch the live row for a collection from PostgREST and publish it into the
 // store. On any failure return the seed and leave the store untouched, so the
-// public site always renders. Failure is silent by design (graceful fallback).
+// public site always renders. Real failures on a configured site warn on the
+// console (in production too); only the not-configured case is silent.
 export async function hydrateCollection(name) {
   const { url, anonKey, table } = supabaseCfg();
   if (!url || !anonKey) return SEEDS[name]; // not configured: seed only
@@ -149,7 +146,7 @@ export async function hydrateCollection(name) {
       headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}`, Accept: "application/json" },
     });
     if (!r.ok) {
-      devWarn(`hydrate ${name}: ${r.status} ${r.statusText}; using bundled seed`);
+      console.warn(`hydrate ${name}: ${r.status} ${r.statusText}; using bundled seed`);
       return SEEDS[name];
     }
     const rows = await r.json();
@@ -160,13 +157,18 @@ export async function hydrateCollection(name) {
     // Only publish a value that passes the shape check, so a corrupt remote row
     // cannot poison the running UI; otherwise keep the seed/overlay.
     try { validate(name, data); } catch (e) {
-      devWarn(`hydrate ${name}: remote row failed schema, using seed`, e);
+      console.warn(`hydrate ${name}: remote row failed schema, using seed`, e);
       return SEEDS[name];
     }
+    // A persisted local overlay is a deliberate local-only edit; it stays
+    // authoritative until commit or reset, so the live value is not published
+    // over it (checked here, not before the fetch, because an overlay can be
+    // written while this request is in flight).
+    if (isOverridden(name)) return data;
     publish(name, data);
     return data;
   } catch (e) {
-    devWarn(`hydrate ${name}: ${e && e.message ? e.message : e}; using seed`);
+    console.warn(`hydrate ${name}: ${e && e.message ? e.message : e}; using seed`);
     return SEEDS[name];
   }
 }
@@ -212,7 +214,7 @@ export async function commitCollection(name, value, message) { // eslint-disable
   }
   const { data, error } = await sb
     .from(cfg.table)
-    .upsert({ name, data: value, updated_at: new Date().toISOString() }, { onConflict: "name" })
+    .upsert({ name, data: value }, { onConflict: "name" }) // updated_at is stamped by the database, never the client clock
     .select("data")
     .single();
   if (error) throw new Error(friendlyWriteError(error));
