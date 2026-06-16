@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
+import { teamToolsAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -753,7 +754,9 @@ function main() {
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
     const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
     const camp = CAMPS[doc.camp];
-    const body = TEMPLATES[doc.template](ir, camp, doc);
+    let body = TEMPLATES[doc.template](ir, camp, doc);
+    // TTT-02 print-and-cut team tools live as an appendix to the trees guide packet.
+    if (doc.id === "pk-trees-guide") body += teamToolsAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>
