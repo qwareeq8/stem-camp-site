@@ -505,20 +505,27 @@ ${sub ? `<p class="doc-sub">${esc(textOf(sub).trim())}</p>` : ""}
       const isDivider = blocks.every((b) => b.kind !== "table") && blocks.length <= 3 &&
         !blocks.some((b) => (sz0(b) || 0) >= 40 && classifyPara(b) === "title" && /ACTIVITY/.test(textOf(blocks[0])));
       void idx;
+      // The code, when present, lets us drop a per-activity appendix in place.
+      const ebCode = blocks.find((b) => b.kind === "p" && classifyPara(b) === "eyebrow" && /\b[A-Z]{3}-\d{2}\b/.test(textOf(b)));
+      const code = ebCode ? textOf(ebCode).match(/\b([A-Z]{3}-\d{2})\b/)[1] : null;
+      let html;
       if (blocks.length <= 3 && blocks.some((b) => sz0(b) === 36)) {
         const eb = blocks.find((b) => classifyPara(b) === "eyebrow");
         const kk = blocks.find((b) => sz0(b) === 36);
-        return `<div class="cover page-break" style="min-height:8.6in">
+        html = `<div class="cover page-break" style="min-height:8.6in">
 ${eb ? `<div class="eyebrow">${esc(textOf(eb).trim())}</div>` : ""}
 <h1>${esc(textOf(kk).trim())}</h1>
 ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${esc(textOf(b).trim())}</p>`).join("\n")}
 </div>`;
+      } else {
+        void isDivider;
+        html = `<div class="page-break"></div>\n` + renderFlow(blocks, camp, { headerDone: false });
       }
-      void isDivider;
-      return `<div class="page-break"></div>\n` + renderFlow(blocks, camp, { headerDone: false });
+      // The TTT-02 team tools print-and-cut sheets follow the TTT-02 guide section.
+      if (doc.id === "pk-trees-guide" && code === "TTT-02") html += "\n" + teamToolsAppendix();
+      return html;
     })
     .join("\n");
-  void doc;
   return coverHtml + "\n" + body;
 }
 
@@ -755,8 +762,9 @@ function main() {
     const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
     const camp = CAMPS[doc.camp];
     let body = TEMPLATES[doc.template](ir, camp, doc);
-    // TTT-02 print-and-cut team tools live as an appendix to the trees guide packet.
-    if (doc.id === "pk-trees-guide") body += teamToolsAppendix();
+    // TTT-02 print-and-cut team tools follow the standalone TTT-02 guide; the trees
+    // guide packet places them right after its TTT-02 section (see renderPacket).
+    if (doc.id === "TTT-02-guide") body += teamToolsAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>

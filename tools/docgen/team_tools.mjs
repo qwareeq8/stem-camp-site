@@ -36,8 +36,10 @@ function clinometerSvg() {
       const ix = cx + s * (R - len) * sn, iy = cy + (R - len) * cs;
       e.push(`<line x1="${r2(ox)}" y1="${r2(oy)}" x2="${r2(ix)}" y2="${r2(iy)}" stroke="#000" stroke-width="${major ? 1.6 : 1}"/>`);
       if (major) {
-        const nr = R - len - 12;
-        e.push(`<text x="${r2(cx + s * nr * sn)}" y="${r2(cy + nr * cs + 4)}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#000">${a}</text>`);
+        const nr = R - len - 13;
+        // Keep the topmost numbers (notably 90) clear of the flat top edge line.
+        const ny = Math.max(cy + nr * cs + 4, cy + 16);
+        e.push(`<text x="${r2(cx + s * nr * sn)}" y="${r2(ny)}" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#000">${a}</text>`);
       }
     }
   }
@@ -135,7 +137,7 @@ ${clinometerSvg()}
   </div>
   <div>
     <p class="tt-h">Find the tree height</p>
-    <p class="tt-formula">Tree height = eye height + ( distance to the tree &times; tan of the angle ). Use the standoff distance the instructor marked.</p>
+    <p class="tt-formula">Tree height = eye height + (distance to the tree &times; tan of the angle). Use the standoff distance the instructor marked.</p>
     <table class="tight tt-tan"><thead><tr><th>Angle</th><th>tan</th></tr></thead><tbody>${tanRows}</tbody></table>
     <p class="tt-eg">Example: eye height 1.5 m, distance 10 m, angle 40&deg; gives 1.5 + 10 &times; 0.84 = about 9.9 m.</p>
   </div>
