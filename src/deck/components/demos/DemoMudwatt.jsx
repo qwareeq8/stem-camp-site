@@ -7,7 +7,7 @@ import { Btn, Caption, Field, Readout, Slider, Tag } from "../../ui/primitives.j
 
 function DemoMudwatt() {
   // TTT "Electrogenic bacteria" (concept 1). Sibling ExtraCircuit (concept 2) owns
-  // completing the circuit, the LED, and power. This demo owns the source: in
+  // completing the circuit, the resistor and multimeter, and power. This demo owns the source: in
   // oxygen-free mud, electrogenic microbes colonize a buried graphite anode and,
   // as they digest nutrients, push spare electrons onto the rod. More food grows
   // more biofilm and a faster electron output. A zoom shows one microbe donating

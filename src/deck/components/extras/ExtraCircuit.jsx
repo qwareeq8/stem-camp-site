@@ -9,7 +9,7 @@ function ExtraCircuit() {
   // DemoMudwatt is a soil cross-section about biofilm growth and the meter. This
   // one is the SCHEMATIC LOOP: a circuit only works when charge can travel the
   // whole way around. Electrons take the external WIRE from anode to cathode
-  // (lighting the LED); positive ions take the MUD to close the other half. Cut
+  // (through the 100 kohm resistor the multimeter reads); ions take the MUD to close. Cut
   // the wire OR block the mud and current stops, even though the cell still holds
   // voltage. Power is roughly voltage times current.
   const C = CAMP.trees.ink, A = CAMP.trees.acc;
@@ -24,8 +24,6 @@ function ExtraCircuit() {
   const voltageMv = 320 + supply * 56;                          // 376..600 mV (chemistry sets this)
   const currentUa = Math.round(supply * 78);                    // 78..390 microamps
   const powerUw = Math.round(voltageMv * currentUa / 1000);     // microwatts = mV * uA / 1000
-  const period = Math.max(180, 1500 - cur * 1200);
-  const lit = complete && (t % period) < period * 0.45;
 
   // loop geometry
   const Lx = 78, Rx = 362, topY = 64, botY = 166;
@@ -84,7 +82,7 @@ function ExtraCircuit() {
           <rect x={Rx - 5} y={topY} width="10" height={botY - topY} rx="2" fill={METAL} stroke={T.ink} strokeWidth="0.8" />
 
 
-          {/* electrons on the wire (skip the slot under the LED) */}
+          {/* electrons on the wire (skip the slot under the resistor) */}
           {electrons.map((x, i) => ((x > 206 && x < 234) ? null : (
             <g key={"e" + i}>
               <circle cx={x} cy={topY} r="4.6" fill={C} stroke={T.paper} strokeWidth="0.7" />
@@ -99,11 +97,15 @@ function ExtraCircuit() {
             </g>
           ))}
 
-          {/* LED on the wire */}
-          <text x="220" y={topY - 18} textAnchor="middle" fill={T.mute} style={f.mono(600, 8, { upper: true, tracking: 0.16 })}>LED</text>
-          <circle cx="220" cy={topY} r="12" fill={lit ? A : T.paper2} stroke={T.ink} strokeWidth="1.4"
-            style={{ filter: lit ? "drop-shadow(0 0 7px " + A + ")" : "none", transition: "fill .08s" }} />
-          <text x="220" y={topY + 3} textAnchor="middle" fill={lit ? T.paper : T.mute} style={f.mono(700, 7)}>{lit ? "on" : "off"}</text>
+          {/* 100 kohm resistor on the wire */}
+          <text x="220" y={topY - 16} textAnchor="middle" fill={T.mute} style={f.mono(600, 8, { upper: true, tracking: 0.16 })}>100 k{"Ω"}</text>
+          <rect x="206" y={topY - 6} width="28" height="12" rx="1.5" fill={T.paper2} stroke={T.ink} strokeWidth="1.4" />
+          {/* multimeter reads the voltage across the resistor */}
+          <line x1="211" y1={topY + 6} x2="211" y2="100" stroke={T.ink} strokeWidth="1" opacity="0.65" />
+          <line x1="229" y1={topY + 6} x2="229" y2="100" stroke={T.ink} strokeWidth="1" opacity="0.65" />
+          <rect x="198" y="100" width="44" height="22" rx="3" fill={T.paper2} stroke={T.ink} strokeWidth="1.3" />
+          <text x="220" y="111" textAnchor="middle" fill={C} style={f.mono(700, 8)}>{complete ? voltageMv : 0} mV</text>
+          <text x="220" y="119" textAnchor="middle" fill={T.mute} style={f.mono(600, 5.5, { upper: true, tracking: 0.12 })}>multimeter</text>
 
           {/* cathode reaction that closes the loop */}
           <text x="220" y="226" textAnchor="middle" fill={T.mute} style={f.mono(500, 8, { upper: true, tracking: 0.05 })}>at the cathode: O{"₂"} + 4H{"⁺"} + 4e{"⁻"} {"→"} 2H{"₂"}O</text>
@@ -126,10 +128,11 @@ function ExtraCircuit() {
 
       <Caption color={C}>
         A circuit only works as a complete loop. Electrons leave the buried anode, run through the
-        wire and light the LED, then reach the cathode in the air, where they join oxygen and protons
-        to make water. Positive ions drift back through the mud to close the loop. Cut the wire or
-        block the mud and the current stops, even though the cell still holds voltage. More active
-        microbes push more electrons per second, so current and power both rise.
+        wire, the 100 k{"Ω"} resistor, and the multimeter, then reach the cathode in the air, where
+        they join oxygen and protons to make water. Positive ions drift back through the mud to close
+        the loop. Cut the wire or block the mud and the current stops, even though the cell still holds
+        voltage. More active microbes push more electrons per second, so the voltage, current, and
+        power all rise.
       </Caption>
     </div>
   );
