@@ -7,3 +7,6 @@ _verification/
 .env
 .env.*
 !.env.example
+
+# Operator-only camp prep and procurement material (never published)
+camp-prep/
