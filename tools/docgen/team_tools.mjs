@@ -14,7 +14,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 // (the circle center). 0 degrees sits at the bottom of the arc and rises to 90
 // at each end of the flat edge, symmetric on both sides, so the reading equals
 // the angle of elevation directly.
-function clinometerSvg() {
+export function clinometerSvg() {
   const W = 640, pad = 8;
   const R = W / 2 - pad;            // 312 px = 3.25 in at 96 px/in
   const cx = W / 2;
@@ -56,12 +56,12 @@ function clinometerSvg() {
   return `<svg viewBox="0 0 ${W} ${r2(H)}" style="width:6.5in;display:block;margin:8pt auto 2pt;" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
 }
 
-const TAN = [[10, "0.18"], [20, "0.36"], [30, "0.58"], [40, "0.84"], [45, "1.00"], [50, "1.19"], [60, "1.73"], [70, "2.75"]];
+export const TAN = [[10, "0.18"], [20, "0.36"], [30, "0.58"], [40, "0.84"], [45, "1.00"], [50, "1.19"], [60, "1.73"], [70, "2.75"]];
 
-function routeCard() {
+export function routeCard() {
   const cols = [
     ["Checkpoint", "18%"], ["Visit order", "10%"], ["Temp (&deg;F)", "11%"],
-    ["Humidity (%)", "12%"], ["Light (lux)", "12%"], ["Soil moisture (1 to 10)", "15%"], ["Notes", "22%"],
+    ["Humidity (%)", "12%"], ["Light (relative)", "12%"], ["Soil moisture (1 to 10)", "15%"], ["Notes", "22%"],
   ];
   const rows = ["Reference (calibrate)", "A", "B", "C", "D", "E"];
   const head = cols.map(([t]) => `<th>${t}</th>`).join("");
@@ -108,7 +108,7 @@ export function teamToolsAppendix() {
 .team-tools table.tt-rc td.tt-rc-cp { font-size: 7.5pt; color: var(--ink); }
 .team-tools .tt-rc-rec { font-size: 9pt; margin-top: 5pt; }
 .team-tools .tt-rc-foot { font-size: 7.5pt; color: var(--ink2); margin-top: 3pt; }
-.team-tools .tt-cutline { text-align: center; font-size: 7pt; letter-spacing: 0.3em; color: var(--ink3); border-top: 0.8pt dashed var(--rule2); margin: 2pt 0; padding-top: 2pt; }
+.team-tools .tt-cutline { text-align: center; font-size: 7pt; letter-spacing: 0.3em; color: var(--ink2); border-top: 0.8pt dashed var(--rule2); margin: 2pt 0; padding-top: 2pt; }
 `;
   const assemble = [
     "Cut out the half circle along the curved outline.",
@@ -122,7 +122,7 @@ export function teamToolsAppendix() {
 
   return `<div class="team-tools"><style>${css}</style>
 <h2 class="page-break" style="margin-top:0">Print and cut: team tools</h2>
-<p class="tt-note">Print on cardstock for TTT-02 Forest Sensor Sprint. Clinometer: one per page, print 6 to 8. Route cards: two per page, print 3 to 4 sheets for 6 to 8 cards.</p>
+<p class="tt-note">Print on cardstock for TTT-02 Forest Sensor Sprint. Four teams plus spares. Clinometer: one per page, print 6 (4 teams + 2 spares). Route cards: two per page, print 3 sheets for 6 cards (4 teams + 2 spares).</p>
 
 <div class="tt-clino">
 <h3>Paper clinometer</h3>

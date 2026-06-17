@@ -247,7 +247,7 @@ table.tight td { padding: 3pt 5pt; overflow-wrap: anywhere; }
   font-size: 7pt;
   font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--ink3);
+  color: var(--ink2);
 }
 
 /* ---- write-in fields --------------------------------------------------------- */
@@ -391,18 +391,18 @@ table.tight td { padding: 3pt 5pt; overflow-wrap: anywhere; }
 .ledger-item .li-tags { display: flex; gap: 4pt; flex-wrap: wrap; justify-content: flex-end; }
 .ledger-item .li-meta {
   font-family: var(--mono); font-size: 6.5pt; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--ink3); margin-top: 2pt;
+  text-transform: uppercase; color: var(--ink2); margin-top: 2pt;
 }
 .ledger-item .li-line { font-size: 8.5pt; margin-top: 2.5pt; overflow-wrap: anywhere; }
 .ledger-item .li-line .k {
   font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--camp-acc); margin-right: 3pt;
 }
-.ledger-item .li-line .dot { color: var(--ink3); margin: 0 5pt; }
+.ledger-item .li-line .dot { color: var(--ink2); margin: 0 5pt; }
 .ledger-item .li-note { font-size: 8pt; color: var(--ink2); margin-top: 1.5pt; }
 .ledger-item .li-note .nk {
   font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--ink3); margin-right: 3pt;
+  text-transform: uppercase; color: var(--ink2); margin-right: 3pt;
 }
 .ledger-item .li-note.warn { color: var(--warn); }
 .ledger-item .li-note.warn .nk { color: var(--warn); }
