@@ -329,7 +329,7 @@ export default function SetupEditor() {
           </div>
           <div className="setup-dates-row">
             <DateSummary label="Dates" value={cfg.dates || formatOverallDates(camps)} className="setup-overall-dates" />
-            <TextField label="Hosted by" value={cfg.location} onChange={(v) => setKey("location", v)} placeholder="Hosted by Temple University College of Engineering" />
+            <TextField label="Hosted by" value={cfg.location} onChange={(v) => setKey("location", v)} placeholder="Hosted by Temple University" />
           </div>
         </div>
       </div>

@@ -29,7 +29,7 @@ function campusLabel(campus) {
 }
 
 function hostedByLabel(value) {
-  const fallback = "Hosted by Temple University College of Engineering";
+  const fallback = "Hosted by Temple University";
   const clean = String(value || "").replace(/\s+/g, " ").trim();
   if (!clean || /yusuf qwareeq/i.test(clean)) return fallback;
   if (/^hosted by\b/i.test(clean)) return clean;
