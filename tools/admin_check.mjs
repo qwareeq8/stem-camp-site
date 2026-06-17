@@ -44,11 +44,11 @@ await page2.waitForTimeout(700);
 const wrongUnlocked = (await page2.locator("textarea").count()) > 0;
 
 // asset served?
-const asset = await page.request.get(`${base}/files/buy_list.csv`);
+const asset = await page.request.get(`${base}/files/From_Trees_to_Tech_Station_Signs.pdf`);
 
 console.log("admin login -> console: select=" + hasSelect + " textarea=" + hasTextarea);
 console.log("wrong password unlocked (should be false): " + wrongUnlocked);
-console.log("buy_list.csv status: " + asset.status());
+console.log("station signs PDF status: " + asset.status());
 console.log("pageerrors: " + errs.length + (errs.length ? " :: " + errs.join(" | ") : ""));
 await b.close();
 server.close();

@@ -43,10 +43,6 @@ for (const entry of entries) {
   entry.type = "pdf";
   entry.size = formatBytes(fs.statSync(path.join(filesDir, doc.out)).size);
 }
-// The buy list is now a normal printable document, not a spreadsheet.
-const buylist = entries.find((e) => e.id === "doc-buylist");
-buylist.desc = "Every material aggregated across all stations, with per-station quantities, in one printable list.";
-
 fs.writeFileSync(filesJson, JSON.stringify(entries, null, 2) + "\n");
 execFileSync("node", [path.join(repo, "tools", "gen_seed.mjs")], { stdio: "inherit" });
 process.stdout.write(`published ${copied} PDFs into public/files/, restamped ${entries.length} entries\n`);

@@ -87,28 +87,16 @@ const PROGRAM = [
     category: "Program",
     src: "06_Safety_and_Setup/Staff_Setup_Prep_and_Safety_Checklist.pdf",
   },
-  {
-    id: "doc-procurement",
-    name: "Amazon Procurement Workbook",
-    desc: "Full procurement workbook with per-station materials, quantities, and budget.",
-    category: "Logistics",
-    src: "04_Shopping_and_Budget/2026_STEM_Camps_Amazon_Procurement_Workbook.xlsx",
-  },
 ];
+// The library serves only camper- and facilitator-facing materials. Procurement
+// and cost artifacts (the procurement workbook and the materials buy list) are
+// kept local to the operator and are intentionally not published here.
 for (const d of PROGRAM) {
   entries.push({
     id: d.id, name: d.name, desc: d.desc, type: ext(d.src),
     size: "", path: pushCopy(d.src), camp: "", code: "", category: d.category, kind: "",
   });
 }
-// Keep the existing flattened buy list (already vendored under public/files).
-entries.push({
-  id: "doc-buylist",
-  name: "Materials Buy List",
-  desc: "Every material aggregated across all stations, with per-station quantities, in one spreadsheet.",
-  type: "csv", size: "", path: "files/buy_list.csv",
-  camp: "", code: "", category: "Logistics", kind: "",
-});
 
 // ---- per-camp packets, score sheets, and signage ----------------------------
 const CAMP_DOCS = [
@@ -172,9 +160,8 @@ for (const s of ACTIVITY_SETS) {
 
 // ---- copy files and stamp real sizes ----------------------------------------
 fs.mkdirSync(outDir, { recursive: true });
-// Remove stale vendored docs but keep the generated buy list.
+// Replace the library wholesale with the current document set.
 for (const n of fs.readdirSync(outDir)) {
-  if (n === "buy_list.csv") continue;
   fs.rmSync(path.join(outDir, n));
 }
 const sizeByPath = {};
@@ -184,7 +171,6 @@ for (const { src, dest } of copies) {
   fs.copyFileSync(srcAbs, destAbs);
   sizeByPath[`files/${dest}`] = formatBytes(fs.statSync(destAbs).size);
 }
-sizeByPath["files/buy_list.csv"] = formatBytes(fs.statSync(path.join(outDir, "buy_list.csv")).size);
 for (const e of entries) e.size = sizeByPath[e.path] || "";
 
 fs.writeFileSync(outJson, JSON.stringify(entries, null, 2) + "\n");
