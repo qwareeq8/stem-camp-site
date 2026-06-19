@@ -61,8 +61,13 @@ function Home({ onSelect, camp, setCamp }) {
   const list = camp === "trees" ? TREES_DECK : PY_DECK;
   const backups = camp === "trees" ? TREESB_DECK : PYB_DECK;
   const theme = CAMP[camp];
-  const cats = ["all", ...[...new Set(list.map((a) => a.cat))]];
-  const shown = filter === "all" ? list : list.filter((a) => a.cat === filter);
+  // The welcome deck is an orientation card, not one of the numbered stations, so it
+  // is left out of the station count, the category filter, and the station grid, and
+  // shown as its own "Start here" card instead.
+  const welcome = list.find((a) => a.welcome);
+  const stations = list.filter((a) => !a.welcome);
+  const cats = ["all", ...[...new Set(stations.map((a) => a.cat))]];
+  const shown = filter === "all" ? stations : stations.filter((a) => a.cat === filter);
   const gridCols = "repeat(auto-fill,minmax(220px,1fr))";
 
   return (
@@ -93,9 +98,22 @@ function Home({ onSelect, camp, setCamp }) {
           wraps and collapses the trailing rule line, so show a short one-line label there. */}
       <h2 className="section-title">
         {isNarrow
-          ? `${list.length} stations`
-          : `${camp === "trees" ? "Field · Forest · Future" : "Signal · System · Science"} · ${list.length} stations`}
+          ? `${stations.length} stations`
+          : `${camp === "trees" ? "Field · Forest · Future" : "Signal · System · Science"} · ${stations.length} stations`}
       </h2>
+
+      {/* welcome / orientation card: reachable, but not counted as a station */}
+      {welcome && (
+        <button onClick={() => onSelect(welcome)} className="card card-link focusable"
+          style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18, textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span className="meta" style={{ color: theme.acc }}>Start here</span>
+            <Sparkles size={18} strokeWidth={1.9} color={theme.acc} aria-hidden />
+          </div>
+          <h3 style={{ margin: 0 }}>{welcome.t}</h3>
+          <div className="meta">{welcome.sub}</div>
+        </button>
+      )}
 
       {/* category filter */}
       <div className="row" style={{ flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
