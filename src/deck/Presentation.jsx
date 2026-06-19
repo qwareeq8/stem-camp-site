@@ -173,8 +173,10 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
                 {/* Each "· label" segment is kept intact (nowrap) and breaks happen
                     only between segments, so a wrap never strands a separator dot. */}
                 <div style={{ color: T.mute, ...f.mono(500, 10.5, { upper: true, tracking: 0.12 }) }}>
-                  <span style={{ whiteSpace: "nowrap" }}>Build {act.buildMin} min</span>{" "}
-                  <span style={{ whiteSpace: "nowrap" }}>· {act.science.length} concept{act.science.length === 1 ? "" : "s"}</span>{" "}
+                  {act.buildMin > 0 && (
+                    <span style={{ whiteSpace: "nowrap" }}>Build {act.buildMin} min ·{" "}</span>
+                  )}
+                  <span style={{ whiteSpace: "nowrap" }}>{act.science.length} concept{act.science.length === 1 ? "" : "s"}</span>{" "}
                   <span style={{ whiteSpace: "nowrap" }}>· {act.steps.length} build steps</span>
                 </div>
               </div>
