@@ -164,9 +164,8 @@ export function dropLaneStrip() {
     const y = 7 + mm, major = mm % 10 === 0, mid = mm % 10 === 5;
     e.push(`<line x1="34" y1="${y}" x2="${major ? 50 : mid ? 43 : 39}" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
   }
-  for (let k = 0; k <= 18; k++) {
-    const y = k === 0 ? 14 : k === 18 ? 186.5 : 10.4 + k * 10;   // 0 below the launch line, 18 off the frame
-    e.push(`<text x="29" y="${y}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="6" font-weight="700" fill="#000">${k}</text>`);
+  for (let k = 0; k <= 18; k++) {   // numbers centered on their cm tick line, sitting left of the spine
+    e.push(`<text x="29" y="${7 + k * 10}" text-anchor="end" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
   }
   // inch edge (backup): spine at x=116, quarter-inch ticks 0..28 (major every inch, mid every half)
   e.push(`<line x1="116" y1="7" x2="116" y2="187" stroke="#000" stroke-width="1.3"/>`);
@@ -174,9 +173,8 @@ export function dropLaneStrip() {
     const y = r2(7 + q * 6.35), major = q % 4 === 0, half = q % 4 === 2;
     e.push(`<line x1="${major ? 100 : half ? 107 : 111}" y1="${y}" x2="116" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
   }
-  for (let k = 0; k <= 7; k++) {
-    const y = k === 0 ? 14 : r2(10.4 + k * 25.4);
-    e.push(`<text x="121" y="${y}" text-anchor="start" font-family="JetBrains Mono, monospace" font-size="6" font-weight="700" fill="#000">${k}</text>`);
+  for (let k = 0; k <= 7; k++) {   // inch numbers centered on their tick line, sitting right of the spine
+    e.push(`<text x="121" y="${r2(7 + k * 25.4)}" text-anchor="start" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
   }
   // launch line at 0 and the cm / in orientation labels
   e.push(`<line x1="30" y1="7" x2="120" y2="7" stroke="#000" stroke-width="2"/>`);
