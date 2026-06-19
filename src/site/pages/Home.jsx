@@ -7,7 +7,7 @@ import { teamTotals } from "../lib/scoring.js";
 import { Card, Stat, Badge, Btn, SectionTitle, CampBadge } from "../ui.jsx";
 import { TREES_DECK, PY_DECK, TREESB_DECK, PYB_DECK } from "../../deck/data/decks.js";
 
-const PRIMARY = TREES_DECK.length + PY_DECK.length;
+const PRIMARY = TREES_DECK.filter((a) => !a.welcome).length + PY_DECK.filter((a) => !a.welcome).length;
 const BACKUPS = TREESB_DECK.length + PYB_DECK.length;
 const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 const EASTERN = "America/New_York";
@@ -142,7 +142,7 @@ export default function Home() {
         <SectionTitle>The two camps</SectionTitle>
         <div className="grid cols-2">
           {camps.map((c) => {
-            const n = c.id === "trees" ? TREES_DECK.length : PY_DECK.length;
+            const n = (c.id === "trees" ? TREES_DECK : PY_DECK).filter((a) => !a.welcome).length;
             const campus = campusLabel(c.campus);
             return (
               <Card key={c.id} to="/deck" padLg className="card-link">
