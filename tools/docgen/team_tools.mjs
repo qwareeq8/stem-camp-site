@@ -224,3 +224,59 @@ export function seedDerbyAppendix() {
 <div class="sd-legend">${rings}</div>
 </div>`;
 }
+
+// TTT-01 daily voltage log: the per-team sheet teams write a reading on each day
+// of the week. Exposed as voltageLogAppendix(); render.mjs appends it after the
+// TTT-01 guide section so the instructor guide keeps a record of every printable.
+export function voltageLogAppendix() {
+  const css = `
+.vlog-apx h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 7pt 0 3pt; break-after: avoid; }
+.vlog-apx .va-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.vlog-apx .va-hdr { display: flex; gap: 20pt; font-family: var(--mono); font-size: 9pt; margin: 6pt 0 4pt; }
+.vlog-apx .va-hdr .fill { border-bottom: 1pt solid var(--rule2); min-width: 130pt; display: inline-block; }
+.vlog-apx table { width: 100%; font-size: 10pt; border-collapse: collapse; }
+.vlog-apx th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 5pt; text-align: left; }
+.vlog-apx td { border-bottom: 1pt solid #000; height: .4in; padding: 5pt; }
+.vlog-apx tr.peak td { border-top: 1.6pt solid #000; font-weight: 700; }
+`;
+  const days = ["Mon Jun 22", "Tue Jun 23", "Wed Jun 24", "Thu Jun 25", "Fri Jun 26"];
+  const rows = days
+    .map((d) => `<tr><td style="font-family:var(--mono);font-size:9pt">${d}</td><td></td><td></td><td></td></tr>`)
+    .join("");
+  return `<div class="vlog-apx"><style>${css}</style>
+<h2 class="page-break" style="margin-top:0">Print: TTT-01 daily voltage log</h2>
+<p class="va-note">One per team, on cardstock (or a sheet protector for dry-erase). Each day, set the multimeter to DC millivolts and read the voltage across the 100 k&#8486; resistor at the same time; the cell is weak on day 1 and climbs as the biofilm grows. Defend the design with the trend, not one number.</p>
+<h3>Daily voltage log</h3>
+<div class="va-hdr"><span>Team <span class="fill"></span></span><span>The ONE variable we are testing <span class="fill"></span></span></div>
+<table><thead><tr><th style="width:24%">Day</th><th style="width:18%">Time</th><th style="width:24%">Voltage <span style="text-transform:none">(mV)</span></th><th style="width:34%">Notes</th></tr></thead>
+<tbody>${rows}<tr class="peak"><td>Peak reading</td><td></td><td></td><td>Day of peak</td></tr></tbody></table>
+</div>`;
+}
+
+// TTT-02 standoff floor marker: the "stand here" sign placed at the pre-marked
+// tree-height distance. Exposed as standoffAppendix(); render.mjs appends it after
+// the TTT-02 team tools so the guide records this printable too.
+export function standoffAppendix() {
+  const css = `
+.standoff-apx h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 7pt 0 3pt; break-after: avoid; }
+.standoff-apx .so-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.standoff-apx .so-sign { min-height: 7.4in; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 14pt; border: 1pt solid var(--rule2); border-radius: 6pt; padding: 24pt; }
+.standoff-apx .so-chip { font-family: var(--mono); font-size: 11pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); border: 1px solid var(--rule2); border-radius: 999px; padding: 5pt 16pt; }
+.standoff-apx .so-rule { width: 64pt; border-top: 3px solid var(--camp-acc); }
+.standoff-apx .so-sub { font-family: var(--serif); font-style: italic; font-size: 17pt; color: var(--ink2); max-width: 30ch; }
+.standoff-apx .so-big { font-family: var(--serif); font-weight: 600; font-size: 52pt; color: var(--camp-ink); line-height: 1.02; }
+.standoff-apx .so-foot { font-size: 11pt; color: var(--ink2); max-width: 42ch; }
+`;
+  return `<div class="standoff-apx"><style>${css}</style>
+<h2 class="page-break" style="margin-top:0">Print: TTT-02 standoff floor marker</h2>
+<p class="so-note">One per tree, on cardstock (laminate; it sits on the ground). Place it at the distance you pre-mark from the tree base with the long tape.</p>
+<div class="so-sign">
+<div class="so-chip">From Trees to Tech 2026 &middot; TTT-02</div>
+<div class="so-rule"></div>
+<div class="so-sub">Tree-height station</div>
+<div class="so-big">Stand here</div>
+<div class="so-sub">Sight the treetop through your clinometer straw from this mark.</div>
+<div class="so-foot">This mark is a measured distance from the tree base. Write that distance here: __________ m, then use it in your tree-height formula.</div>
+</div>
+</div>`;
+}
