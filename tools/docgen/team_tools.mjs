@@ -121,8 +121,7 @@ export function teamToolsAppendix() {
   const tanRows = TAN.map(([d, t]) => `<tr><td>${d}</td><td>${t}</td></tr>`).join("");
 
   return `<div class="team-tools"><style>${css}</style>
-<h2 class="page-break" style="margin-top:0">Print and cut: team tools</h2>
-<p class="tt-note">Print on cardstock for TTT-02 Forest Sensor Sprint. Four teams plus spares. Clinometer: one per page, print 6 (4 teams + 2 spares). Route cards: two per page, print 3 sheets for 6 cards (4 teams + 2 spares).</p>
+<h2 class="page-break" style="margin-top:0">Team tools: clinometer and route card</h2>
 
 <div class="tt-clino">
 <h3>Paper clinometer</h3>
