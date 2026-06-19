@@ -100,8 +100,9 @@ function DemoCapillary() {
         Water sticks to the glass (adhesion) and to itself (cohesion), so along a narrow wall it is
         pulled upward and drags a connected column with it against gravity. The thinner the bore, the
         less weight there is for the same wall grip, so the water climbs higher and faster: rise height
-        goes as 1 over the radius. More wettable walls pull harder still. Trees use this in their xylem
-        to lift water from the roots.
+        goes as 1 over the radius. More wettable walls pull harder still. Trees use this in their narrow xylem too, but on its own it lifts water only about a
+        meter; most of the lift in a tall tree comes from water evaporating at the leaves
+        (transpiration), which pulls the whole column up.
       </Caption>
     </div>
   );
