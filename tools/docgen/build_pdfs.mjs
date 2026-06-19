@@ -36,13 +36,17 @@ async function main() {
     await page.goto(pathToFileURL(htmlPath).href);
     await page.evaluate(() => document.fonts.ready);
     const outPath = path.join(PDF_DIR, doc.out);
+    // Posted or cut-apart documents (station signs, score slips, leaderboard) are
+    // for display, so they render without the running footer and page numbers; read
+    // documents (handouts, guides, packets, master, safety, rewards) keep it.
+    const showFooter = doc.template !== "signs" && doc.template !== "scores";
     await page.pdf({
       path: outPath,
       format: "Letter",
       printBackground: true,
-      displayHeaderFooter: true,
+      displayHeaderFooter: showFooter,
       headerTemplate: "<span></span>",
-      footerTemplate: footerTemplate(meta[doc.slug].footer),
+      footerTemplate: showFooter ? footerTemplate(meta[doc.slug].footer) : "<span></span>",
       margin: MARGIN,
     });
     const kb = Math.round(fs.statSync(outPath).size / 1024);
