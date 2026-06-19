@@ -9,7 +9,7 @@ function ExtraCircuit() {
   // DemoMudwatt is a soil cross-section about biofilm growth and the meter. This
   // one is the SCHEMATIC LOOP: a circuit only works when charge can travel the
   // whole way around. Electrons take the external WIRE from anode to cathode
-  // (through the 100 kohm resistor the multimeter reads); ions take the MUD to close. Cut
+  // (through the 100 kΩ resistor the multimeter reads); ions take the MUD to close. Cut
   // the wire OR block the mud and current stops, even though the cell still holds
   // voltage. Power is roughly voltage times current.
   const C = CAMP.trees.ink, A = CAMP.trees.acc;
@@ -97,7 +97,7 @@ function ExtraCircuit() {
             </g>
           ))}
 
-          {/* 100 kohm resistor on the wire */}
+          {/* 100 kΩ resistor on the wire */}
           <text x="220" y={topY - 16} textAnchor="middle" fill={T.mute} style={f.mono(600, 8, { upper: true, tracking: 0.16 })}>100 k{"Ω"}</text>
           <rect x="206" y={topY - 6} width="28" height="12" rx="1.5" fill={T.paper2} stroke={T.ink} strokeWidth="1.4" />
           {/* multimeter reads the voltage across the resistor */}
