@@ -157,7 +157,8 @@ ${routeCard()}
 // team tools follow TTT-02.
 export function dropLaneStrip() {
   const e = [];
-  e.push(`<rect x="0.6" y="0.6" width="148.8" height="188.8" fill="none" stroke="#2a5736" stroke-width="1.2" rx="2"/>`);
+  // The box runs to y=195.4, ~6 mm below the last tick (y=187), so the "18" label clears the bottom.
+  e.push(`<rect x="0.6" y="0.6" width="148.8" height="194.8" fill="none" stroke="#2a5736" stroke-width="1.2" rx="2"/>`);
   // centimeter edge: spine at x=34, mm ticks 0..180 (major every cm, mid every 5 mm)
   e.push(`<line x1="34" y1="7" x2="34" y2="187" stroke="#000" stroke-width="1.3"/>`);
   for (let mm = 0; mm <= 180; mm++) {
@@ -181,7 +182,7 @@ export function dropLaneStrip() {
   e.push(`<text x="75" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">LAUNCH LINE</text>`);
   e.push(`<text x="62" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">&larr; cm</text>`);
   e.push(`<text x="88" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">in &rarr;</text>`);
-  return `<svg viewBox="0 0 150 190" width="150mm" height="190mm" preserveAspectRatio="xMidYMin meet" style="display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
+  return `<svg viewBox="0 0 150 196" width="150mm" height="196mm" preserveAspectRatio="xMidYMin meet" style="display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
 }
 
 export function landingTarget() {
