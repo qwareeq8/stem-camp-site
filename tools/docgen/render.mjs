@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix } from "./team_tools.mjs";
+import { teamToolsAppendix, seedDerbyAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -523,6 +523,8 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
       }
       // The TTT-02 team tools print-and-cut sheets follow the TTT-02 guide section.
       if (doc.id === "pk-trees-guide" && code === "TTT-02") html += "\n" + teamToolsAppendix();
+      // The TTT-03 drop-lane strip and landing target follow the TTT-03 guide section.
+      if (doc.id === "pk-trees-guide" && code === "TTT-03") html += "\n" + seedDerbyAppendix();
       return html;
     })
     .join("\n");
@@ -765,6 +767,7 @@ function main() {
     // TTT-02 print-and-cut team tools follow the standalone TTT-02 guide; the trees
     // guide packet places them right after its TTT-02 section (see renderPacket).
     if (doc.id === "TTT-02-guide") body += teamToolsAppendix();
+    if (doc.id === "TTT-03-guide") body += seedDerbyAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>

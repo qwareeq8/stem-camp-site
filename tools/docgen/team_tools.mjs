@@ -148,3 +148,80 @@ ${routeCard()}
 ${routeCard()}
 </div>`;
 }
+
+// TTT-03 Seed Dispersal Derby print-and-cut floor sheets: a real-scale (1 unit =
+// 1 mm) drop-lane distance ruler and a concentric-ring landing target. Numbers
+// are kept clear of the ticks and rings and the launch-line rule so the sheet
+// reads cleanly when printed at 100 percent. Exposed as seedDerbyAppendix();
+// render.mjs places it after the TTT-03 guide section, the same way the TTT-02
+// team tools follow TTT-02.
+export function dropLaneStrip() {
+  const e = [];
+  e.push(`<rect x="0.6" y="0.6" width="148.8" height="188.8" fill="none" stroke="#2a5736" stroke-width="1.2" rx="2"/>`);
+  // centimeter edge: spine at x=34, mm ticks 0..180 (major every cm, mid every 5 mm)
+  e.push(`<line x1="34" y1="7" x2="34" y2="187" stroke="#000" stroke-width="1.3"/>`);
+  for (let mm = 0; mm <= 180; mm++) {
+    const y = 7 + mm, major = mm % 10 === 0, mid = mm % 10 === 5;
+    e.push(`<line x1="34" y1="${y}" x2="${major ? 50 : mid ? 43 : 39}" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
+  }
+  for (let k = 0; k <= 18; k++) {
+    const y = k === 0 ? 14 : k === 18 ? 186.5 : 10.4 + k * 10;   // 0 below the launch line, 18 off the frame
+    e.push(`<text x="29" y="${y}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="6" font-weight="700" fill="#000">${k}</text>`);
+  }
+  // inch edge (backup): spine at x=116, quarter-inch ticks 0..28 (major every inch, mid every half)
+  e.push(`<line x1="116" y1="7" x2="116" y2="187" stroke="#000" stroke-width="1.3"/>`);
+  for (let q = 0; q <= 28; q++) {
+    const y = r2(7 + q * 6.35), major = q % 4 === 0, half = q % 4 === 2;
+    e.push(`<line x1="${major ? 100 : half ? 107 : 111}" y1="${y}" x2="116" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
+  }
+  for (let k = 0; k <= 7; k++) {
+    const y = k === 0 ? 14 : r2(10.4 + k * 25.4);
+    e.push(`<text x="121" y="${y}" text-anchor="start" font-family="JetBrains Mono, monospace" font-size="6" font-weight="700" fill="#000">${k}</text>`);
+  }
+  // launch line at 0 and the cm / in orientation labels
+  e.push(`<line x1="30" y1="7" x2="120" y2="7" stroke="#000" stroke-width="2"/>`);
+  e.push(`<text x="75" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">LAUNCH LINE</text>`);
+  e.push(`<text x="62" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">&larr; cm</text>`);
+  e.push(`<text x="88" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">in &rarr;</text>`);
+  return `<svg viewBox="0 0 150 190" width="150mm" height="190mm" preserveAspectRatio="xMidYMin meet" style="display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
+}
+
+export function landingTarget() {
+  const e = [];
+  e.push(`<rect x="4" y="4" width="592" height="592" fill="none" stroke="#2a5736" stroke-width="3" rx="6"/>`);
+  for (const r of [250, 185, 120, 55]) e.push(`<circle cx="300" cy="300" r="${r}" fill="none" stroke="#000" stroke-width="3"/>`);
+  e.push(`<circle cx="300" cy="300" r="4" fill="#000"/>`);
+  for (const [x1, y1, x2, y2] of [[300, 50, 300, 72], [300, 550, 300, 528], [50, 300, 72, 300], [550, 300, 528, 300]])
+    e.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="2"/>`);
+  for (const [n, y] of [["1", 95], ["2", 156.5], ["3", 221.5], ["4", 286]])
+    e.push(`<text x="300" y="${y}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" font-weight="700" fill="#000">${n}</text>`);
+  return `<svg viewBox="0 0 600 600" width="4.5in" height="4.5in" style="display:block;margin:6pt auto" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
+}
+
+export function seedDerbyAppendix() {
+  const css = `
+.seed-derby h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 7pt 0 2pt; break-after: avoid; }
+.seed-derby .sd-note { color: var(--ink2); font-size: 9pt; margin: 0 0 4pt; }
+.seed-derby .sd-sheet { break-inside: avoid; text-align: center; }
+.seed-derby .sd-legend { display: flex; gap: 9pt; margin: 6pt 0 0; font-size: 8.5pt; }
+.seed-derby .sd-legend > div { flex: 1; border: 0.8pt solid var(--rule2); border-radius: 3pt; padding: 4pt 6pt; }
+.seed-derby .sd-legend b { color: var(--camp-ink); font-family: var(--mono); }
+`;
+  const rings = [
+    ["Ring 1", "Outer ring. Your seed touched the target."],
+    ["Ring 2", "Good aim. Getting closer."],
+    ["Ring 3", "Close to the center."],
+    ["Ring 4", "Bullseye, right on the dot."],
+  ].map(([t, d]) => `<div><b>${t}</b><br>${d}</div>`).join("");
+  return `<div class="seed-derby"><style>${css}</style>
+<h2 class="page-break" style="margin-top:0">Print and cut: TTT-03 floor scale and target</h2>
+<p class="sd-note">Print at 100% (not "fit to page") on cardstock so the centimeter ruler stays true to size. Tape the strip flat down the lane with the <b>0</b> end at the launch line; for a longer lane print several strips and tape them head to tail.</p>
+<h3>Drop-lane distance strip</h3>
+<div class="sd-sheet">${dropLaneStrip()}</div>
+
+<h3 class="page-break">Landing-zone target</h3>
+<p class="sd-note">Lay the target flat where staff pick down the lane and line the crosshairs up with the lane center. A higher ring number is a better landing.</p>
+<div class="sd-sheet">${landingTarget()}</div>
+<div class="sd-legend">${rings}</div>
+</div>`;
+}
