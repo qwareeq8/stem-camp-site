@@ -189,14 +189,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
               <h2 style={{ ...f.display(500, 42, { opsz: 72, lh: 1.06 }), color: T.ink, marginBottom: 14, maxWidth: 720 }}>
                 {sl.data.t}
               </h2>
-              <p style={{ ...f.sans(400, 17, { lh: 1.65 }), color: T.ink2, marginBottom: sl.data.points ? 16 : 22, maxWidth: 680 }}>{sl.data.b}</p>
-              {sl.data.points && (
-                <ul style={{ margin: "0 0 22px 0", paddingLeft: 22, maxWidth: 680, display: "flex", flexDirection: "column", gap: 12 }}>
-                  {sl.data.points.map((pt, i) => (
-                    <li key={i} style={{ ...f.sans(400, 17, { lh: 1.45 }), color: T.ink, paddingLeft: 4 }}>{pt}</li>
-                  ))}
-                </ul>
-              )}
+              <p style={{ ...f.sans(400, 17, { lh: 1.65 }), color: T.ink2, marginBottom: 22, maxWidth: 680 }}>{sl.data.b}</p>
               {Demo && <div style={{ marginTop: 6 }}><Demo /></div>}
             </div>
           )}
