@@ -1,7 +1,8 @@
 // Renders the interactive deck as a viewport-locked route (see App.jsx): the
 // route fills the height under the sticky nav with no page scroll and no footer,
 // so the deck pins below the nav and its slides scroll inside the deck card
-// rather than sliding under the nav. There is no separate fullscreen mode.
+// rather than sliding under the nav. Inside a station, the top bar's full-screen
+// toggle lifts this host out to fill the whole viewport (and back) on demand.
 import DeckApp from "../../deck/index.js";
 
 export default function DeckPage() {

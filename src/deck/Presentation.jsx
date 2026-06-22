@@ -2,7 +2,7 @@
 // labels, .card/.table/.badge/.btn). The slide nav, work-block timer, demo mount,
 // and every transition timing are preserved exactly; only the chrome is re-skinned.
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Pause, Play, RotateCcw, TableOfContents, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Maximize, Minimize, Pause, Play, RotateCcw, TableOfContents, X } from "lucide-react";
 import { DEMOS } from "./components/demos/index.js";
 import { EXTRAS } from "./components/extras/index.js";
 import { PYB_DECK, PY_DECK, TREESB_DECK, TREES_DECK } from "./data/decks.js";
@@ -45,7 +45,37 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
   const [tSec, setTSec] = useState(tTotal);
   const [tRun, setTRun] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [isFs, setIsFs] = useState(false);
+  const [fsOk, setFsOk] = useState(false);
   const rootRef = useRef(null);
+
+  // Full-screen the deck host -- the in-page scroll container (.deck-host), so a tall
+  // slide keeps its own internal scroll. The toggle mounts only where the browser
+  // allows full screen, and its icon mirrors the browser, so leaving by any route --
+  // the button, Escape, or the OS -- keeps it in sync.
+  const toggleFs = () => {
+    const host = rootRef.current?.closest(".deck-host");
+    if (!host) return;
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else host.requestFullscreen?.();
+  };
+  // Leaving a station for the landing also drops full screen, so Home never inherits
+  // a full-screen shell it has no control to exit. Jumping between stations is not
+  // routed through here, so a full-screen talk stays full screen across jumps.
+  const goBack = () => {
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    onBack();
+  };
+  // Reconcile the icon with the live browser state on mount as well as on change:
+  // .deck-host outlives this station-keyed component, so a remount (e.g. a jump) made
+  // while full screen must adopt the running state -- fullscreenchange will not fire.
+  useEffect(() => {
+    setFsOk(!!document.fullscreenEnabled);
+    const sync = () => setIsFs(document.fullscreenElement === rootRef.current?.closest(".deck-host"));
+    sync();
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
 
   // Focus the deck root when a station opens so slide keys work immediately,
   // without scrolling the page to it.
@@ -103,7 +133,9 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
         e.preventDefault();
         setPage((p) => Math.max(p - 1, 0));
       }
-      if (e.key === "Escape") onBack();
+      // In full screen, let Escape exit it (the browser default) rather than close
+      // the station, so one keystroke does one thing.
+      if (e.key === "Escape" && !document.fullscreenElement) onBack();
     };
     node.addEventListener("keydown", h);
     return () => node.removeEventListener("keydown", h);
@@ -127,7 +159,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
         position: "sticky", top: 0, background: T.surface, zIndex: 4,
       }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-          <button onClick={onBack} className="btn ghost focusable" style={{ padding: "7px 12px" }}>
+          <button onClick={goBack} className="btn ghost focusable" style={{ padding: "7px 12px" }}>
             <ArrowLeft size={13} strokeWidth={2.2} /> Back
           </button>
           <button onClick={() => setNavOpen(true)} className="btn ghost focusable" style={{ padding: "7px 12px" }}>
@@ -145,6 +177,14 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
           <span className="ticker" style={{ ...f.mono(500, 11), color: T.mute }}>
             {String(page + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
           </span>
+          {fsOk && (
+            <button onClick={toggleFs} className="btn ghost focusable"
+              aria-label={isFs ? "Exit full screen" : "Full screen"}
+              title={isFs ? "Exit full screen" : "Full screen"}
+              style={{ padding: "7px 9px" }}>
+              {isFs ? <Minimize size={13} strokeWidth={2.2} /> : <Maximize size={13} strokeWidth={2.2} />}
+            </button>
+          )}
         </div>
       </header>
 

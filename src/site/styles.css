@@ -570,6 +570,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .deck-host:focus { outline: none; }
 .deck-host:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* full screen: the host becomes the viewport, so shed the card chrome and let the
+   slide shell own the whole screen (slides still scroll internally). */
+.deck-host:fullscreen { border: none; border-radius: 0; overflow-y: auto; }
+
 /* deck route: a viewport-locked pane. The route fills the height below the sticky
    nav with no page scroll (the footer is omitted on /deck in App.jsx), so the deck
    pins under the nav and slides scroll INSIDE the deck card -- never under the nav.
