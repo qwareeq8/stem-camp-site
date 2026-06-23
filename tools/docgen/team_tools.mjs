@@ -500,13 +500,13 @@ function ringCookie(widths, scar = -1) {
 // Ring cards: the cross-sections students read (pattern + letter, no answer).
 export function treeRingCards() {
   const cards = RING_CARDS.map((c) => `<div class="tr-card">
-<div class="lab">Card ${c.id}</div><div class="ttl">${c.title}</div>
+<div class="lab">Card ${c.id}</div>
 ${ringCookie(c.widths, c.scar ?? -1)}
 <div class="cap">center (pith) on the flat edge, bark on the curve</div>
 </div>`).join("");
   return `<div class="trc"><style>${TR_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Ring cards</div></div>
-<p class="tr-note">Each card is one tree's life. Read from the center (pith) out to the bark, one ring per year. Wide ring = a favorable year, narrow = a stress year (drought, cold, or crowding), a notch = a fire the tree lived through. A ring is a proxy, not a thermometer.</p>
+<p class="tr-note">Each card is one tree's life. Read from the center (pith) out to the bark, one ring per year. Wide ring = a favorable year, narrow = a stress year (drought, cold, or crowding), a scar = a fire the tree lived through. A ring is a proxy, not a thermometer.</p>
 <div class="tr-cards">${cards}</div></div>`;
 }
 
