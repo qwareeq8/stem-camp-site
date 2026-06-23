@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix } from "./team_tools.mjs";
+import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -530,6 +530,10 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
       if (doc.id === "pk-trees-guide" && code === "TTT-03") html += "\n" + seedDerbyAppendix();
       // The TTT-05 greenhouse climate controller card-and-board set follows TTT-05.
       if (doc.id === "pk-trees-guide" && code === "TTT-05") html += "\n" + greenhouseControllerAppendix();
+      // The TTT-07 plant and pollinator cards and bloom board follow TTT-07.
+      if (doc.id === "pk-trees-guide" && code === "TTT-07") html += "\n" + pollinatorNetworkAppendix();
+      // The TTT-10 tree ring cards, reading board, and claim-evidence cards follow TTT-10.
+      if (doc.id === "pk-trees-guide" && code === "TTT-10") html += "\n" + treeRingAppendix();
       return html;
     })
     .join("\n");
@@ -775,6 +779,8 @@ function main() {
     if (doc.id === "TTT-02-guide") body += teamToolsAppendix() + standoffAppendix();
     if (doc.id === "TTT-03-guide") body += seedDerbyAppendix();
     if (doc.id === "TTT-05-guide") body += greenhouseControllerAppendix();
+    if (doc.id === "TTT-07-guide") body += pollinatorNetworkAppendix();
+    if (doc.id === "TTT-10-guide") body += treeRingAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>

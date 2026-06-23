@@ -428,3 +428,235 @@ ${climateDialBoard()}
 <div style="page-break-before:always"></div>
 ${tourClueSheet()}`;
 }
+
+// ---- TTT-10 Tree Ring Climate Detective: print-and-cut game pieces -------------
+// Ring cards (cross-sections to read), a recording board, and claim-evidence
+// cards. The cards are student-facing: each shows a pattern and a card letter,
+// never the answer. The answer key lives in the camp-prep facilitation notes.
+// One ring per year, read pith (center) to bark; wide = a favorable year, narrow
+// = a stress year, a scar = a fire the tree survived. A ring is a proxy, not a
+// thermometer. Verified against NOAA Climate.gov, UCAR SciEd, and LTRR Arizona.
+const RING_CARDS = [
+  { id: "A", title: "Steady seasons", widths: [2, 2, 2, 2, 2, 2, 2, 2] },
+  { id: "B", title: "The dry spell", widths: [2, 3, 2, 1, 1, 1, 1, 3, 2] },
+  { id: "C", title: "Fire and back", widths: [2, 3, 2, 2, 1, 1, 2, 3], scar: 4 },
+  { id: "D", title: "Crowded, then free", widths: [1, 1, 1, 1, 1, 3, 3, 3] },
+  { id: "E", title: "Good years fading", widths: [3, 3, 3, 2, 2, 1, 1, 1] },
+  { id: "F", title: "Read the whole story", widths: [3, 2, 1, 1, 2, 3, 1, 2], scar: 6 },
+];
+
+const TR_CSS = `
+.trc h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 8pt 0 2pt; break-after: avoid; }
+.trc .tr-note { color: var(--ink2); font-size: 9pt; margin: 0 0 8pt; }
+.trc .tr-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; }
+.trc .tr-card { border: 1.2pt solid var(--rule2); border-radius: 5pt; padding: 8pt 8pt 6pt; break-inside: avoid; text-align: center; }
+.trc .tr-card .lab { font-family: var(--mono); font-size: 7pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--camp-ink); }
+.trc .tr-card .ttl { font-family: var(--serif); font-size: 11pt; color: var(--ink); margin-bottom: 2pt; }
+.trc .tr-card svg { width: 2.4in; height: auto; display: block; margin: 2pt auto 0; }
+.trc .tr-card .cap { font-size: 7pt; color: var(--ink2); margin-top: 1pt; }
+.trc table.tr-tbl { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 4pt; }
+.trc table.tr-tbl th { font-family: var(--mono); font-size: 7pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 4pt 5pt; text-align: left; }
+.trc table.tr-tbl td { border-bottom: 1pt solid #000; height: .42in; padding: 4pt 5pt; vertical-align: top; font-size: 9pt; }
+.trc .ce-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; }
+.trc .ce-card { border: 1.2pt dashed var(--rule2); border-radius: 5pt; padding: 9pt 10pt; break-inside: avoid; }
+.trc .ce-card .ce-h { font-family: var(--mono); font-size: 7pt; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--camp-acc); }
+.trc .ce-card .ce-row { font-size: 9pt; color: var(--ink); margin-top: 7pt; }
+.trc .ce-card .ce-row b { color: var(--camp-ink); }
+.trc .ce-card .ce-line { border-bottom: 1pt solid #000; height: .34in; }
+`;
+
+// One half-cookie cross-section: concentric ring-boundary arcs whose spacing is
+// the ring width, pith at the flat-edge center, bark arc bold. A scar is a bold
+// arc plus a solid notch at the bottom of that ring. Pure black so it reads in
+// grayscale (no printBackground).
+function ringCookie(widths, scar = -1) {
+  const W = 300, pad = 12;
+  const cx = W / 2, top = pad + 6;
+  const Rmax = W / 2 - pad;
+  const total = widths.reduce((a, b) => a + b, 0);
+  let cum = 0;
+  const radii = widths.map((w) => { cum += w; return (cum / total) * Rmax; });
+  const H = top + Rmax + 6;
+  const arc = (r, sw) => `<path d="M ${r2(cx - r)} ${top} A ${r2(r)} ${r2(r)} 0 0 0 ${r2(cx + r)} ${top}" fill="none" stroke="#000" stroke-width="${sw}"/>`;
+  const e = [];
+  // flat top edge (the cut face diameter) and bold bark arc
+  e.push(`<line x1="${r2(cx - Rmax)}" y1="${top}" x2="${r2(cx + Rmax)}" y2="${top}" stroke="#000" stroke-width="1.4"/>`);
+  e.push(arc(Rmax, 2.6));
+  // inner ring boundaries (all but the bark, already drawn)
+  radii.slice(0, -1).forEach((r, i) => e.push(arc(r, i === scar ? 2.4 : 1)));
+  // pith
+  e.push(`<circle cx="${cx}" cy="${top}" r="2.6" fill="#000"/>`);
+  // scar notch at the bottom of the scarred ring (straight down from the pith)
+  if (scar >= 0 && scar < radii.length) {
+    const rs = radii[scar], y = top + rs;
+    e.push(`<path d="M ${cx - 6} ${r2(y)} L ${cx + 6} ${r2(y)} L ${cx} ${r2(y - 11)} Z" fill="#000"/>`);
+  }
+  return `<svg viewBox="0 0 ${W} ${r2(H)}" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
+}
+
+// Ring cards: the cross-sections students read (pattern + letter, no answer).
+export function treeRingCards() {
+  const cards = RING_CARDS.map((c) => `<div class="tr-card">
+<div class="lab">Card ${c.id}</div><div class="ttl">${c.title}</div>
+${ringCookie(c.widths, c.scar ?? -1)}
+<div class="cap">center (pith) on the flat edge, bark on the curve</div>
+</div>`).join("");
+  return `<div class="trc"><style>${TR_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Ring cards</div></div>
+<p class="tr-note">Each card is one tree's life. Read from the center (pith) out to the bark, one ring per year. Wide ring = a favorable year, narrow = a stress year (drought, cold, or crowding), a notch = a fire the tree lived through. A ring is a proxy, not a thermometer.</p>
+<div class="tr-cards">${cards}</div></div>`;
+}
+
+// Recording board: where teams log what they read and the rings that prove it.
+export function ringAnswerBoard() {
+  const rows = RING_CARDS.map((c) =>
+    `<tr><td style="font-family:var(--mono);font-weight:700">Card ${c.id}</td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="trc"><style>${TR_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Reading board</div></div>
+<p class="tr-note">For each card, write what you see, the climate event you infer, and the exact rings that prove it. Read from the center out.</p>
+<table class="tr-tbl"><thead><tr><th style="width:12%">Card</th><th style="width:30%">What you see (wide / narrow / scar)</th><th style="width:30%">Event you infer</th><th>The rings that prove it</th></tr></thead><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+// Claim-evidence-reasoning cards: cut apart, one per inference a team defends.
+export function claimEvidenceCard() {
+  const card = `<div class="ce-card">
+<div class="ce-h">Claim, evidence, reasoning</div>
+<div class="ce-row"><b>Card:</b> _____ &nbsp; <b>Our claim (the event):</b></div>
+<div class="ce-line"></div>
+<div class="ce-row"><b>Evidence (which rings):</b></div>
+<div class="ce-line"></div>
+<div class="ce-row"><b>Reasoning (why those rings show it):</b></div>
+<div class="ce-line"></div>
+</div>`;
+  return `<div class="trc"><style>${TR_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Claim-evidence cards</div></div>
+<p class="tr-note">Use one card for each climate event you claim. Name the event, point to the exact rings, and explain why those rings prove it.</p>
+<div class="ce-cards">${card}${card}${card}${card}</div></div>`;
+}
+
+// Bundle for the TTT-10 instructor guide (student-facing sheets only).
+export function treeRingAppendix() {
+  return `<div style="page-break-before:always"></div>
+${treeRingCards()}
+<div style="page-break-before:always"></div>
+${ringAnswerBoard()}
+<div style="page-break-before:always"></div>
+${claimEvidenceCard()}`;
+}
+
+// ---- TTT-07 Pollinator Network Draft and Build: print-and-cut game pieces ------
+// Plant cards, pollinator cards, and a bloom-calendar board. Cards are native to
+// Pennsylvania / the northeastern US with source-verified bloom seasons and
+// visitors (Xerces, Penn State Extension, Mt. Cuba, Lady Bird Johnson Wildflower
+// Center; adversarially fact-checked). Season chips use weight and border, not a
+// fill, so they read in grayscale (printBackground is off). Pure black scales.
+const PN_PLANTS = [
+  { n: "Serviceberry", l: "Amelanchier canadensis", bloom: ["sp"], poll: "bees, flies", note: "One of the first trees to bloom each April." },
+  { n: "Golden Alexanders", l: "Zizia aurea", bloom: ["sp", "su"], poll: "bees, flies, beetles, butterflies", note: "Tiny yellow flowers feed early short-tongued insects." },
+  { n: "Eastern Redbud", l: "Cercis canadensis", bloom: ["sp"], poll: "bees, butterflies", note: "Pink flowers bloom on bare branches in April." },
+  { n: "Butterfly Weed", l: "Asclepias tuberosa", bloom: ["su"], poll: "butterflies, bees, hummingbirds", note: "Orange milkweed and a monarch caterpillar host." },
+  { n: "Wild Bergamot", l: "Monarda fistulosa", bloom: ["su"], poll: "bees, butterflies, hummingbirds, moths", note: "Lavender pompoms that almost everyone visits." },
+  { n: "Black-eyed Susan", l: "Rudbeckia hirta", bloom: ["su", "fa"], poll: "bees, butterflies, flies", note: "Golden petals with a dark center; a summer classic." },
+  { n: "Mountain Mint", l: "Pycnanthemum tenuifolium", bloom: ["su", "fa"], poll: "bees, flies, butterflies, beetles", note: "Flat white flowers draw a huge mix of insects." },
+  { n: "Summersweet", l: "Clethra alnifolia", bloom: ["su"], poll: "bees, butterflies, hummingbirds", note: "Sweet-smelling white spikes for shady, wet spots." },
+  { n: "Cardinal Flower", l: "Lobelia cardinalis", bloom: ["su", "fa"], poll: "hummingbirds, butterflies", note: "Red tubes built for hummingbird beaks." },
+  { n: "Joe-Pye Weed", l: "Eutrochium purpureum", bloom: ["su", "fa"], poll: "butterflies, bees", note: "Tall pink clouds buzzing in late summer." },
+  { n: "New England Aster", l: "Symphyotrichum novae-angliae", bloom: ["fa"], poll: "bees, butterflies, flies", note: "Purple fall blooms fuel migrating monarchs." },
+  { n: "Goldenrod", l: "Solidago rugosa", bloom: ["fa"], poll: "bees, butterflies, flies, beetles", note: "Yellow plumes blooming right up to frost." },
+];
+
+const PN_POLLINATORS = [
+  { n: "Native Bees", active: ["sp", "su", "fa"], visits: "Open daisy, mint, and clustered flowers with easy pollen.", note: "Most are solitary and do not sting." },
+  { n: "Bumble Bees", active: ["sp", "su", "fa"], visits: "Tube and hooded flowers like bergamot they buzz open.", note: "Queens wake first and need early spring blooms." },
+  { n: "Butterflies and Monarchs", active: ["sp", "su", "fa"], visits: "Flat-topped clusters and big landing-pad flowers.", note: "Monarchs fuel on fall asters before migrating." },
+  { n: "Hummingbirds", active: ["su", "fa"], visits: "Red and pink tubular flowers full of nectar.", note: "Long beaks reach where bees cannot." },
+  { n: "Hoverflies and Flies", active: ["sp", "su", "fa"], visits: "Shallow open flowers like mountain mint.", note: "Hoverflies copy bees but cannot sting." },
+  { n: "Beetles", active: ["sp", "su", "fa"], visits: "Flat, sturdy flower clusters they can crawl across.", note: "Some of Earth's oldest pollinators." },
+];
+
+const PN_SEASONS = [["sp", "Spring"], ["su", "Summer"], ["fa", "Fall"]];
+
+const PN_CSS = `
+.pnc h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 8pt 0 2pt; break-after: avoid; }
+.pnc .pn-note { color: var(--ink2); font-size: 9pt; margin: 0 0 8pt; }
+.pnc .pn-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9pt; }
+.pnc .pn-card { border: 1.2pt solid var(--rule2); border-radius: 5pt; padding: 7pt 8pt; break-inside: avoid; }
+.pnc .pn-card.poll { border-style: dashed; }
+.pnc .pn-name { font-family: var(--serif); font-size: 11.5pt; color: var(--camp-ink); line-height: 1.1; }
+.pnc .pn-latin { font-style: italic; font-size: 7.5pt; color: var(--ink2); margin-bottom: 4pt; }
+.pnc .pn-chips { margin: 3pt 0; }
+.pnc .chip { display: inline-block; font-family: var(--mono); font-size: 6.4pt; letter-spacing: .04em; text-transform: uppercase; padding: 1pt 4pt; border-radius: 3pt; margin-right: 3pt; }
+.pnc .chip.on { border: 1.4pt solid var(--camp-ink); color: var(--camp-ink); font-weight: 700; }
+.pnc .chip.off { border: 0.7pt solid #c2c2c2; color: #c2c2c2; }
+.pnc .pn-row { font-size: 8pt; color: var(--ink); margin-top: 3pt; }
+.pnc .pn-row b { font-family: var(--mono); font-size: 6.4pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-acc); }
+.pnc .pn-tag { font-size: 7.5pt; color: var(--ink2); margin-top: 4pt; font-style: italic; }
+.pnc .pn-native { float: right; font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: .08em; color: var(--camp-ink); border: 1pt solid var(--camp-ink); border-radius: 3pt; padding: 0 3pt; }
+.pnc table.pn-tbl { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+.pnc table.pn-tbl th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 4pt 6pt; text-align: left; width: 33.33%; }
+.pnc table.pn-tbl td { border: 1pt solid #000; height: 1.15in; vertical-align: top; padding: 3pt; }
+.pnc table.pn-chk { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-top: 4pt; }
+.pnc table.pn-chk th { font-family: var(--mono); font-size: 7pt; letter-spacing: .04em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 3pt 5pt; text-align: center; }
+.pnc table.pn-chk th.lh { text-align: left; }
+.pnc table.pn-chk td { border-bottom: 1pt solid #000; height: .34in; padding: 3pt 5pt; text-align: center; }
+.pnc table.pn-chk td.lh { text-align: left; font-size: 8.5pt; }
+`;
+
+function pnChips(active) {
+  return `<div class="pn-chips">` + PN_SEASONS.map(([c, t]) =>
+    `<span class="chip ${active.includes(c) ? "on" : "off"}">${t}</span>`).join("") + `</div>`;
+}
+
+// Plant cards: cut apart. Each shows bloom seasons, who visits, and a fact.
+export function plantCards() {
+  const cards = PN_PLANTS.map((p) => `<div class="pn-card">
+<span class="pn-native">Native</span><div class="pn-name">${p.n}</div><div class="pn-latin">${p.l}</div>
+<div class="pn-row"><b>Blooms</b></div>${pnChips(p.bloom)}
+<div class="pn-row"><b>Visited by</b> ${p.poll}</div>
+<div class="pn-tag">${p.note}</div>
+</div>`).join("");
+  return `<div class="pnc"><style>${PN_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Plant cards</div></div>
+<p class="pn-note">Each plant is native here. The dark season chips show when it blooms; the visitors are the pollinators it feeds. Place plants so something blooms in spring, summer, and fall, and group the same plant in clumps.</p>
+<div class="pn-cards">${cards}</div></div>`;
+}
+
+// Pollinator cards: cut apart. Each shows active seasons and what it visits.
+export function pollinatorCards() {
+  const cards = PN_POLLINATORS.map((p) => `<div class="pn-card poll">
+<div class="pn-name">${p.n}</div>
+<div class="pn-row"><b>Active</b></div>${pnChips(p.active)}
+<div class="pn-row"><b>Visits</b> ${p.visits}</div>
+<div class="pn-tag">${p.note}</div>
+</div>`).join("");
+  return `<div class="pnc"><style>${PN_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Pollinator cards</div></div>
+<p class="pn-note">Each pollinator needs flowers in bloom across every season it is active. Match it to plants whose flower type fits (hummingbirds to red tubes, flies and beetles to flat open clusters, bees and butterflies to most flowers).</p>
+<div class="pn-cards">${cards}</div></div>`;
+}
+
+// Bloom board: place plants by season, then check every pollinator has food.
+export function bloomBoard() {
+  const chkRows = PN_POLLINATORS.map((p) =>
+    `<tr><td class="lh">${p.n}</td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="pnc"><style>${PN_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Bloom calendar board</div></div>
+<p class="pn-note">Place your plant cards in the season they bloom (a plant that blooms twice can sit in two columns). Keep something in every column, and clump the same plant together.</p>
+<table class="pn-tbl"><thead><tr><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody><tr><td></td><td></td><td></td></tr></tbody></table>
+<h3>Pollinator food check</h3>
+<p class="pn-note" style="margin-top:0">Tick a box only if a plant in that season feeds this pollinator. Every pollinator should have a tick in each season it is active.</p>
+<table class="pn-chk"><thead><tr><th class="lh">Pollinator</th><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody>${chkRows}</tbody></table>
+</div>`;
+}
+
+// Bundle for the TTT-07 instructor guide (student-facing sheets only). Season
+// tokens stay a separate standalone sheet (camp-prep/print/build_print.mjs).
+export function pollinatorNetworkAppendix() {
+  return `<div style="page-break-before:always"></div>
+${plantCards()}
+<div style="page-break-before:always"></div>
+${pollinatorCards()}
+<div style="page-break-before:always"></div>
+${bloomBoard()}`;
+}
