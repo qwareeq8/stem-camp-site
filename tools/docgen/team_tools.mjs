@@ -280,3 +280,149 @@ export function standoffAppendix() {
 </div>
 </div>`;
 }
+
+// ---- TTT-05 Greenhouse Climate Controller: print-and-cut game pieces ----------
+// The card-and-board set for the greenhouse matching game. Three generators,
+// reused by camp-prep/print/build_print.mjs for the standalone Day-2 print files
+// and bundled by greenhouseControllerAppendix() so the TTT-05 guide records them
+// (mirrors teamToolsAppendix for TTT-02). Climate scales print pure black (#000)
+// so they survive grayscale; the rest uses the camp palette.
+//
+// Verified climate needs (deep research: UMass, AOS, Clemson, UF/IFAS, UC IPM):
+// fern = cool, humid, shaded (never direct sun); moth orchid = warm, humid, bright
+// but FILTERED (full sun is a myth); cactus = warm, dry, very bright. Ranges are
+// daytime; teams gather the live zone readings on the tour and match on evidence.
+const GH_PLANTS = [
+  { name: "Fern",
+    temp: [16, 24], tempT: "cool to warm, 16 to 24 &deg;C (60 to 75 &deg;F)",
+    humid: [55, 90], humidT: "high, 50% or more; likes damp air",
+    light: [12, 42], lightT: "shade or bright indirect; never direct sun",
+    wants: "Damp air and shade, like a forest floor.",
+    avoid: "Direct sun and dry air crisp the fronds." },
+  { name: "Moth orchid",
+    temp: [24, 30], tempT: "warm, 24 to 29 &deg;C (75 to 85 &deg;F) by day, above 16 &deg;C (60 &deg;F) at night",
+    humid: [50, 80], humidT: "humid, 50 to 80%, with some air movement",
+    light: [38, 66], lightT: "medium; bright but filtered, no direct beam",
+    wants: "Warm, humid air and bright, filtered light.",
+    avoid: "Full direct sun scorches the leaves (the orchid-loves-sun myth)." },
+  { name: "Cactus",
+    temp: [24, 34], tempT: "warm days, big day-to-night swing, 24 to 34 &deg;C (75 to 90 &deg;F)",
+    humid: [8, 35], humidT: "low; dry air and fast-draining soil",
+    light: [80, 100], lightT: "very high; full, direct sun",
+    wants: "Hot, bright, dry air like a desert shelf.",
+    avoid: "Damp, shady air rots the roots." },
+];
+
+// A labelled scale with the plant's preferred band drawn as a thick black segment
+// over a thin black baseline (no fill, so it survives grayscale with no printBackground).
+function ghNeedBar(label, smin, smax, lo, hi, text) {
+  const pct = (v) => Math.max(0, Math.min(100, ((v - smin) / (smax - smin)) * 100));
+  const l = pct(lo), w = pct(hi) - pct(lo);
+  return `<div class="gh-need"><span class="gh-need-l">${label}</span>` +
+    `<span class="gh-track"><span class="gh-band" style="left:${l.toFixed(1)}%;width:${w.toFixed(1)}%"></span></span>` +
+    `<span class="gh-need-v">${text}</span></div>`;
+}
+
+const GH_CSS = `
+.ghc h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 8pt 0 2pt; break-after: avoid; }
+.ghc .gh-note { color: var(--ink2); font-size: 9pt; margin: 0 0 7pt; }
+.ghc .gh-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+.ghc .gh-card { border: 1.2pt solid var(--rule2); border-radius: 5pt; padding: 8pt 10pt; break-inside: avoid; }
+.ghc .gh-card-h { border-bottom: 1.4pt solid var(--camp-acc); padding-bottom: 4pt; margin-bottom: 5pt; }
+.ghc .gh-card-h .n { font-family: var(--serif); font-weight: 600; font-size: 13pt; color: var(--camp-ink); }
+.ghc .gh-need { display: flex; align-items: center; gap: 7pt; margin: 3.5pt 0; }
+.ghc .gh-need-l { font-family: var(--mono); font-size: 6.6pt; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--camp-ink); width: 50pt; flex: 0 0 50pt; }
+.ghc .gh-track { position: relative; flex: 0 0 66pt; height: 7pt; }
+.ghc .gh-track::before { content: ""; position: absolute; left: 0; right: 0; top: 3pt; border-top: 1pt solid #000; }
+.ghc .gh-band { position: absolute; top: 1pt; height: 0; border-top: 4.5pt solid #000; }
+.ghc .gh-need-v { font-size: 8pt; color: var(--ink); flex: 1; }
+.ghc .gh-tag { font-size: 8pt; color: var(--ink2); margin-top: 5pt; line-height: 1.4; }
+.ghc .gh-tag b { color: var(--camp-ink); font-family: var(--mono); font-size: 6.6pt; letter-spacing: .06em; text-transform: uppercase; }
+.ghc table.gh-tbl { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 4pt; }
+.ghc table.gh-tbl th { font-family: var(--mono); font-size: 7pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 4pt 5pt; text-align: left; }
+.ghc table.gh-tbl td { border-bottom: 1pt solid #000; height: .42in; padding: 4pt 5pt; vertical-align: top; }
+.ghc .gh-set { display: flex; gap: 16pt; flex-wrap: wrap; margin: 6pt 0 2pt; }
+.ghc .gh-dial { flex: 1; min-width: 150pt; }
+.ghc .gh-dial .dl { font-family: var(--mono); font-size: 7pt; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--camp-ink); margin-bottom: 11pt; }
+.ghc .gh-scale { position: relative; height: 0; border-top: 1.2pt solid #000; margin: 0 14pt; }
+.ghc .gh-scale .tk { position: absolute; top: -4pt; width: 0; border-left: 1pt solid #000; height: 8pt; }
+.ghc .gh-scale .tl { position: absolute; top: 7pt; font-family: var(--mono); font-size: 6.5pt; color: var(--ink); white-space: nowrap; }
+.ghc .gh-mark { font-size: 7.5pt; color: var(--ink2); text-align: center; margin-top: 18pt; }
+`;
+
+// One labelled tick scale on the dial board (mark your pointer with a dry-erase pen).
+function ghDial(label, ticks) {
+  const n = ticks.length;
+  const marks = ticks.map((t, i) => {
+    const x = (i / (n - 1)) * 100;
+    // Anchor the end labels inward: left-align the first and right-align the last
+    // so they do not spill off the scale ends; center the middle ones.
+    const pos = i === 0 ? "left:0;transform:none"
+      : i === n - 1 ? "left:100%;transform:translateX(-100%)"
+      : `left:${x}%;transform:translateX(-50%)`;
+    return `<span class="tk" style="left:${x}%"></span><span class="tl" style="${pos}">${t}</span>`;
+  }).join("");
+  return `<div class="gh-dial"><div class="dl">${label}</div><div class="gh-scale">${marks}</div>` +
+    `<div class="gh-mark">mark your setting with a dry-erase pen</div></div>`;
+}
+
+// Plant profile cards: one set (cut apart), what each plant needs.
+export function plantProfileCards() {
+  const cards = GH_PLANTS.map((p) => `<div class="gh-card">
+<div class="gh-card-h"><span class="n">${p.name}</span></div>
+${ghNeedBar("Temp", 10, 40, p.temp[0], p.temp[1], p.tempT)}
+${ghNeedBar("Humidity", 0, 100, p.humid[0], p.humid[1], p.humidT)}
+${ghNeedBar("Light", 0, 100, p.light[0], p.light[1], p.lightT)}
+<div class="gh-tag"><b>Wants</b> ${p.wants}<br><b>Avoid</b> ${p.avoid}</div>
+</div>`).join("");
+  return `<div class="ghc"><style>${GH_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-05 Greenhouse Climate Controller</div><div class="sheet-title">Plant profile cards</div></div>
+<p class="gh-note">Each card says what one plant needs. Match it to the greenhouse zone whose tour readings fit, then defend the placement with a clue from the tour.</p>
+<div class="gh-cards">${cards}
+<div class="gh-card" style="display:flex;flex-direction:column;justify-content:center">
+<div class="gh-card-h"><span class="n">How to read a card</span></div>
+<div class="gh-tag" style="margin-top:0">The thick black bar on each scale is the plant's happy range. <b style="display:block;margin-top:5pt">Temp</b> 10 to 40 &deg;C. <b style="display:block;margin-top:3pt">Humidity</b> 0 to 100%. <b style="display:block;margin-top:3pt">Light</b> shade on the left to full sun on the right. A plant in the wrong zone tells you how it suffers: too dry wilts, too bright scorches, too damp molds.</div>
+</div>
+</div></div>`;
+}
+
+// Control dial board: one per team. Set the three dials and record placements.
+export function climateDialBoard() {
+  const rows = ["Fern", "Moth orchid", "Cactus", ""].map((p) =>
+    `<tr><td style="font-family:var(--serif);color:var(--camp-ink)">${p || "&nbsp;"}</td><td></td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="ghc"><style>${GH_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-05 Greenhouse Climate Controller</div><div class="sheet-title">Control dial board</div></div>
+<p class="gh-note">Set each dial for the plant you are placing, then record where each plant goes and the tour clue that backs it.</p>
+<div class="gh-set">
+${ghDial("Temperature (&deg;C)", ["10", "20", "30", "40"])}
+${ghDial("Humidity (% RH)", ["0", "25", "50", "75", "100"])}
+${ghDial("Light", ["shade", "filtered", "bright", "full sun"])}
+</div>
+<h3>Placements: defend each one with a tour clue</h3>
+<table class="gh-tbl"><thead><tr><th style="width:18%">Plant</th><th style="width:20%">Zone you chose</th><th style="width:13%">Temp</th><th style="width:13%">Humidity</th><th style="width:12%">Light</th><th>Tour clue that supports it</th></tr></thead><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+// Tour clue sheet: the zoned evidence instrument teams fill in during the tour.
+export function tourClueSheet() {
+  const zones = ["Main greenhouse", "Hoop house", "Shaded bench", "Bright bench", "", ""];
+  const rows = zones.map((z) =>
+    `<tr><td style="font-family:var(--serif);color:var(--camp-ink)">${z || "&nbsp;"}</td><td></td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="ghc"><style>${GH_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-05 Greenhouse Climate Controller</div><div class="sheet-title">Tour clue sheet</div></div>
+<p class="gh-note">As you tour, record what you see, feel, and hear for each zone: warm or cool, damp or dry, bright or shaded, plus any reading the docent points out. Back at the table this is your evidence for matching plants to zones.</p>
+<table class="gh-tbl"><thead><tr><th style="width:20%">Greenhouse zone</th><th style="width:18%">Temperature</th><th style="width:18%">Humidity (damp/dry)</th><th style="width:18%">Light (shade/bright)</th><th>What the docent said / evidence</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="gh-note" style="margin-top:8pt">Tip: you do not need exact numbers. "Warmer and more humid than the hoop house" is good evidence. Use the control-system or weather-station readout if the docent shows one.</p>
+</div>`;
+}
+
+// Bundle all three for the TTT-05 instructor guide (mirrors teamToolsAppendix).
+export function greenhouseControllerAppendix() {
+  return `<h2 class="page-break" style="margin-top:0">Print: TTT-05 greenhouse climate controller set</h2>
+<p style="color:var(--ink2);font-size:9pt;margin:0 0 8pt">Print on cardstock. Laminate or sheet-protect the plant cards and dial boards for reuse and cut the cards apart: one plant-card set and one dial board per team (make one spare of each), and one tour clue sheet per team plus two spares. The clue sheet goes out on the morning greenhouse tour. Climate scales are pure black so they read in grayscale.</p>
+${plantProfileCards()}
+<div style="page-break-before:always"></div>
+${climateDialBoard()}
+<div style="page-break-before:always"></div>
+${tourClueSheet()}`;
+}

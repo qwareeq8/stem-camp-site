@@ -22,7 +22,7 @@
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Greenhouse" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:20", "title": "Greenhouse Climate Controller", "code": "TTT-05", "camp": "trees", "location": "Greenhouse" },
+      { "start": "13:00", "end": "14:20", "title": "Greenhouse Climate Controller", "code": "TTT-05", "camp": "trees", "location": "Dixon 104" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
       { "start": "14:40", "end": "16:00", "title": "Open build time outdoors (baseball, soccer, kickball)", "location": "Athletic fields" }
     ]

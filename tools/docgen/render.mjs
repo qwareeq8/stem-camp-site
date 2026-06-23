@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix } from "./team_tools.mjs";
+import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -528,6 +528,8 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
       if (doc.id === "pk-trees-guide" && code === "TTT-02") html += "\n" + teamToolsAppendix() + "\n" + standoffAppendix();
       // The TTT-03 drop-lane strip and landing target follow the TTT-03 guide section.
       if (doc.id === "pk-trees-guide" && code === "TTT-03") html += "\n" + seedDerbyAppendix();
+      // The TTT-05 greenhouse climate controller card-and-board set follows TTT-05.
+      if (doc.id === "pk-trees-guide" && code === "TTT-05") html += "\n" + greenhouseControllerAppendix();
       return html;
     })
     .join("\n");
@@ -772,6 +774,7 @@ function main() {
     if (doc.id === "TTT-01-guide") body += voltageLogAppendix();
     if (doc.id === "TTT-02-guide") body += teamToolsAppendix() + standoffAppendix();
     if (doc.id === "TTT-03-guide") body += seedDerbyAppendix();
+    if (doc.id === "TTT-05-guide") body += greenhouseControllerAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>
