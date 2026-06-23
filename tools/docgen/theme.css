@@ -130,6 +130,35 @@ h3 {
   color: var(--camp-ink);
   margin: 11pt 0 4pt;
 }
+
+/* ---- print-and-cut sheet header ----------------------------------------- */
+/* Heads each cut-apart appendix sheet (game pieces, logs, markers) with the
+   camp and activity so a stray card can be traced. Matches the camp-prep
+   standalone print harness (camp-prep/print/build_print.mjs) so the in-guide,
+   guide-packet, and standalone versions of a sheet render identically. */
+.sheet-head {
+  border-bottom: 2pt solid var(--camp-acc);
+  padding-bottom: 6pt;
+  margin: 0 0 10pt;
+  break-after: avoid;
+  break-inside: avoid;
+}
+.sheet-eyebrow {
+  font-family: var(--mono);
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--camp-acc);
+}
+.sheet-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 20pt;
+  color: var(--camp-ink);
+  margin-top: 3pt;
+}
+
 p { margin: 4pt 0; }
 p .lead { font-weight: 600; color: var(--camp-ink); }
 .small { font-size: 8.5pt; color: var(--ink2); }
