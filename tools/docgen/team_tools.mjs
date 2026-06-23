@@ -344,9 +344,9 @@ const GH_CSS = `
 .ghc .gh-set { display: flex; gap: 16pt; flex-wrap: wrap; margin: 6pt 0 2pt; }
 .ghc .gh-dial { flex: 1; min-width: 150pt; }
 .ghc .gh-dial .dl { font-family: var(--mono); font-size: 7pt; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--camp-ink); margin-bottom: 11pt; }
-.ghc .gh-scale { position: relative; height: 0; border-top: 1.2pt solid #000; margin: 0 14pt; }
+.ghc .gh-scale { position: relative; height: 0; border-top: 1.2pt solid #000; margin: 0 7pt; }
 .ghc .gh-scale .tk { position: absolute; top: -4pt; width: 0; border-left: 1pt solid #000; height: 8pt; }
-.ghc .gh-scale .tl { position: absolute; top: 7pt; font-family: var(--mono); font-size: 6.5pt; color: var(--ink); white-space: nowrap; }
+.ghc .gh-scale .tl { position: absolute; top: 7pt; font-family: var(--mono); font-size: 6pt; color: var(--ink); white-space: nowrap; }
 .ghc .gh-mark { font-size: 7.5pt; color: var(--ink2); text-align: center; margin-top: 18pt; }
 `;
 
@@ -417,9 +417,11 @@ export function tourClueSheet() {
 }
 
 // Bundle all three for the TTT-05 instructor guide (mirrors teamToolsAppendix).
+// Student-facing print sheets only: each sheet carries its own title and student
+// usage note, so the wrapper adds no print logistics (counts, stock, laminate,
+// spares). Those live in the camp-prep print plan and Day-of facilitation docs.
 export function greenhouseControllerAppendix() {
-  return `<h2 class="page-break" style="margin-top:0">Print: TTT-05 greenhouse climate controller set</h2>
-<p style="color:var(--ink2);font-size:9pt;margin:0 0 8pt">Print on cardstock. Laminate or sheet-protect the plant cards and dial boards for reuse and cut the cards apart: one plant-card set and one dial board per team (make one spare of each), and one tour clue sheet per team plus two spares. The clue sheet goes out on the morning greenhouse tour. Climate scales are pure black so they read in grayscale.</p>
+  return `<div style="page-break-before:always"></div>
 ${plantProfileCards()}
 <div style="page-break-before:always"></div>
 ${climateDialBoard()}
