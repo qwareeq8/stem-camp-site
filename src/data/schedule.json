@@ -20,11 +20,11 @@
     "blocks": [
       { "start": "09:00", "end": "10:20", "title": "Xylem Pipeline Relay", "code": "TTT-04", "camp": "trees", "location": "Dixon 104" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
-      { "start": "10:40", "end": "12:00", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Greenhouse" },
+      { "start": "10:40", "end": "12:00", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Ambler Greenhouse" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
       { "start": "13:00", "end": "14:20", "title": "Greenhouse Climate Controller", "code": "TTT-05", "camp": "trees", "location": "Dixon 104" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
-      { "start": "14:40", "end": "16:00", "title": "Open build time outdoors (baseball, soccer, kickball)", "location": "Athletic fields" }
+      { "start": "14:40", "end": "16:00", "title": "Outdoor open build", "location": "Playing field (baseball, soccer, kickball)" }
     ]
   },
   {
@@ -36,7 +36,7 @@
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Pollinator Network Draft and Build", "code": "TTT-07", "camp": "trees", "location": "Dixon 104" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:20", "title": "Open swim", "location": "Aquatic Center (1:00 to 2:20 PM)" },
+      { "start": "13:00", "end": "14:20", "title": "Open swim", "location": "Ambler Recreation Pool (1:00 to 2:20 PM)" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
       { "start": "14:40", "end": "16:00", "title": "Tree Ring Climate Detective", "code": "TTT-10", "camp": "trees", "location": "Dixon 104" }
     ]
@@ -103,10 +103,10 @@
     "theme": "Ambler Campus field trip",
     "blocks": [
       { "start": "09:00", "end": "10:00", "title": "Bus to Ambler Campus", "location": "Departs 9:10 AM, arrives about 9:55 AM" },
-      { "start": "10:15", "end": "11:15", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Ambler greenhouse" },
+      { "start": "10:15", "end": "11:15", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Ambler Greenhouse" },
       { "start": "11:35", "end": "12:35", "title": "ESports room", "location": "Ambler Campus" },
       { "start": "12:35", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:00", "title": "Open swim", "location": "Ambler pool (1:00 to 2:00 PM)" },
+      { "start": "13:00", "end": "14:00", "title": "Open swim", "location": "Ambler Recreation Pool (1:00 to 2:00 PM)" },
       { "start": "15:00", "end": "15:45", "title": "Bus to Main Campus", "location": "Departs 3:00 PM" }
     ]
   },
