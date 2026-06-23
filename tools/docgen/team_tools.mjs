@@ -512,7 +512,7 @@ export function ringAnswerBoard() {
   const rows = RING_CARDS.map((c) =>
     `<tr><td style="font-family:var(--mono);font-weight:700">Card ${c.id}</td><td></td><td></td><td></td></tr>`).join("");
   return `<div class="trc"><style>${TR_CSS}</style>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Reading board</div></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Answer board</div></div>
 <p class="tr-note">For each card, write what you see, the climate event you infer, and the exact rings that prove it. Read from the center out.</p>
 <table class="tr-tbl"><thead><tr><th style="width:12%">Card</th><th style="width:30%">What you see (wide / narrow / scar)</th><th style="width:30%">Event you infer</th><th>The rings that prove it</th></tr></thead><tbody>${rows}</tbody></table>
 </div>`;
@@ -641,7 +641,7 @@ export function bloomBoard() {
   const chkRows = PN_POLLINATORS.map((p) =>
     `<tr><td class="lh">${p.n}</td><td></td><td></td><td></td></tr>`).join("");
   return `<div class="pnc"><style>${PN_CSS}</style>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Bloom calendar board</div></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Grid board</div></div>
 <p class="pn-note">Place your plant cards in the season they bloom (a plant that blooms twice can sit in two columns). Keep something in every column, and clump the same plant together.</p>
 <table class="pn-tbl"><thead><tr><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody><tr><td></td><td></td><td></td></tr></tbody></table>
 <h3>Pollinator food check</h3>
