@@ -214,7 +214,7 @@ export function seedDerbyAppendix() {
   ].map(([t, d]) => `<div><b>${t}</b><br>${d}</div>`).join("");
   return `<div class="seed-derby"><style>${css}</style>
 <h2 class="page-break" style="margin-top:0">Print and cut: TTT-03 floor scale and target</h2>
-<p class="sd-note">Print at 100% (not "fit to page") on cardstock so the centimeter ruler stays true to size. Tape the strip flat down the lane with the <b>0</b> end at the launch line; for a longer lane print several strips and tape them head to tail.</p>
+<p class="sd-note">Tape the strip flat down the lane with the <b>0</b> end at the launch line.</p>
 <h3>Drop-lane distance strip</h3>
 <div class="sd-sheet">${dropLaneStrip()}</div>
 
@@ -245,7 +245,7 @@ export function voltageLogAppendix() {
     .join("");
   return `<div class="vlog-apx"><style>${css}</style>
 <h2 class="page-break" style="margin-top:0">Print: TTT-01 daily voltage log</h2>
-<p class="va-note">One per team, on cardstock (or a sheet protector for dry-erase). Each day, set the multimeter to DC millivolts and read the voltage across the 100 k&#8486; resistor at the same time; the cell is weak on day 1 and climbs as the biofilm grows. Defend the design with the trend, not one number.</p>
+<p class="va-note">Each day, set the multimeter to DC millivolts and read the voltage across the 100 k&#8486; resistor at the same time; the cell is weak on day 1 and climbs as the biofilm grows. Defend the design with the trend, not one number.</p>
 <h3>Daily voltage log</h3>
 <div class="va-hdr"><span>Team <span class="fill"></span></span><span>The ONE variable we are testing <span class="fill"></span></span></div>
 <table><thead><tr><th style="width:24%">Day</th><th style="width:18%">Time</th><th style="width:24%">Voltage <span style="text-transform:none">(mV)</span></th><th style="width:34%">Notes</th></tr></thead>
@@ -269,7 +269,7 @@ export function standoffAppendix() {
 `;
   return `<div class="standoff-apx"><style>${css}</style>
 <h2 class="page-break" style="margin-top:0">Print: TTT-02 standoff floor marker</h2>
-<p class="so-note">One per tree, on cardstock (laminate; it sits on the ground). Place it at the distance you pre-mark from the tree base with the long tape.</p>
+<p class="so-note">Place it at the distance you pre-mark from the tree base with the long tape.</p>
 <div class="so-sign">
 <div class="so-chip">From Trees to Tech 2026 &middot; TTT-02</div>
 <div class="so-rule"></div>
