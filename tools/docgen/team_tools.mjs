@@ -571,7 +571,7 @@ const PN_PLANTS = [
 
 const PN_POLLINATORS = [
   { n: "Native Bees", active: ["sp", "su", "fa"], visits: "Open daisy, mint, and clustered flowers with easy pollen.", note: "Most are solitary and do not sting." },
-  { n: "Bumble Bees", active: ["sp", "su", "fa"], visits: "Tube and hooded flowers like bergamot they buzz open.", note: "Queens wake first and need early spring blooms." },
+  { n: "Bumble Bees", active: ["sp", "su", "fa"], visits: "Tube and hooded flowers like bergamot, reached with long tongues.", note: "Queens wake first and need early spring blooms." },
   { n: "Butterflies and Monarchs", active: ["sp", "su", "fa"], visits: "Flat-topped clusters and big landing-pad flowers.", note: "Monarchs fuel on fall asters before migrating." },
   { n: "Hummingbirds", active: ["su", "fa"], visits: "Red and pink tubular flowers full of nectar.", note: "Long beaks reach where bees cannot." },
   { n: "Hoverflies and Flies", active: ["sp", "su", "fa"], visits: "Shallow open flowers like mountain mint.", note: "Hoverflies copy bees but cannot sting." },
