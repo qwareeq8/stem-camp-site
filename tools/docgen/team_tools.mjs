@@ -468,31 +468,45 @@ const TR_CSS = `
 .trc .ce-card .ce-line { border-bottom: 1pt solid #000; height: .34in; }
 `;
 
-// One half-cookie cross-section: concentric ring-boundary arcs whose spacing is
-// the ring width, pith at the flat-edge center, bark arc bold. A scar is a bold
-// arc plus a solid notch at the bottom of that ring. Pure black so it reads in
-// grayscale (no printBackground).
+// One half-cookie cross-section. A pith hub sits at the flat-edge center so the
+// innermost years are not crammed to a point; then one SHADED BAND per year runs
+// out to the bold bark arc, bands alternating light gray and white and divided by
+// black ring lines. Shading each year as a band (not just boundary arcs) makes it
+// easy to tell one ring from the next and to compare how wide each is, the two
+// things bare arcs made hard near the center. A scar is a bold ring line plus a
+// solid wedge cut into that year. Band widths stay proportional to the ring
+// widths. SVG path fills (not CSS backgrounds) render regardless of
+// printBackground, and the black ring lines keep years separated on a grayscale
+// copy even if the gray fades.
 export function ringCookie(widths, scar = -1) {
-  const W = 300, pad = 12;
+  const W = 320, pad = 12;
   const cx = W / 2, top = pad + 6;
   const Rmax = W / 2 - pad;
+  const r0 = 16; // pith hub radius, so the first few years are not pinched at the center
   const total = widths.reduce((a, b) => a + b, 0);
   let cum = 0;
-  const radii = widths.map((w) => { cum += w; return (cum / total) * Rmax; });
-  const H = top + Rmax + 6;
+  const radii = widths.map((w) => { cum += w; return r0 + (cum / total) * (Rmax - r0); });
+  const H = top + Rmax + 8;
   const arc = (r, sw) => `<path d="M ${r2(cx - r)} ${top} A ${r2(r)} ${r2(r)} 0 0 0 ${r2(cx + r)} ${top}" fill="none" stroke="#000" stroke-width="${sw}"/>`;
+  // filled half-annulus between inner radius ri and outer radius ro
+  const band = (ri, ro, fill) => `<path d="M ${r2(cx - ro)} ${top} A ${r2(ro)} ${r2(ro)} 0 0 0 ${r2(cx + ro)} ${top} L ${r2(cx + ri)} ${top} A ${r2(ri)} ${r2(ri)} 0 0 1 ${r2(cx - ri)} ${top} Z" fill="${fill}" stroke="none"/>`;
   const e = [];
-  // flat top edge (the cut face diameter) and bold bark arc
-  e.push(`<line x1="${r2(cx - Rmax)}" y1="${top}" x2="${r2(cx + Rmax)}" y2="${top}" stroke="#000" stroke-width="1.4"/>`);
-  e.push(arc(Rmax, 2.6));
-  // inner ring boundaries (all but the bark, already drawn)
-  radii.slice(0, -1).forEach((r, i) => e.push(arc(r, i === scar ? 2.4 : 1)));
-  // pith
-  e.push(`<circle cx="${cx}" cy="${top}" r="2.6" fill="#000"/>`);
-  // scar notch at the bottom of the scarred ring (straight down from the pith)
+  // year bands, inner to outer, alternating tone
+  let prev = r0;
+  radii.forEach((r, i) => { e.push(band(prev, r, i % 2 === 0 ? "#d6d6d6" : "#ffffff")); prev = r; });
+  // ring lines between years (the scarred year's outer line is bold)
+  radii.slice(0, -1).forEach((r, i) => e.push(arc(r, i === scar ? 2.6 : 1.1)));
+  // bold bark arc and the flat cut-face edge
+  e.push(arc(Rmax, 2.8));
+  e.push(`<line x1="${r2(cx - Rmax)}" y1="${top}" x2="${r2(cx + Rmax)}" y2="${top}" stroke="#000" stroke-width="1.6"/>`);
+  // pith hub (small white half-disk) and pith dot
+  e.push(`<path d="M ${r2(cx - r0)} ${top} A ${r2(r0)} ${r2(r0)} 0 0 0 ${r2(cx + r0)} ${top} Z" fill="#fff" stroke="#000" stroke-width="1.1"/>`);
+  e.push(`<circle cx="${cx}" cy="${top}" r="2.8" fill="#000"/>`);
+  // scar: a solid wedge cut from the outer line of the scarred year inward
   if (scar >= 0 && scar < radii.length) {
-    const rs = radii[scar], y = top + rs;
-    e.push(`<path d="M ${cx - 6} ${r2(y)} L ${cx + 6} ${r2(y)} L ${cx} ${r2(y - 11)} Z" fill="#000"/>`);
+    const ro = radii[scar], ri = scar === 0 ? r0 : radii[scar - 1];
+    const y0 = top + ri, y1 = top + ro, halfw = 7;
+    e.push(`<path d="M ${cx - halfw} ${r2(y1)} L ${cx + halfw} ${r2(y1)} L ${cx} ${r2(y0)} Z" fill="#000"/>`);
   }
   return `<svg viewBox="0 0 ${W} ${r2(H)}" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
 }
@@ -555,18 +569,25 @@ ${claimEvidenceCard()}`;
 // Center; adversarially fact-checked). Season chips use weight and border, not a
 // fill, so they read in grayscale (printBackground is off). Pure black scales.
 const PN_PLANTS = [
-  { n: "Serviceberry", l: "Amelanchier canadensis", bloom: ["sp"], poll: "bees, flies", note: "One of the first trees to bloom each April." },
-  { n: "Golden Alexanders", l: "Zizia aurea", bloom: ["sp", "su"], poll: "bees, flies, beetles, butterflies", note: "Tiny yellow flowers feed early short-tongued insects." },
-  { n: "Eastern Redbud", l: "Cercis canadensis", bloom: ["sp"], poll: "bees, butterflies", note: "Pink flowers bloom on bare branches in April." },
-  { n: "Butterfly Weed", l: "Asclepias tuberosa", bloom: ["su"], poll: "butterflies, bees, hummingbirds", note: "Orange milkweed and a monarch caterpillar host." },
-  { n: "Wild Bergamot", l: "Monarda fistulosa", bloom: ["su"], poll: "bees, butterflies, hummingbirds, moths", note: "Lavender pompoms that almost everyone visits." },
-  { n: "Black-eyed Susan", l: "Rudbeckia hirta", bloom: ["su", "fa"], poll: "bees, butterflies, flies", note: "Golden petals with a dark center; a summer classic." },
-  { n: "Mountain Mint", l: "Pycnanthemum tenuifolium", bloom: ["su", "fa"], poll: "bees, flies, butterflies, beetles", note: "Flat white flowers draw a huge mix of insects." },
-  { n: "Summersweet", l: "Clethra alnifolia", bloom: ["su"], poll: "bees, butterflies, hummingbirds", note: "Sweet-smelling white spikes for shady, wet spots." },
+  { n: "Serviceberry", l: "Amelanchier canadensis", bloom: ["sp"], poll: "native bees, bumble bees, flies", note: "One of the first trees to bloom each April." },
+  { n: "Golden Alexanders", l: "Zizia aurea", bloom: ["sp", "su"], poll: "native bees, flies, beetles, butterflies", note: "Tiny yellow flowers feed early short-tongued insects." },
+  { n: "Eastern Redbud", l: "Cercis canadensis", bloom: ["sp"], poll: "native bees, bumble bees, butterflies", note: "Pink flowers on bare branches; early spring nectar and pollen for mason and bumble bees." },
+  { n: "Butterfly Weed", l: "Asclepias tuberosa", bloom: ["su"], poll: "butterflies, native bees, hummingbirds", note: "Orange milkweed and a monarch caterpillar host." },
+  { n: "Wild Bergamot", l: "Monarda fistulosa", bloom: ["su"], poll: "bumble bees, butterflies, hummingbirds", note: "Lavender tubes that long-tongued visitors love." },
+  { n: "Black-eyed Susan", l: "Rudbeckia hirta", bloom: ["su", "fa"], poll: "native bees, butterflies, flies", note: "Golden petals with a dark center; a summer classic." },
+  { n: "Mountain Mint", l: "Pycnanthemum tenuifolium", bloom: ["su", "fa"], poll: "native bees, flies, butterflies, beetles", note: "Flat white flowers draw a huge mix of insects." },
+  { n: "Summersweet", l: "Clethra alnifolia", bloom: ["su"], poll: "bumble bees, butterflies, hummingbirds", note: "Sweet-smelling white spikes for shady, wet spots." },
   { n: "Cardinal Flower", l: "Lobelia cardinalis", bloom: ["su", "fa"], poll: "hummingbirds, butterflies", note: "Red tubes built for hummingbird beaks." },
-  { n: "Joe-Pye Weed", l: "Eutrochium purpureum", bloom: ["su", "fa"], poll: "butterflies, bees", note: "Tall pink clouds buzzing in late summer." },
-  { n: "New England Aster", l: "Symphyotrichum novae-angliae", bloom: ["fa"], poll: "bees, butterflies, flies", note: "Purple fall blooms fuel migrating monarchs." },
-  { n: "Goldenrod", l: "Solidago rugosa", bloom: ["fa"], poll: "bees, butterflies, flies, beetles", note: "Yellow plumes blooming right up to frost." },
+  { n: "Joe-Pye Weed", l: "Eutrochium purpureum", bloom: ["su", "fa"], poll: "butterflies, native bees, bumble bees", note: "Tall pink clouds buzzing in late summer." },
+  { n: "New England Aster", l: "Symphyotrichum novae-angliae", bloom: ["fa"], poll: "native bees, bumble bees, butterflies, flies", note: "Purple fall blooms fuel migrating monarchs." },
+  { n: "Goldenrod", l: "Solidago rugosa", bloom: ["fa"], poll: "native bees, butterflies, flies, beetles", note: "Yellow plumes blooming right up to frost." },
+  // Non-native FOILS: showy and popular but poor ecological choices. They carry a
+  // rust badge and a dashed border; teams should recognize and limit them (that is
+  // the native-and-clumping-logic score). Status verified against PA DCNR, Penn
+  // State Extension, and Xerces; see camp-prep/day-of/03_Facilitation_TTT-07.md.
+  { n: "Callery Pear", l: "Pyrus calleryana", bloom: ["sp"], poll: "a few early flies and bees; little real value", note: "Showy white spring tree, but invasive here and it crowds out native trees.", native: false, badge: "Invasive" },
+  { n: "Butterfly Bush", l: "Buddleja davidii", bloom: ["su"], poll: "adult butterflies (nectar only)", note: "Named for butterflies, but it feeds adults only and no native caterpillar can eat it.", native: false, badge: "Invasive" },
+  { n: "Garden Mum", l: "Chrysanthemum x morifolium", bloom: ["fa"], poll: "few; double petals hide the nectar and pollen", note: "Most fall pompom mums are double cultivars whose petals block bees from food.", native: false, badge: "Non-native" },
 ];
 
 const PN_POLLINATORS = [
@@ -586,6 +607,7 @@ const PN_CSS = `
 .pnc .pn-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9pt; }
 .pnc .pn-card { border: 1.2pt solid var(--rule2); border-radius: 5pt; padding: 7pt 8pt; break-inside: avoid; }
 .pnc .pn-card.poll { border-style: dashed; }
+.pnc .pn-card.foil { border-style: dashed; border-color: var(--camp-acc); }
 .pnc .pn-name { font-family: var(--serif); font-size: 11.5pt; color: var(--camp-ink); line-height: 1.1; }
 .pnc .pn-latin { font-style: italic; font-size: 7.5pt; color: var(--ink2); margin-bottom: 4pt; }
 .pnc .pn-chips { margin: 3pt 0; }
@@ -596,6 +618,7 @@ const PN_CSS = `
 .pnc .pn-row b { font-family: var(--mono); font-size: 6.4pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-acc); }
 .pnc .pn-tag { font-size: 7.5pt; color: var(--ink2); margin-top: 4pt; font-style: italic; }
 .pnc .pn-native { float: right; font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: .08em; color: var(--camp-ink); border: 1pt solid var(--camp-ink); border-radius: 3pt; padding: 0 3pt; }
+.pnc .pn-foil { float: right; font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: .08em; color: var(--camp-acc); border: 1pt solid var(--camp-acc); border-radius: 3pt; padding: 0 3pt; }
 .pnc table.pn-tbl { width: 100%; border-collapse: collapse; margin-top: 4pt; }
 .pnc table.pn-tbl th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 4pt 6pt; text-align: left; width: 33.33%; }
 .pnc table.pn-tbl td { border: 1pt solid #000; height: 1.15in; vertical-align: top; padding: 3pt; }
@@ -613,15 +636,15 @@ function pnChips(active) {
 
 // Plant cards: cut apart. Each shows bloom seasons, who visits, and a fact.
 export function plantCards() {
-  const cards = PN_PLANTS.map((p) => `<div class="pn-card">
-<span class="pn-native">Native</span><div class="pn-name">${p.n}</div><div class="pn-latin">${p.l}</div>
+  const cards = PN_PLANTS.map((p) => `<div class="pn-card${p.native === false ? " foil" : ""}">
+${p.native === false ? `<span class="pn-foil">${p.badge}</span>` : `<span class="pn-native">Native</span>`}<div class="pn-name">${p.n}</div><div class="pn-latin">${p.l}</div>
 <div class="pn-row"><b>Blooms</b></div>${pnChips(p.bloom)}
 <div class="pn-row"><b>Visited by</b> ${p.poll}</div>
 <div class="pn-tag">${p.note}</div>
 </div>`).join("");
   return `<div class="pnc"><style>${PN_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Plant cards</div></div>
-<p class="pn-note">Each plant is native here. The dark season chips show when it blooms; the visitors are the pollinators it feeds. Place plants so something blooms in spring, summer, and fall, and group the same plant in clumps.</p>
+<p class="pn-note">Most cards are native (green badge); a few are non-native foils (rust badge, dashed edge) that look nice but feed pollinators poorly - spot them and limit them. The dark chips show bloom season and the visitors each feeds. Cover spring, summer, and fall, favor natives, and clump the same plant.</p>
 <div class="pn-cards">${cards}</div></div>`;
 }
 
