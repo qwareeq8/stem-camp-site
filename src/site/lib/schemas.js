@@ -150,7 +150,6 @@ const SCHEMAS = {
       category: { type: "string", required: false },
       type: { type: "string", required: false },
       path: { type: "string", required: true },
-      size: { type: "string", required: false },
       desc: { type: "string", required: false },
       // Optional grouping hints used by the public Files page: camp ("trees" |
       // "pystem" | "" for program-wide), the activity code a doc belongs to,

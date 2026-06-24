@@ -1,25 +1,15 @@
 // Publish the generated PDFs into the site.
 // Copies tools/out/docgen/pdf/*.pdf into public/files/, rewrites the two
 // former spreadsheet entries (procurement workbook, buy list) as PDF
-// documents, restamps every entry's size in src/data/files.json, and
-// regenerates supabase/seed.sql so the optional database seed stays in
-// lockstep with the bundled data.
+// documents, and regenerates supabase/seed.sql so the optional database seed
+// stays in lockstep with the bundled data. File sizes are NOT stored: the Files
+// page measures each served file live (see src/site/lib/fileSize.js).
 //
 //   node tools/docgen/publish.mjs
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { DOCS, PDF_DIR, repo } from "./manifest.mjs";
-
-// Matches FilesEditor.AutoSizeField so the admin HEAD check agrees with the
-// bundled metadata.
-function formatBytes(bytes) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${Math.round(kb)} KB`;
-  return `${(kb / 1024).toFixed(1)} MB`;
-}
 
 const filesDir = path.join(repo, "public", "files");
 const filesJson = path.join(repo, "src", "data", "files.json");
@@ -41,8 +31,7 @@ for (const entry of entries) {
   if (!doc) throw new Error(`files.json entry ${entry.id} has no manifest doc`);
   entry.path = `files/${doc.out}`;
   entry.type = "pdf";
-  entry.size = formatBytes(fs.statSync(path.join(filesDir, doc.out)).size);
 }
 fs.writeFileSync(filesJson, JSON.stringify(entries, null, 2) + "\n");
 execFileSync("node", [path.join(repo, "tools", "gen_seed.mjs")], { stdio: "inherit" });
-process.stdout.write(`published ${copied} PDFs into public/files/, restamped ${entries.length} entries\n`);
+process.stdout.write(`published ${copied} PDFs into public/files/\n`);

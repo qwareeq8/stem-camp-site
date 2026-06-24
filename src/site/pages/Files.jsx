@@ -8,6 +8,7 @@
 // BASE_URL so the static assets resolve under the GitHub Pages subpath.
 import { useMemo, useState } from "react";
 import { useCollection } from "../lib/store.js";
+import { useFileSize, fileHref } from "../lib/fileSize.js";
 import { Page, Badge, Btn, Empty } from "../ui.jsx";
 import {
   FileText, FileSpreadsheet, FileType, Download, Search,
@@ -39,25 +40,40 @@ const KIND_META = {
   guide: { label: "Guide", Icon: BookOpen },
 };
 
-const href = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\/+/, "")}`;
-const meta = (f) => `${(f.type || "file").toUpperCase()}${f.size ? ` · ${f.size}` : ""}`;
+// Size is measured live from the served file (see lib/fileSize), so meta takes
+// the already-resolved size string rather than reading a stored field.
+const meta = (f, size) => `${(f.type || "file").toUpperCase()}${size ? ` · ${size}` : ""}`;
 
 // A single-document card (program guides, packets, score sheets, signage).
 function DocCard({ file }) {
   const { Icon } = TYPE_META[file.type] || { Icon: FileType };
+  const size = useFileSize(file.path);
+  const label = meta(file, size);
   return (
-    <a className="doc-card" href={href(file.path)} download
-       aria-label={`Download ${file.name} (${meta(file)})`}>
+    <a className="doc-card" href={fileHref(file.path)} download
+       aria-label={`Download ${file.name} (${label})`}>
       <div className="doc-row">
         <Icon size={17} aria-hidden="true" className="doc-icon" />
         <h3 className="doc-name">{file.name}</h3>
       </div>
       {file.desc && <p className="doc-desc">{file.desc}</p>}
       <div className="doc-foot">
-        <span className="mono doc-meta">{meta(file)}</span>
+        <span className="mono doc-meta">{label}</span>
         <span className="doc-get mono"><Download size={13} aria-hidden="true" /> Get</span>
       </div>
     </a>
+  );
+}
+
+// One download button for an activity document, measuring its size live.
+function DocBtn({ name, file, kind }) {
+  const { label, Icon } = KIND_META[kind];
+  const size = useFileSize(file.path);
+  return (
+    <Btn href={fileHref(file.path)} download variant="ghost" className="doc-dl"
+         aria-label={`Download ${name} ${label.toLowerCase()} (${meta(file, size)})`}>
+      <Icon size={13} aria-hidden="true" /> {label}
+    </Btn>
   );
 }
 
@@ -74,13 +90,7 @@ function ActivityCard({ code, camp, name, sub, docs }) {
         {["handout", "guide"].map((k) => {
           const f = docs[k];
           if (!f) return null;
-          const { label, Icon } = KIND_META[k];
-          return (
-            <Btn key={k} href={href(f.path)} download variant="ghost" className="doc-dl"
-                 aria-label={`Download ${name} ${label.toLowerCase()} (${meta(f)})`}>
-              <Icon size={13} aria-hidden="true" /> {label}
-            </Btn>
-          );
+          return <DocBtn key={k} name={name} file={f} kind={k} />;
         })}
       </div>
     </div>

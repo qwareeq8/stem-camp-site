@@ -2,7 +2,7 @@
 // Each file has a name, a category, a type, a public path, a human-readable
 // size, and a short description. The path is relative to public/, so the actual
 // file must be placed under public/files for the download link to resolve.
-import { useEffect, useRef, useState } from "react";
+import { useFileSize } from "../../lib/fileSize.js";
 import {
   useEditor, SaveBar, RowCard, AddButton, EmptyRows,
   TextField, SelectField, TextAreaField, makeId, updateAt, removeAt, moveAt,
@@ -21,61 +21,15 @@ const KIND_OPTIONS = [
   { value: "guide", label: "Guide (facilitators)" },
 ];
 
-function formatBytes(bytes) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${Math.round(kb)} KB`;
-  return `${(kb / 1024).toFixed(1)} MB`;
-}
-
-function fileHref(path) {
-  if (!path) return "";
-  return `${import.meta.env.BASE_URL}${String(path).replace(/^\/+/, "")}`;
-}
-
-function AutoSizeField({ path, value, onChange }) {
-  const [status, setStatus] = useState("");
-  // The HEAD check below runs once per path change, not per parent render, so
-  // the current size and setter are read through a ref instead of effect deps.
-  const latest = useRef({ value, onChange });
-  useEffect(() => {
-    latest.current = { value, onChange };
-  });
-
-  useEffect(() => {
-    if (!path) {
-      setStatus("Add a path");
-      return undefined;
-    }
-    let cancelled = false;
-    async function readSize() {
-      setStatus("Checking...");
-      try {
-        const res = await fetch(fileHref(path), { method: "HEAD" });
-        const length = Number(res.headers.get("content-length"));
-        const size = formatBytes(length);
-        if (cancelled) return;
-        const { value: current, onChange: change } = latest.current;
-        if (res.ok && size) {
-          setStatus("");
-          if (size !== current) change(size);
-        } else {
-          setStatus(current || "Size unavailable");
-        }
-      } catch {
-        if (!cancelled) setStatus(latest.current.value || "Size unavailable");
-      }
-    }
-    readSize();
-    return () => { cancelled = true; };
-  }, [path]);
-
+// Size is measured live from the served file, not stored, so this is a
+// read-only display of the file's current size (see lib/fileSize).
+function AutoSizeField({ path }) {
+  const size = useFileSize(path);
   return (
     <div className="field">
       <label>Size</label>
       <div className="input date-summary" aria-live="polite">
-        {value || status || "Auto"}
+        {path ? (size || "—") : "Add a path"}
       </div>
     </div>
   );
@@ -89,7 +43,7 @@ export default function FilesEditor() {
   function addFile() {
     ed.setDraft([
       ...files,
-      { id: makeId("f"), name: "", category: "Activity", type: "pdf", path: "", size: "", desc: "", camp: "", code: "", kind: "" },
+      { id: makeId("f"), name: "", category: "Activity", type: "pdf", path: "", desc: "", camp: "", code: "", kind: "" },
     ]);
   }
 
@@ -132,11 +86,7 @@ export default function FilesEditor() {
             onChange={(v) => set(i, { type: v })}
             options={TYPE_OPTIONS}
           />
-          <AutoSizeField
-            path={f.path}
-            value={f.size}
-            onChange={(v) => set(i, { size: v })}
-          />
+          <AutoSizeField path={f.path} />
           <div style={{ gridColumn: "1 / -1" }}>
             <TextField
               label="Path"
