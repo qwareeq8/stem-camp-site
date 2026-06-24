@@ -439,7 +439,7 @@ ${tourClueSheet()}`;
 // One ring per year, read pith (center) to bark; wide = a favorable year, narrow
 // = a stress year, a scar = a fire the tree survived. A ring is a proxy, not a
 // thermometer. Verified against NOAA Climate.gov, UCAR SciEd, and LTRR Arizona.
-const RING_CARDS = [
+export const RING_CARDS = [
   { id: "A", title: "Steady seasons", widths: [2, 2, 2, 2, 2, 2, 2, 2] },
   { id: "B", title: "The dry spell", widths: [2, 3, 2, 1, 1, 1, 1, 3, 2] },
   { id: "C", title: "Fire and back", widths: [2, 3, 2, 2, 1, 1, 2, 3], scar: 4 },
@@ -472,7 +472,7 @@ const TR_CSS = `
 // the ring width, pith at the flat-edge center, bark arc bold. A scar is a bold
 // arc plus a solid notch at the bottom of that ring. Pure black so it reads in
 // grayscale (no printBackground).
-function ringCookie(widths, scar = -1) {
+export function ringCookie(widths, scar = -1) {
   const W = 300, pad = 12;
   const cx = W / 2, top = pad + 6;
   const Rmax = W / 2 - pad;
