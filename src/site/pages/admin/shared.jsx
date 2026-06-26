@@ -25,7 +25,10 @@ const DAY_LABEL = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
 });
-const TIME_STEP_MINUTES = 15;
+// The plus/minus buttons nudge a time by this many minutes from its current
+// value. This is only a convenience step, NOT a grid the value snaps to: a typed
+// time is kept exactly as entered, so blocks can start and end at any minute.
+const TIME_STEP_MINUTES = 5;
 
 export function dayLabelFromDate(value) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
@@ -66,10 +69,9 @@ function minutesFromTime(value) {
 }
 
 function timeFromMinutes(value) {
-  const minutes = Math.max(0, Math.min(23 * 60 + 45, value));
-  const snapped = Math.round(minutes / TIME_STEP_MINUTES) * TIME_STEP_MINUTES;
-  const hours = Math.floor(snapped / 60);
-  const mins = snapped % 60;
+  const minutes = Math.max(0, Math.min(23 * 60 + 59, Math.round(value)));
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
   return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
@@ -251,7 +253,7 @@ export function TimeField({ label, value, onChange }) {
             variant="ghost"
             className="icon"
             onClick={() => onChange(shiftTime(value, TIME_STEP_MINUTES))}
-            aria-label={`Increase ${label} by 15 minutes`}
+            aria-label={`Increase ${label} by ${TIME_STEP_MINUTES} minutes`}
           >
             <Plus size={13} aria-hidden="true" />
           </Btn>
@@ -260,7 +262,7 @@ export function TimeField({ label, value, onChange }) {
             variant="ghost"
             className="icon"
             onClick={() => onChange(shiftTime(value, -TIME_STEP_MINUTES))}
-            aria-label={`Decrease ${label} by 15 minutes`}
+            aria-label={`Decrease ${label} by ${TIME_STEP_MINUTES} minutes`}
           >
             <Minus size={13} aria-hidden="true" />
           </Btn>

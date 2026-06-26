@@ -56,9 +56,10 @@ export default function ScheduleEditor() {
     <div>
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
         Add one day at a time, then add the timed blocks for that day. Blocks
-        inherit the day&apos;s camp unless changed. Use the calendar for dates and
-        the time fields for 15-minute steps. Leave station code blank for lunch,
-        field visits, or custom events.
+        inherit the day&apos;s camp unless changed. Use the calendar for dates, and
+        type any start and end time you need (the plus and minus buttons nudge by
+        5 minutes). Leave the station code blank for lunch, field visits, or
+        custom events.
       </div>
 
       {days.length === 0 && <EmptyRows>No schedule days yet. Add the first day to start building a week.</EmptyRows>}
