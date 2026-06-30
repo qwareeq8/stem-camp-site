@@ -823,5 +823,82 @@
     "code": "PYB-04",
     "category": "Activity",
     "kind": "guide"
+  },
+  {
+    "id": "pys-print-maze",
+    "name": "Magnet Maze Boards",
+    "desc": "Four laminate-ready mazes for the PYS-01 magnetic capsule station.",
+    "type": "pdf",
+    "path": "files/PYS_01_Magnet_Maze_Boards.pdf",
+    "camp": "pystem",
+    "code": "PYS-01",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-reaction",
+    "name": "Reaction-Time Conversion Strip",
+    "desc": "Catch-distance to reaction-time lookup and quick-read ruler for PYS-05.",
+    "type": "pdf",
+    "path": "files/PYS_05_Reaction_Time_Strip.pdf",
+    "camp": "pystem",
+    "code": "PYS-05",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-balance",
+    "name": "Balance Challenge Cards",
+    "desc": "Four indoor center-of-mass challenges for the PYS-08 force-map relay.",
+    "type": "pdf",
+    "path": "files/PYS_08_Balance_Challenge_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-08",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-com",
+    "name": "Center-of-Mass Map Template",
+    "desc": "Sketch template for predicting balance and base of support (PYS-08).",
+    "type": "pdf",
+    "path": "files/PYS_08_Center_of_Mass_Template.pdf",
+    "camp": "pystem",
+    "code": "PYS-08",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-spectra",
+    "name": "Spectrum Reference Cards",
+    "desc": "Filament, LED, and neon reference spectra for the PYS-10 matching game.",
+    "type": "pdf",
+    "path": "files/PYS_10_Spectrum_Reference_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-10",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-routemat",
+    "name": "BookBot Route Mat",
+    "desc": "A 24-bin addressed grid to tape to a table for PYS-11 (landscape).",
+    "type": "pdf",
+    "path": "files/PYS_11_BookBot_Route_Mat.pdf",
+    "camp": "pystem",
+    "code": "PYS-11",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-orderdeck",
+    "name": "BookBot Order Deck and Tags",
+    "desc": "Retrieval orders and cut-apart bin address tags for PYS-11.",
+    "type": "pdf",
+    "path": "files/PYS_11_BookBot_Order_Deck.pdf",
+    "camp": "pystem",
+    "code": "PYS-11",
+    "category": "Printable",
+    "kind": "print"
   }
 ]

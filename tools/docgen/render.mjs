@@ -769,6 +769,7 @@ function main() {
   const meta = {};
   let count = 0;
   for (const doc of DOCS) {
+    if (doc.isStatic) continue; // printables are pre-built by build_pystem.mjs
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
     const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
     const camp = CAMPS[doc.camp];

@@ -12,7 +12,7 @@ import { useFileSize, fileHref } from "../lib/fileSize.js";
 import { Page, Badge, Btn, Empty } from "../ui.jsx";
 import {
   FileText, FileSpreadsheet, FileType, Download, Search,
-  BookOpen, ClipboardCheck, Layers, Tag, X,
+  BookOpen, ClipboardCheck, Layers, Tag, X, Printer,
 } from "lucide-react";
 
 const CAMP_FILTERS = [
@@ -132,6 +132,7 @@ export default function Files() {
     function campBucket(id) {
       const mine = pool.filter((f) => f.camp === id);
       const docs = mine.filter((f) => ["Packet", "Scoring", "Signage"].includes(f.category));
+      const prints = mine.filter((f) => f.category === "Printable");
       // Group per-activity files by code, preserving first-seen (deck) order.
       const order = [];
       const byCode = {};
@@ -143,6 +144,7 @@ export default function Files() {
       const acts = order.map((c) => byCode[c]);
       return {
         docs,
+        prints,
         primary: acts.filter((a) => !a.code.includes("B-")),
         backup: acts.filter((a) => a.code.includes("B-")),
       };
@@ -158,7 +160,7 @@ export default function Files() {
     ["trees", "pystem"].reduce((n, id) => {
       if (!showCamp(id)) return n;
       const b = view[id];
-      return n + b.docs.length + b.primary.length + b.backup.length;
+      return n + b.docs.length + b.prints.length + b.primary.length + b.backup.length;
     }, 0);
 
   return (
@@ -211,7 +213,7 @@ export default function Files() {
           {["trees", "pystem"].map((id) => {
             if (!showCamp(id)) return null;
             const b = view[id];
-            if (!b.docs.length && !b.primary.length && !b.backup.length) return null;
+            if (!b.docs.length && !b.prints.length && !b.primary.length && !b.backup.length) return null;
             return (
               <div key={id} className="doc-camp">
                 {camp === "all" && (
@@ -238,6 +240,13 @@ export default function Files() {
                   <Section icon={ClipboardCheck} title="Backup activities" count={b.backup.length}>
                     <div className="doc-grid">
                       {b.backup.map((a) => <ActivityCard key={a.code} {...a} />)}
+                    </div>
+                  </Section>
+                )}
+                {b.prints.length > 0 && (
+                  <Section icon={Printer} title="Station printables" count={b.prints.length}>
+                    <div className="doc-grid">
+                      {b.prints.map((f) => <DocCard key={f.id} file={f} />)}
                     </div>
                   </Section>
                 )}

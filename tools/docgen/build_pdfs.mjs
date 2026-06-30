@@ -31,6 +31,7 @@ async function main() {
   const page = await browser.newPage();
   const report = [];
   for (const doc of DOCS) {
+    if (doc.isStatic) continue; // printables are pre-built by build_pystem.mjs into PDF_DIR
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
     const htmlPath = path.join(HTML_DIR, `${doc.slug}.html`);
     await page.goto(pathToFileURL(htmlPath).href);

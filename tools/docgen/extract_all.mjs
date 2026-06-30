@@ -15,6 +15,7 @@ fs.mkdirSync(IR_DIR, { recursive: true });
 
 let count = 0;
 for (const doc of DOCS) {
+  if (doc.isStatic) continue; // printables are pre-built by build_pystem.mjs
   const script = doc.isSheet ? "extract_xlsx.py" : "extract_docx.py";
   const out = path.join(IR_DIR, `${doc.slug}.json`);
   execFileSync("python3", [path.join(here, script), doc.source, out], { stdio: "inherit" });
