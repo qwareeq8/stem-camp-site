@@ -247,7 +247,7 @@ export function voltageLogAppendix() {
     .join("");
   return `<div class="vlog-apx"><style>${css}</style>
 <div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-01 MudWatt Bioelectric League</div><div class="sheet-title">Daily voltage log</div></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-01 Mud Battery Bioelectric League</div><div class="sheet-title">Daily voltage log</div></div>
 <p class="va-note">Each day, set the multimeter to DC millivolts and read the voltage across the 100 k&#8486; resistor at the same time; the cell is weak on day 1 and climbs as the biofilm grows. Defend the design with the trend, not one number.</p>
 <div class="va-hdr"><span>Team <span class="fill"></span></span><span>The ONE variable we are testing <span class="fill"></span></span></div>
 <table><thead><tr><th style="width:24%">Day</th><th style="width:18%">Time</th><th style="width:24%">Voltage <span style="text-transform:none">(mV)</span></th><th style="width:34%">Notes</th></tr></thead>
