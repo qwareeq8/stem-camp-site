@@ -112,6 +112,8 @@ function main() {
   let checked = 0;
   for (const doc of DOCS) {
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
+    // Static printables are drawn straight to PDF and have no extracted IR.
+    if (doc.isStatic) continue;
     const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
     const pdfPath = path.join(PDF_DIR, doc.out);
     const pages = pdfPages(pdfPath, "layout");
