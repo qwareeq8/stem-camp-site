@@ -933,5 +933,38 @@
     "code": "PYS-12",
     "category": "Printable",
     "kind": "print"
+  },
+  {
+    "id": "pys-print-hovertarget",
+    "name": "Hovercraft Target and Rules",
+    "desc": "Glide test, target-hockey rules, and a scoring target for PYS-09.",
+    "type": "pdf",
+    "path": "files/PYS_09_Hovercraft_Target_and_Rules.pdf",
+    "camp": "pystem",
+    "code": "PYS-09",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-museum",
+    "name": "Museum Exhibit Clue Cards",
+    "desc": "Six predict-first exhibit clues plus an instructor key for PYS-10.",
+    "type": "pdf",
+    "path": "files/PYS_10_Museum_Clue_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-10",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-barcode",
+    "name": "Barcode Card Deck and Key",
+    "desc": "UPC-A cards, the check-digit rule, and a pre-computed answer key for PYB-04.",
+    "type": "pdf",
+    "path": "files/PYB_04_Barcode_Card_Deck.pdf",
+    "camp": "pystem",
+    "code": "PYB-04",
+    "category": "Printable",
+    "kind": "print"
   }
 ]

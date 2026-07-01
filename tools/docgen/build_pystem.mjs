@@ -403,6 +403,125 @@ ${head("PY-STEM 2026 &middot; PYS-04 Stethoscope Sprint and Recovery", "Heart-ra
 <svg viewBox="0 0 ${W} ${H}">${gy}${gx}<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#222" stroke-width="1.4"/><line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="#222" stroke-width="1.4"/></svg></div></div>`;
 }
 
+// ---------- PYS-09 hovercraft target and tournament rules ----------
+function hovercraftTargetRules() {
+  const cx = 260, cy = 250, rings = [
+    [230, "#f4ede2", "5"],
+    [175, "#e7d3b0", "10"],
+    [120, "#cf9f66", "20"],
+    [64, "#1f7a4d", "30"],
+  ];
+  const circles = rings.map(([r, fill]) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="#1c3257" stroke-width="2"/>`).join("");
+  const labels = rings.map(([r, , pts]) => `<text x="${cx}" y="${cy - r + 20}" text-anchor="middle" font-size="17" font-family="JetBrains Mono" font-weight="700" fill="#1c3257">${pts}</text>`).join("");
+  return `<div class="sheet"><style>
+.hv-rules{border:1.3pt solid var(--camp-ink);border-radius:8pt;padding:11pt 13pt;margin-bottom:12pt;}
+.hv-rules h4{font-family:var(--serif);color:var(--camp-ink);font-size:12.5pt;margin:0 0 4pt;}
+.hv-rules ol{margin:0 0 0 16pt;font-size:9.5pt;}
+.hv-rules li{margin-bottom:3pt;}
+.hv-target{border:1.3pt solid var(--camp-ink);border-radius:8pt;padding:10pt;text-align:center;break-inside:avoid;}
+.hv-target svg{width:5in;height:auto;}
+.hv-lab{font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-09 Hovercraft Hockey Hackathon", "Glide test, target rules, and scoring target")}
+<div class="hv-rules"><h4>Glide test (Glide performance, 30 points)</h4>
+<ol><li>Tape a start line and a launch line 30&nbsp;cm apart on a smooth floor or long table.</li>
+<li>Set the inflated hovercraft on the start line, open the cap, and give it one firm, level push so it crosses the launch line.</li>
+<li>Measure how far past the launch line it glides before it stops. Record the <b>best of three</b> pushes in centimetres.</li></ol></div>
+<div class="hv-rules"><h4>Target hockey (Target competition score, 25 points)</h4>
+<ol><li>Place the target sheet 1&nbsp;to 1.5&nbsp;m from a shooting line on the floor.</li>
+<li>Each team gets <b>five shots</b>: push the hovercraft from the shooting line so it comes to rest on the target.</li>
+<li>Score the ring the puck's centre stops on (5, 10, 20, or the 30 bullseye). Off the target scores 0. Add the five shots.</li>
+<li>Run it as a bracket: highest five-shot total advances. Ties take one extra shot.</li></ol></div>
+<div class="hv-target"><div class="hv-lab">Scoring target &mdash; print and tape to the floor or a table</div>
+<svg viewBox="0 0 520 500">${circles}${labels}<circle cx="${cx}" cy="${cy}" r="4" fill="#1c3257"/></svg></div></div>`;
+}
+
+// ---------- PYS-10 museum exhibit clue cards ----------
+function museumClueCards() {
+  const clues = [
+    ["The OPEN sign", "A shop's glowing orange-red OPEN sign in the window.", "Line spectrum", "Neon gas"],
+    ["The film projector", "The warm bulb inside an old cinema film projector.", "Smooth rainbow", "Hot filament"],
+    ["The phone light", "The white flashlight on the back of a modern phone.", "Broad band with a blue spike", "White LED"],
+    ["The street lamp", "A highway lamp that makes everything look yellow-orange.", "Line spectrum", "Sodium gas"],
+    ["The red firework", "A single red burst at the fireworks show.", "Line spectrum", "Glowing strontium salt"],
+    ["The desk lamp", "A dimmable desk lamp with an old-style clear bulb.", "Smooth rainbow", "Hot filament"],
+  ];
+  const cards = clues.map(([n, desc], i) => `<div class="bc"><div class="bc-h"><span class="bc-n">${i + 1}</span><span class="bc-t">${n}</span></div>
+<div class="bc-how">${desc}</div>
+<div class="bc-pred">Spectrum I would see: &nbsp;____________________ &nbsp;&nbsp; Source type: &nbsp;____________________</div></div>`).join("");
+  const keyRows = clues.map(([, , spec, src], i) => `<tr><td>${i + 1}</td><td>${spec}</td><td>${src}</td></tr>`).join("");
+  return `<div class="sheet"><style>${CARD_CSS}</style>
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Museum exhibit clue cards (predict first)")}
+<p class="note">Each card describes a real light you might meet in a museum or on the street. Predict the spectrum you would see through the grating and name the source type BEFORE you check it against the reference cards. This backs the exhibit-connection part of the score. Reasons are on the instructor answer key.</p>
+<div class="bc-grid">${cards}</div>
+<div style="break-before:page"></div>
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Instructor answer key (do not hand out)")}
+<p class="note">Keep this page with the instructor. A hot filament gives a smooth rainbow; a white LED gives a broad band with a blue spike; a neon, sodium, or metal-salt source gives separate bright lines.</p>
+<table class="bkey"><tr><th>#</th><th>Spectrum</th><th>Source</th></tr>${keyRows}</table></div>`;
+}
+
+// ---------- PYB-04 barcode checksum deck + answer key ----------
+function upcCheckDigit(d) {
+  // d: 11 data digits. UPC-A: odd positions (1-based) weight 3, even weight 1.
+  let s = 0;
+  for (let i = 0; i < 11; i++) s += d[i] * (i % 2 === 0 ? 3 : 1);
+  return (10 - (s % 10)) % 10;
+}
+function barcodeDeck() {
+  const bases = [
+    "03600029145", "01234567890", "04012345678", "07350053850", "88491201203",
+    "01200080351", "05000159407", "03800012345", "09780471486", "06414410062",
+    "01650000201", "00754182014",
+  ];
+  // Card index -> data-digit index to bump by +1, making a single-digit error
+  // the mod-10 check always catches. Untouched cards stay valid.
+  const corrupt = { 1: 3, 3: 7, 4: 0, 6: 5, 8: 9, 10: 2, 11: 6 };
+  const cards = [], key = [];
+  bases.forEach((b, i) => {
+    const d = b.split("").map(Number);
+    let full = b + upcCheckDigit(d);
+    let bad = false;
+    if (corrupt[i] !== undefined) {
+      const j = corrupt[i];
+      const arr = full.split("");
+      arr[j] = String((d[j] + 1) % 10);
+      full = arr.join("");
+      bad = true;
+    }
+    const shown = full.replace(/^(\d)(\d{5})(\d{5})(\d)$/, "$1 $2 $3 $4");
+    cards.push(`<div class="bcard"><span class="bcard-n">${i + 1}</span><span class="bcard-code">${shown}</span></div>`);
+    key.push(`<tr><td>${i + 1}</td><td>${shown}</td><td>${bad ? "Corrupted &mdash; reject" : "Valid &mdash; accept"}</td></tr>`);
+  });
+  const ex = "03600029145";
+  const exChk = upcCheckDigit(ex.split("").map(Number));
+  return `<div class="sheet"><style>
+.rule{border:1.3pt solid var(--camp-ink);border-radius:8pt;padding:11pt 13pt;margin-bottom:12pt;font-size:9.5pt;}
+.rule h4{font-family:var(--serif);color:var(--camp-ink);font-size:12.5pt;margin:0 0 5pt;}
+.rule b{color:var(--camp-acc);}
+.bcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:9pt;}
+.bcard{display:flex;align-items:center;gap:10pt;border:1.3pt solid var(--camp-ink);border-radius:6pt;padding:8pt 11pt;break-inside:avoid;}
+.bcard-n{font-family:var(--mono);font-weight:700;background:var(--camp-ink);color:#fff;border-radius:4pt;padding:1pt 8pt;font-size:11pt;}
+.bcard-code{font-family:var(--mono);font-weight:700;font-size:14pt;letter-spacing:.06em;color:#111;}
+.bkey{border-collapse:collapse;width:100%;font-size:9.5pt;margin-top:4pt;}
+.bkey th{background:var(--camp-ink);color:#fff;text-align:left;padding:4pt 7pt;font-size:8pt;text-transform:uppercase;letter-spacing:.05em;}
+.bkey td{border-bottom:1pt solid var(--rule2);padding:5pt 7pt;}
+.bkey td:nth-child(2){font-family:var(--mono);letter-spacing:.04em;}
+.bkey td:nth-child(3){color:var(--camp-acc);font-weight:600;}
+</style>
+${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Barcode cards, check-digit rule, and answer key")}
+<div class="rule"><h4>The UPC-A check-digit rule</h4>
+A product barcode has 12 digits. The last one is a <b>check digit</b> computed from the first 11 by a fixed rule, so a single mistyped digit no longer matches and the scanner rejects the code.
+<ol style="margin:5pt 0 0 16pt"><li>Add the digits in the odd positions (1st, 3rd, 5th, ...) and multiply that sum by 3.</li>
+<li>Add the digits in the even positions (2nd, 4th, ...).</li>
+<li>Add those two results, then find what you must add to reach the next multiple of 10. That is the check digit.</li></ol>
+<div style="margin-top:6pt">Worked example for <b>${ex.replace(/(\d)(\d{5})(\d{5})/, "$1 $2 $3")}</b>: the rule gives a check digit of <b>${exChk}</b>, so the full valid code is ${ex}${exChk}. Card 1 uses it.</div></div>
+<div class="bcard-grid">${cards}</div>
+<div style="break-before:page"></div>
+${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Instructor answer key (do not hand out)")}
+<p class="note">Keep this page with the instructor. Each corrupted card has exactly one wrong digit, which the mod-10 rule always catches. Reject the corrupted codes; accept the rest.</p>
+<table class="bkey"><tr><th>Card</th><th>Code</th><th>Verdict</th></tr>${key.join("")}</table></div>`;
+}
+
 // ---------- staff run-sheets ----------
 const SCIENCE = {
   "PYS-01": "Move a magnet under the board to drag a steel token through the maze with no contact (remote actuation, like a magnetically steered capsule endoscope).",
@@ -479,7 +598,10 @@ const SHEETS = [
   { slug: "PYS_11_BookBot_Order_Deck", body: bookbotCards },
   { slug: "PYS_04_Heart_Rate_Recovery_Log", body: heartRateLog },
   { slug: "PYS_06_Slinky_Station_Cards", body: slinkyCards },
+  { slug: "PYS_09_Hovercraft_Target_and_Rules", body: hovercraftTargetRules },
+  { slug: "PYS_10_Museum_Clue_Cards", body: museumClueCards },
   { slug: "PYS_12_Ramp_Client_Spec_Cards", body: rampClientCards },
+  { slug: "PYB_04_Barcode_Card_Deck", body: barcodeDeck },
   { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets },
 ];
 
