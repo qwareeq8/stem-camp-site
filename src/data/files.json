@@ -900,5 +900,38 @@
     "code": "PYS-11",
     "category": "Printable",
     "kind": "print"
+  },
+  {
+    "id": "pys-print-recovery",
+    "name": "Heart-Rate Recovery Log",
+    "desc": "Recovery heart-rate table and plot for the PYS-04 stethoscope station.",
+    "type": "pdf",
+    "path": "files/PYS_04_Heart_Rate_Recovery_Log.pdf",
+    "camp": "pystem",
+    "code": "PYS-04",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-slinky",
+    "name": "Slinky Station Challenge Cards",
+    "desc": "Six predict-first pulse challenges plus an instructor key for PYS-06.",
+    "type": "pdf",
+    "path": "files/PYS_06_Slinky_Station_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-06",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-rampspec",
+    "name": "Ramp Client Spec Cards",
+    "desc": "Four client briefs with slope, load, and portability limits for PYS-12.",
+    "type": "pdf",
+    "path": "files/PYS_12_Ramp_Client_Spec_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-12",
+    "category": "Printable",
+    "kind": "print"
   }
 ]

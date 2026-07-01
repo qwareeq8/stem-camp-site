@@ -286,6 +286,123 @@ ${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Order deck + bin addre
 <div class="tags">${tags}</div></div>`;
 }
 
+// Shared predict-first card + instructor answer-key styles (self-contained per sheet).
+const CARD_CSS = `
+.bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:13pt;}
+.bc{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:9pt 11pt;break-inside:avoid;}
+.bc-h{display:flex;align-items:center;gap:8pt;margin-bottom:4pt;}
+.bc-n{font-family:var(--mono);font-weight:700;background:var(--camp-ink);color:#fff;border-radius:4pt;padding:1pt 7pt;font-size:11pt;}
+.bc-t{font-family:var(--serif);font-weight:600;color:var(--camp-ink);font-size:13pt;}
+.bc-how{font-size:9.5pt;margin-bottom:6pt;}
+.bc-pred{font-size:8.5pt;color:var(--ink2);border-top:1pt dashed var(--rule2);padding-top:5pt;}
+.bkey{border-collapse:collapse;width:100%;font-size:9pt;margin-top:4pt;}
+.bkey th{background:var(--camp-ink);color:#fff;text-align:left;padding:4pt 7pt;font-size:8pt;text-transform:uppercase;letter-spacing:.05em;}
+.bkey td{border-bottom:1pt solid var(--rule2);padding:5pt 7pt;vertical-align:top;}
+.bkey td:nth-child(2){color:var(--camp-acc);font-weight:600;}
+`;
+
+// ---------- PYS-06 SONAR slinky station cards ----------
+function slinkyCards() {
+  const ch = [
+    ["Count the round trips", "Send one sharp pulse down the stretched slinky. Predict how many times it will travel down and back before it fades out, then send it and count."],
+    ["Tension change", "One teammate pulls the slinky a little tighter (do not overstretch). Predict whether the pulse comes back faster or slower than before, then time it."],
+    ["Pinch a wall", "A teammate pinches the middle of the slinky to make a fixed point. Predict what the pulse does when it reaches the pinch, then send one and watch."],
+    ["Measure the speed", "Time 4 to 6 full round trips along your measured lane, then divide the total distance by the total time. Record the speed in metres per second."],
+    ["Two pulses meet", "Two teammates each send a pulse from opposite ends at the same time. Predict what happens when the two pulses meet in the middle, then try it."],
+    ["Big push or small push", "Send a small pulse, then a big one along the same lane. Predict whether the big push travels faster, slower, or the same speed, then time both."],
+  ];
+  const cards = ch.map(([n, how], i) => `<div class="bc"><div class="bc-h"><span class="bc-n">${i + 1}</span><span class="bc-t">${n}</span></div>
+<div class="bc-how">${how}</div>
+<div class="bc-pred">My prediction: &nbsp;___________________________ &nbsp;&nbsp; What I measured: &nbsp;__________________</div></div>`).join("");
+  const key = [
+    ["Fades after several trips", "Friction and air drag remove energy each pass, so the count is a measurement, not a fixed number."],
+    ["Tighter is faster", "Wave speed rises with tension (it grows with the square root of tension), so a tighter slinky returns the pulse sooner."],
+    ["Reflects, flipped", "The pinch acts as a fixed end, so the pulse bounces back inverted, just like it does off the held far end."],
+    ["Distance over time", "Speed = total distance divided by total time. Timing several round trips and dividing cancels most of the human timing error."],
+    ["They pass through", "The two pulses cross by superposition: where they overlap the coils add for an instant, then each pulse continues on unchanged."],
+    ["Same speed", "Wave speed depends on the slinky's tension and mass per length, not on how big the pulse is; the big one just carries more energy."],
+  ];
+  const keyRows = key.map(([verdict, why], i) => `<tr><td>${i + 1}</td><td>${verdict}</td><td>${why}</td></tr>`).join("");
+  return `<div class="sheet"><style>${CARD_CSS}</style>
+${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Station challenge cards (predict first)")}
+<p class="note">One card per challenge station. A team reads the card, writes a prediction FIRST, then tests it with the slinky and records what happened. Keep the slinky flat on the floor and never let go while it is stretched. The reasons are on the instructor answer key so predictions stay real.</p>
+<div class="bc-grid">${cards}</div>
+<div style="break-before:page"></div>
+${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Instructor answer key (do not hand out)")}
+<p class="note">Keep this page with the instructor and print it once. Reveal a station's reason only after each team has recorded its prediction.</p>
+<table class="bkey"><tr><th>#</th><th>What happens</th><th>Why</th></tr>${keyRows}</table></div>`;
+}
+
+// ---------- PYS-12 accessibility ramp client spec cards ----------
+function rampClientCards() {
+  const clients = [
+    ["Community school", "10 cm", "1:12", "a 200 g cart", "folds to fit inside a backpack", 120],
+    ["Public library", "8 cm", "1:14", "a 300 g cart", "one student can carry it alone", 112],
+    ["Health clinic", "12 cm", "1:12", "a 250 g cart", "sets up in under one minute", 144],
+    ["Science museum", "15 cm", "1:16", "a 200 g cart", "the ramp itself weighs under 200 g", 240],
+  ];
+  const cards = clients.map(([who, rise, slope, load, port], i) => `<div class="cl"><div class="cl-h"><span class="cl-n">Client ${String.fromCharCode(65 + i)}</span><span class="cl-w">${who}</span></div>
+<table class="cl-t"><tr><td>Rise to cover</td><td>${rise}</td></tr>
+<tr><td>Max slope</td><td>${slope}</td></tr>
+<tr><td>Load to carry</td><td>${load}</td></tr>
+<tr><td>Portability</td><td>${port}</td></tr></table></div>`).join("");
+  const lengths = clients.map(([, rise, slope, , , len], i) => `Client ${String.fromCharCode(65 + i)}: ${rise} at ${slope} needs about ${len} cm of ramp`).join("; ");
+  return `<div class="sheet"><style>
+.cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:13pt;}
+.cl{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:10pt 12pt;break-inside:avoid;}
+.cl-h{display:flex;align-items:baseline;gap:8pt;margin-bottom:5pt;}
+.cl-n{font-family:var(--mono);font-weight:700;background:var(--camp-acc);color:#fff;border-radius:4pt;padding:1pt 8pt;font-size:11pt;}
+.cl-w{font-family:var(--serif);font-weight:600;color:var(--camp-ink);font-size:13pt;}
+.cl-t{width:100%;border-collapse:collapse;font-size:9.5pt;}
+.cl-t td{padding:3pt 4pt;border-bottom:1pt solid var(--rule2);vertical-align:top;}
+.cl-t td:first-child{white-space:nowrap;color:var(--ink2);}
+.cl-t td:last-child{font-family:var(--mono);color:var(--camp-ink);font-weight:700;text-align:right;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-12 Accessibility Ramp Rescue Lab", "Client spec cards (one per team)")}
+<p class="note">Hand each team one client card. Every design must meet ALL four of its client's numbers. Slope is written as rise:run, so 1:12 means 12 cm of ramp length for every 1 cm of height. Ramp length = rise &times; the run number.</p>
+<div class="cl-grid">${cards}</div>
+<p class="note" style="margin-top:12pt"><b>Length check (for the instructor):</b> ${lengths}.</p></div>`;
+}
+
+// ---------- PYS-04 stethoscope recovery heart-rate log ----------
+function heartRateLog() {
+  const rows = [
+    ["Resting (sit calm for 1 min)", "0"],
+    ["Right after 1 min of activity", "0"],
+    ["Recovery at 1 minute", "1"],
+    ["Recovery at 2 minutes", "2"],
+    ["Recovery at 3 minutes", "3"],
+  ];
+  const body = rows.map(([label]) => `<tr><td>${label}</td><td></td><td></td><td></td></tr>`).join("");
+  // Plot grid: x = time (0..3 min post), y = beats per minute (40..160).
+  const W = 520, H = 300, ml = 44, mb = 28, pt = 10, pr = 12;
+  const x0 = ml, x1 = W - pr, y0 = pt, y1 = H - mb;
+  const yLabels = [40, 60, 80, 100, 120, 140, 160];
+  const xLabels = ["rest", "after", "1 min", "2 min", "3 min"];
+  const gy = yLabels.map((v) => {
+    const y = y1 - ((v - 40) / 120) * (y1 - y0);
+    return `<line x1="${x0}" y1="${y.toFixed(1)}" x2="${x1}" y2="${y.toFixed(1)}" stroke="#e2ded5" stroke-width="1"/><text x="${x0 - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" font-family="JetBrains Mono" fill="#5A564F">${v}</text>`;
+  }).join("");
+  const gx = xLabels.map((lab, i) => {
+    const x = x0 + (i / (xLabels.length - 1)) * (x1 - x0);
+    return `<line x1="${x.toFixed(1)}" y1="${y0}" x2="${x.toFixed(1)}" y2="${y1}" stroke="#efece5" stroke-width="1"/><text x="${x.toFixed(1)}" y="${y1 + 16}" text-anchor="middle" font-size="9" font-family="JetBrains Mono" fill="#5A564F">${lab}</text>`;
+  }).join("");
+  return `<div class="sheet"><style>
+.hr-t{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:12pt;}
+.hr-t th{background:var(--camp-ink);color:#fff;text-align:left;padding:5pt 8pt;font-size:8pt;text-transform:uppercase;letter-spacing:.05em;}
+.hr-t td{border-bottom:1pt solid var(--rule2);padding:8pt;}
+.hr-t td:first-child{width:42%;}
+.hr-plot{border:1.2pt solid var(--camp-ink);border-radius:7pt;padding:10pt;}
+.hr-plot svg{width:100%;height:auto;}
+.hr-lab{font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-04 Stethoscope Sprint and Recovery", "Heart-rate recovery log (one per team)")}
+<p class="note">Count heartbeats for 15 seconds and multiply by 4 to get beats per minute (bpm). With the person's consent, record a resting rate, then a rate right after one minute of light activity, then watch it recover. A faster drop back toward rest means better fitness. Fill both trials, then plot the points and connect them.</p>
+<table class="hr-t"><tr><th>When</th><th>Trial 1 count (15 s)</th><th>Trial 2 count (15 s)</th><th>Beats per minute</th></tr>${body}</table>
+<div class="hr-plot"><div class="hr-lab">Heart rate over time (bpm)</div>
+<svg viewBox="0 0 ${W} ${H}">${gy}${gx}<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#222" stroke-width="1.4"/><line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="#222" stroke-width="1.4"/></svg></div></div>`;
+}
+
 // ---------- staff run-sheets ----------
 const SCIENCE = {
   "PYS-01": "Move a magnet under the board to drag a steel token through the maze with no contact (remote actuation, like a magnetically steered capsule endoscope).",
@@ -360,6 +477,9 @@ const SHEETS = [
   { slug: "PYS_10_Spectrum_Reference_Cards", body: spectrumCards },
   { slug: "PYS_11_BookBot_Route_Mat", body: bookbotMat, landscape: true },
   { slug: "PYS_11_BookBot_Order_Deck", body: bookbotCards },
+  { slug: "PYS_04_Heart_Rate_Recovery_Log", body: heartRateLog },
+  { slug: "PYS_06_Slinky_Station_Cards", body: slinkyCards },
+  { slug: "PYS_12_Ramp_Client_Spec_Cards", body: rampClientCards },
   { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets },
 ];
 
