@@ -6,7 +6,7 @@
     "blocks": [
       { "start": "09:00", "end": "10:20", "title": "Welcome and safety briefing", "location": "Dixon 104" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
-      { "start": "10:40", "end": "12:00", "title": "MudWatt Bioelectric League", "code": "TTT-01", "camp": "trees", "location": "Dixon 104" },
+      { "start": "10:40", "end": "12:00", "title": "Mud Battery Bioelectric League", "code": "TTT-01", "camp": "trees", "location": "Dixon 104" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
       { "start": "13:00", "end": "14:20", "title": "Forest Sensor Sprint", "code": "TTT-02", "camp": "trees", "location": "Dixon 104" },
       { "start": "14:20", "end": "14:40", "title": "Break" },

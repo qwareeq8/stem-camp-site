@@ -122,7 +122,7 @@
   },
   {
     "id": "TTT-01-handout",
-    "name": "MudWatt Bioelectric League",
+    "name": "Mud Battery Bioelectric League",
     "desc": "Turn a cup of mud into a living battery",
     "type": "pdf",
     "path": "files/TTT_01_MudWatt_Bioelectric_League_Student_Handout.pdf",
@@ -133,7 +133,7 @@
   },
   {
     "id": "TTT-01-guide",
-    "name": "MudWatt Bioelectric League",
+    "name": "Mud Battery Bioelectric League",
     "desc": "Turn a cup of mud into a living battery",
     "type": "pdf",
     "path": "files/TTT_01_MudWatt_Bioelectric_League_Instructor_Guide.pdf",
