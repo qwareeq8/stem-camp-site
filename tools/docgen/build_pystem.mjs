@@ -96,18 +96,21 @@ function mazeSvg(cols, rows, seed, cell) {
 }
 
 function magnetMazes() {
-  const defs = [["Maze A", "warm-up", 4, 3, 7], ["Maze B", "easy", 5, 4, 23], ["Maze C", "medium", 5, 4, 91], ["Maze D", "hard", 6, 4, 144]];
-  const cards = defs.map(([n, lv, c, r, s]) => `<div class="mz"><div class="mz-h"><b>${n}</b><span>${lv}</span></div>${mazeSvg(c, r, s, 88)}</div>`).join("");
+  // Seeds chosen so the solvable path length rises A<B<C<D (5<9<11<14 cells),
+  // verified by BFS on the seeded generator. One full-width board per page keeps
+  // the corridor pitch (about 44/35/35/29 mm) wide enough for the steel token.
+  const defs = [["Maze A", "warm-up", 4, 3, 2], ["Maze B", "easy", 5, 4, 1], ["Maze C", "medium", 5, 4, 2], ["Maze D", "hard", 6, 4, 7]];
+  const cards = defs.map(([n, lv, c, r, s], i) => `<div class="mz"${i ? ' style="break-before:page"' : ""}><div class="mz-h"><b>${n}</b><span>${lv}</span></div>${mazeSvg(c, r, s, 96)}</div>`).join("");
   return `<div class="sheet"><style>
-.mz-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16pt;}
-.mz{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:9pt;text-align:center;break-inside:avoid;}
-.mz-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5pt;}
-.mz-h b{font-family:var(--serif);color:var(--camp-ink);font-size:12pt;}
-.mz-h span{font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.08em;color:var(--camp-acc);}
-.mz svg{max-width:100%;height:auto;}
+.mz-wrap{display:flex;flex-direction:column;gap:16pt;}
+.mz{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:12pt;text-align:center;break-inside:avoid;}
+.mz-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8pt;}
+.mz-h b{font-family:var(--serif);color:var(--camp-ink);font-size:15pt;}
+.mz-h span{font-family:var(--mono);font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:var(--camp-acc);}
+.mz svg{width:100%;height:auto;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards (laminate; one per team)")}
-<p class="note">Print on cardstock and laminate. The green square <b>S</b> is the start; the red target is the finish. Place a steel paperclip or washer (the "capsule") on S and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the target without touching the maze walls. Paths are kept wide on purpose &mdash; move the driver slowly. Pre-test each token through the laminated sheet before the run.</p>
+${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards (laminate; one board per team)")}
+<p class="note">Print on cardstock and laminate, one board per team at the difficulty you assign. The green square <b>S</b> is the start; the red target is the finish. Place a steel washer or small nut (the "capsule") on S and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the target without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.</p>
 <div class="mz-wrap">${cards}</div></div>`;
 }
 
@@ -142,7 +145,7 @@ function reactionStrip() {
 .rt-foot{font-size:8.5pt;color:var(--ink2);margin-top:8pt;}
 </style>
 ${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Catch-distance to reaction-time strip")}
-<p class="note">A partner pinches a meter stick at 0&nbsp;cm; you hold your fingers open at the 0 mark. They drop it without warning; you catch it. Read the cm where you caught it, then look it up below. Record the <b>median of at least 10 trials</b>, not your best one. Then test one strategy (focus cue, warm-up, dominant hand) and compare medians.</p>
+<p class="note">A partner holds the meter stick at the TOP so it hangs straight down with the 0&nbsp;cm mark level with your open fingers. They release it without warning; you pinch it as fast as you can. Read the cm where you caught it, then look it up below. Record the <b>median of at least 10 trials</b>, not your best one. Then test one strategy (focus cue, warm-up, or eyes on the release point) and compare medians.</p>
 <div class="rt-flex">
 <div style="flex:1"><div class="rt-cols">${tbl(rows.slice(0, half))}${tbl(rows.slice(half))}</div>
 <p class="rt-foot">Formula: time = &radic;(2 &times; distance &divide; g), g = 9.81 m/s&sup2;. Lower is faster. Typical 8 to 12 year olds land near 18 to 31 cm (about 190 to 250 ms).</p></div>
@@ -153,30 +156,45 @@ ${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Catch-distance to 
 
 // ---------- PYS-08 balance challenge cards + COM template ----------
 function balanceCards() {
+  // Student card face carries ONLY the challenge and a prediction blank; the
+  // center-of-mass reason lives on the instructor answer-key page so the
+  // predict-first step (35 of 100 points) is not spoiled on the handout.
   const ch = [
-    ["Wall and Heel", "Stand with your back and heels flat against a wall. Try to bend and touch your toes, or lift one foot forward, without leaning off the wall.", "It fails: the wall stops you leaning forward, so your center of mass cannot move over your toes (your base)."],
-    ["Backless Chair Stand", "Sit tall on a backless chair, feet flat, arms crossed. Try to stand up WITHOUT leaning your chest forward.", "It fails: you must shift your center of mass forward over your feet first. No lean = no balance over the base."],
-    ["Toe Grab Hop", "Bend down, grab your toes, and try to hop forward while still holding them.", "It is very hard: holding your toes locks your center of mass low and forward, so you cannot get your base under you to jump."],
-    ["Loaded Line Walk", "Walk a taped floor line holding a weight straight out at arm's length, then again holding it at your chest. Which is steadier?", "Arm's length moves your center of mass sideways and forward off the line; held at the chest it stays over your base, so you wobble less."],
+    ["Wall and Heel", "Stand with your back and heels flat against a wall. Keeping them touching, try to reach a coin placed on the floor a little ahead of you, or lift one foot forward off the floor."],
+    ["Backless Chair Stand", "Sit tall on a backless chair, feet flat, arms crossed. Try to stand up WITHOUT leaning your chest forward."],
+    ["Toe Grab Hop", "Bend down, grab your toes, and try to hop forward while still holding them."],
+    ["Loaded Line Walk", "Walk a taped floor line holding a small weight straight out at arm's length, then again holding it at your chest. Which is steadier?"],
   ];
-  const cards = ch.map(([n, how, why], i) => `<div class="bc"><div class="bc-h"><span class="bc-n">${i + 1}</span><span class="bc-t">${n}</span></div>
+  const cards = ch.map(([n, how], i) => `<div class="bc"><div class="bc-h"><span class="bc-n">${i + 1}</span><span class="bc-t">${n}</span></div>
 <div class="bc-how">${how}</div>
-<div class="bc-pred">Predict: will it WORK or FAIL? Where does your center of mass go? &nbsp;___________________</div>
-<div class="bc-why"><b>Center-of-mass reason:</b> ${why}</div></div>`).join("");
+<div class="bc-pred">My prediction &mdash; will it WORK or FAIL? &nbsp;__________ &nbsp;&nbsp; Where does my center of mass go? &nbsp;______________________</div></div>`).join("");
+  const key = [
+    ["Wall and Heel", "Fails", "The wall blocks your hips from shifting back to counterbalance, so as you reach forward your center of mass passes beyond your toes, out of your base of support, and you tip."],
+    ["Backless Chair Stand", "Fails without a lean", "To stand you must first move your center of mass forward over your feet. With no chair back and no forward lean, it stays behind your feet, so you cannot rise."],
+    ["Toe Grab Hop", "Very hard", "Holding your toes locks your center of mass low and forward, so you cannot swing your base under it to launch a hop."],
+    ["Loaded Line Walk", "Steadier at the chest", "At arm's length the weight pulls your center of mass forward and sideways off the line; held at the chest it stays over your base, so you wobble less."],
+  ];
+  const keyRows = key.map(([n, verdict, why], i) => `<tr><td>${i + 1}</td><td>${n}</td><td>${verdict}</td><td>${why}</td></tr>`).join("");
   return `<div class="sheet"><style>
 .bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:13pt;}
 .bc{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:9pt 11pt;break-inside:avoid;}
 .bc-h{display:flex;align-items:center;gap:8pt;margin-bottom:4pt;}
 .bc-n{font-family:var(--mono);font-weight:700;background:var(--camp-ink);color:#fff;border-radius:4pt;padding:1pt 7pt;font-size:11pt;}
 .bc-t{font-family:var(--serif);font-weight:600;color:var(--camp-ink);font-size:13pt;}
-.bc-how{font-size:9.5pt;margin-bottom:5pt;}
-.bc-pred{font-size:8.5pt;color:var(--ink2);border-top:1pt dashed var(--rule2);padding-top:4pt;margin-bottom:4pt;}
-.bc-why{font-size:8pt;color:var(--ink2);background:var(--camp-tint);border-radius:4pt;padding:5pt 7pt;}
-.bc-why b{color:var(--camp-acc);}
+.bc-how{font-size:9.5pt;margin-bottom:6pt;}
+.bc-pred{font-size:8.5pt;color:var(--ink2);border-top:1pt dashed var(--rule2);padding-top:5pt;}
+.bkey{border-collapse:collapse;width:100%;font-size:9pt;margin-top:4pt;}
+.bkey th{background:var(--camp-ink);color:#fff;text-align:left;padding:4pt 7pt;font-size:8pt;text-transform:uppercase;letter-spacing:.05em;}
+.bkey td{border-bottom:1pt solid var(--rule2);padding:5pt 7pt;vertical-align:top;}
+.bkey td:nth-child(3){color:var(--camp-acc);font-weight:600;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Indoor balance-challenge cards")}
-<p class="note">Four indoor challenges that replace a real ropes course. Do EVERY challenge next to a wall so a slip just leaves you leaning. Keep the floor clear; a helper spots the chair stand; the taped line stays flat (no running, no raised beam). Predict first, then test, then map the forces.</p>
-<div class="bc-grid">${cards}</div></div>`;
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Balance challenge cards (predict first)")}
+<p class="note">Four indoor challenges that replace a real ropes course. Do EVERY challenge next to a wall so a slip just leaves you leaning. Keep the floor clear; a helper spots the chair stand; the taped line stays flat (no running, no raised beam). Print the card page once per team; mark WORK or FAIL on the card FIRST, then test, then map the forces. The reasons are on the instructor answer key so the prediction stays a real prediction.</p>
+<div class="bc-grid">${cards}</div>
+<div style="break-before:page"></div>
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Instructor answer key (do not hand out)")}
+<p class="note">Keep this page with the instructor and print it once. Reveal a challenge's reason only after each team has recorded its prediction.</p>
+<table class="bkey"><tr><th>#</th><th>Challenge</th><th>Result</th><th>Center-of-mass reason</th></tr>${keyRows}</table></div>`;
 }
 
 function comTemplate() {
@@ -191,9 +209,9 @@ function comTemplate() {
 .ct-l{font-family:var(--mono);font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
 .ct-p{font-size:8.5pt;color:var(--ink2);margin-top:4pt;text-align:left;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-08 Force Map", "Center-of-mass map template (sketch your prediction)")}
-<p class="note">For each challenge, sketch the body in the box, mark the center of mass with an X, draw the line of gravity straight down, and shade the base of support (where you touch the floor). Balanced = the line of gravity falls inside the base.</p>
-<div class="ct-grid">${box("Challenge 1 &mdash; before")}${box("Challenge 1 &mdash; redesign")}${box("Challenge 2 &mdash; before")}${box("Challenge 2 &mdash; redesign")}</div></div>`;
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Center-of-mass map template (one per team)")}
+<p class="note">For each of the four challenges, sketch the body in its box, mark the center of mass with an X, draw the line of gravity straight down, and shade the base of support (where you touch the floor). Balanced = the line of gravity falls inside the base.</p>
+<div class="ct-grid">${box("Challenge 1 &mdash; Wall and Heel")}${box("Challenge 2 &mdash; Backless Chair Stand")}${box("Challenge 3 &mdash; Toe Grab Hop")}${box("Challenge 4 &mdash; Loaded Line Walk")}</div></div>`;
 }
 
 // ---------- PYS-10 spectrum reference ----------
@@ -201,7 +219,7 @@ function spectrumBar(kind) {
   const W = 320, H = 40;
   const rainbow = `<defs><linearGradient id="rb${kind}" x1="0" x2="1"><stop offset="0" stop-color="#7a00ff"/><stop offset="0.18" stop-color="#0040ff"/><stop offset="0.36" stop-color="#00c853"/><stop offset="0.55" stop-color="#ffeb00"/><stop offset="0.75" stop-color="#ff7a00"/><stop offset="1" stop-color="#d50000"/></linearGradient></defs>`;
   if (kind === "inc") return `<svg viewBox="0 0 ${W} ${H}" width="3.3in">${rainbow}<rect width="${W}" height="${H}" fill="url(#rbinc)"/></svg>`;
-  if (kind === "led") return `<svg viewBox="0 0 ${W} ${H}" width="3.3in">${rainbow}<rect width="${W}" height="${H}" fill="#000"/><rect x="${W * 0.14}" y="0" width="6" height="${H}" fill="#2b6bff"/><rect x="${W * 0.30}" width="${W * 0.62}" height="${H}" fill="url(#rbled)" opacity="0.85" style="clip-path:none"/><rect x="${W * 0.30}" width="${W * 0.62}" height="${H}" fill="#000" opacity="0.15"/></svg>`;
+  if (kind === "led") return `<svg viewBox="0 0 ${W} ${H}" width="3.3in"><defs><linearGradient id="ledband" x1="0" x2="1"><stop offset="0" stop-color="#00c853"/><stop offset="0.4" stop-color="#ffeb00"/><stop offset="0.72" stop-color="#ff7a00"/><stop offset="1" stop-color="#7a0000"/></linearGradient></defs><rect width="${W}" height="${H}" fill="#000"/><rect x="${W * 0.14}" y="0" width="6" height="${H}" fill="#2b6bff"/><rect x="${W * 0.30}" width="${W * 0.62}" height="${H}" fill="url(#ledband)"/></svg>`;
   // neon: black with bright lines (orange/red dominant)
   const lines = [[0.60, "#ff8a00"], [0.66, "#ff5a00"], [0.71, "#ff3000"], [0.78, "#e00000"], [0.84, "#c00000"], [0.50, "#ffd000"]];
   const ls = lines.map(([f, c]) => `<rect x="${(W * f).toFixed(0)}" y="0" width="3.5" height="${H}" fill="${c}"/>`).join("");
