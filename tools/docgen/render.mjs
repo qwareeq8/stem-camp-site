@@ -405,7 +405,12 @@ function renderFlow(blocks, camp, opts = {}) {
       }
       case "h3": {
         if (opts.slips && i < blocks.length && blocks[i].kind === "table") {
-          out.push(`<div class="keep"><h3>${esc(textOf(b).trim())}</h3>${renderTable(blocks[i])}</div>`);
+          const t = blocks[i];
+          const slip = isScoreSlip(t);
+          const meta = slip
+            ? `<p class="slip-meta" style="font-family:var(--mono);font-size:8.5pt;color:#6b675f;margin:1pt 0 7pt">Team&nbsp;&nbsp;______________________&nbsp;&nbsp;&nbsp;Date&nbsp;&nbsp;____________&nbsp;&nbsp;&nbsp;Judge&nbsp;&nbsp;______________________</p>`
+            : "";
+          out.push(`<div class="keep"><h3>${esc(textOf(b).trim())}</h3>${meta}${renderTable(slip ? withEarnedColumn(t) : t)}</div>`);
           i++;
         } else {
           out.push(`<h3>${esc(textOf(b).trim())}</h3>`);
@@ -542,6 +547,24 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
 
 function renderScores(ir, camp) {
   return renderFlow(ir.blocks, camp, { slips: true });
+}
+
+// A per-activity score slip is a "criterion | max points" reference; add a
+// blank "Earned" column so an instructor can record the awarded score, the
+// running total included. Leaderboard and other tables are left untouched.
+function isScoreSlip(tbl) {
+  return tbl.rows[0] && cellText(tbl.rows[0].cells[0]).startsWith("Scoring criterion");
+}
+function withEarnedColumn(tbl) {
+  const h0 = tbl.rows[0].cells[0];
+  const headRun = { ...((h0.blocks[0] && h0.blocks[0].runs && h0.blocks[0].runs[0]) || {}), t: "Earned" };
+  const rows = tbl.rows.map((row, ri) => {
+    const cell = ri === 0
+      ? { fill: h0.fill, blocks: [{ kind: "p", runs: [headRun] }] }
+      : { blocks: [{ kind: "p", runs: [{ t: "________" }] }] };
+    return { ...row, cells: [...row.cells, cell] };
+  });
+  return { ...tbl, rows };
 }
 
 function renderSigns(ir, camp) {
