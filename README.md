@@ -87,6 +87,12 @@ competition kit, the staff setup and safety checklist, the Amazon procurement
 workbook, and the materials buy list. The workbook and the buy list are rendered
 as normal printable documents; the site serves no spreadsheet downloads.
 
+Alongside the generated documents, the library carries a set of PY-STEM station
+printables (maze boards, challenge and reference cards, data logs, a scoring
+target, client-spec cards, and a barcode deck) that have no source document and
+are drawn directly by `tools/docgen/build_pystem.mjs`. The Files page groups them
+in a per-camp "Station printables" section.
+
 The Files page lets a visitor filter by camp and search by title, and it pairs
 each activity's handout and guide on one card. The Schedule adds a quick link to
 the handout and guide beside each graded block.
