@@ -588,9 +588,55 @@ ${head("PY-STEM 2026 &middot; Staff run-sheets", "Per-station facilitation, prep
 ${cards}</div>`;
 }
 
+// ---------- PYS-05 trials-and-median recording sheet ----------
+function reactionTrials() {
+  const rows = Array.from({ length: 10 }, (_, i) =>
+    `<tr><td>${i + 1}</td><td></td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="sheet"><style>
+.rt-t{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:10pt;}
+.rt-t th{background:var(--camp-ink);color:#fff;padding:5pt 6pt;font-size:7.5pt;text-transform:uppercase;letter-spacing:.04em;}
+.rt-t th.grp{background:var(--camp-acc);}
+.rt-t td{border:1pt solid var(--rule2);height:.28in;padding:3pt 7pt;text-align:center;}
+.rt-t td:first-child{font-family:var(--mono);font-weight:700;color:var(--camp-ink);background:var(--camp-tint);width:12%;}
+.rt-t tr.med td{border-top:1.6pt solid var(--camp-ink);font-weight:700;}
+.rt-t tr.med td:first-child{background:#fff;text-align:right;}
+.rt-meta{font-family:var(--mono);font-size:9pt;margin:2pt 0 9pt;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Trials and median sheet (one per student)")}
+<p class="note">Catch the falling meter stick, read the catch distance in cm, then convert it to milliseconds with the reaction-time strip. Record <b>at least ten catches</b> for each condition and take the <b>median</b> (the middle value when sorted), not your best single catch. Then test one strategy and compare medians.</p>
+<div class="rt-meta">Name ___________________     The ONE strategy I tested: ___________________ (for example, focus, warm up)</div>
+<table class="rt-t"><thead><tr><th>Trial</th><th class="grp">Baseline catch (cm)</th><th class="grp">Baseline (ms)</th><th class="grp">Strategy catch (cm)</th><th class="grp">Strategy (ms)</th></tr></thead><tbody>${rows}<tr class="med"><td>Median</td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<p class="note">Did the strategy help? Compare your baseline median with your strategy median, and be ready to defend the difference with your data.</p></div>`;
+}
+
+// ---------- PYS-10 spectrum sketch sheet ----------
+function spectrumSketch() {
+  const bar = () => `<svg viewBox="0 0 520 54" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="518" height="40" fill="none" stroke="#222" stroke-width="1.4"/>
+${Array.from({ length: 21 }, (_, i) => `<line x1="${1 + i * 25.85}" y1="34" x2="${1 + i * 25.85}" y2="41" stroke="#cfcabf" stroke-width="0.7"/>`).join("")}
+<text x="4" y="52" font-family="JetBrains Mono" font-size="8" fill="#5A564F">violet</text>
+<text x="516" y="52" text-anchor="end" font-family="JetBrains Mono" font-size="8" fill="#5A564F">red</text></svg>`;
+  const blocks = Array.from({ length: 6 }, (_, i) => `<div class="ss-block">
+<div class="ss-src">Source ${i + 1}: <span class="ss-line"></span></div>
+${bar()}
+<div class="ss-row"><span>Band or lines? (circle): &nbsp; smooth rainbow &nbsp;&middot;&nbsp; broad band &nbsp;&middot;&nbsp; separate lines</span><span>My match: <span class="ss-line"></span></span></div>
+</div>`).join("");
+  return `<div class="sheet"><style>
+.ss-block{border:1pt solid var(--rule2);border-radius:6pt;padding:8pt 11pt;margin-bottom:9pt;break-inside:avoid;}
+.ss-src{font-family:var(--serif);font-weight:600;color:var(--camp-ink);font-size:11pt;margin-bottom:5pt;}
+.ss-line{display:inline-block;min-width:38%;border-bottom:0.8pt solid var(--rule2);}
+.ss-row{display:flex;justify-content:space-between;gap:14pt;font-size:9pt;margin-top:5pt;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Spectrum sketch sheet (one per student)")}
+<p class="note">Look at each source through the diffraction glasses and <b>draw what you see</b> across the bar: a smooth rainbow from a hot filament, a broad colored band from a white LED, or separate bright lines from a neon or gas source. Then match each source to its clue card. Do not view the sun directly.</p>
+${blocks}</div>`;
+}
+
 const SHEETS = [
   { slug: "PYS_01_Magnet_Maze_Boards", body: magnetMazes },
   { slug: "PYS_05_Reaction_Time_Strip", body: reactionStrip },
+  { slug: "PYS_05_Trials_and_Median_Sheet", body: reactionTrials },
+  { slug: "PYS_10_Spectrum_Sketch_Sheet", body: spectrumSketch },
   { slug: "PYS_08_Balance_Challenge_Cards", body: balanceCards },
   { slug: "PYS_08_Center_of_Mass_Template", body: comTemplate },
   { slug: "PYS_10_Spectrum_Reference_Cards", body: spectrumCards },

@@ -847,6 +847,17 @@
     "kind": "print"
   },
   {
+    "id": "pys-print-reaction-trials",
+    "name": "Reaction-Time Trials and Median Sheet",
+    "desc": "Ten-catch data table with baseline, strategy, and median rows for PYS-05.",
+    "type": "pdf",
+    "path": "files/PYS_05_Trials_and_Median_Sheet.pdf",
+    "camp": "pystem",
+    "code": "PYS-05",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
     "id": "pys-print-balance",
     "name": "Balance Challenge Cards",
     "desc": "Four indoor center-of-mass challenges for the PYS-08 force-map relay.",
@@ -951,6 +962,17 @@
     "desc": "Six predict-first exhibit clues plus an instructor key for PYS-10.",
     "type": "pdf",
     "path": "files/PYS_10_Museum_Clue_Cards.pdf",
+    "camp": "pystem",
+    "code": "PYS-10",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-spectrum-sketch",
+    "name": "Spectrum Sketch Sheet",
+    "desc": "Six labeled spectrum bars for students to sketch and match sources in PYS-10.",
+    "type": "pdf",
+    "path": "files/PYS_10_Spectrum_Sketch_Sheet.pdf",
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Printable",
