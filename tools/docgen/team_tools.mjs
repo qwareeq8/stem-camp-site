@@ -686,3 +686,286 @@ ${pollinatorCards()}
 <div style="page-break-before:always"></div>
 ${bloomBoard()}`;
 }
+
+// TTT-08 Arboretum Eco-Quest print pack: a cut-apart clue-card set, a general
+// tree dichotomous key, a route-map TEMPLATE the staff fill with the approved
+// arboretum route, and a cut-apart evidence-token sheet. The route and the tree
+// list are site-specific, so the map is a labeled placeholder and the key is a
+// general temperate-tree key the operator trims to the checkpoints on the route.
+// Exposed as arboretumQuestAppendix(); render.mjs appends it after the TTT-08
+// guide section and the TTT-08 packet section.
+const AQ_CHECKPOINTS = 6;
+
+export function questClueCards() {
+  const cards = Array.from({ length: AQ_CHECKPOINTS }, (_, i) => {
+    const n = i + 1;
+    return `<div class="aq-card keep">
+<div class="aq-card-h"><span class="aq-cp">Checkpoint ${n}</span><span class="aq-tok">token &#9711;</span></div>
+<div class="aq-fill">Tree or marker at this post (staff fill): <span class="aq-line"></span></div>
+<div class="aq-work">
+  <div>Your ID for this tree: <span class="aq-line"></span></div>
+  <div class="aq-clue">Deciding clue (circle one): &nbsp; leaf &nbsp;&middot;&nbsp; bark &nbsp;&middot;&nbsp; branching &nbsp;&middot;&nbsp; seed</div>
+  <div>The specific feature you saw: <span class="aq-line"></span></div>
+</div></div>`;
+  }).join("");
+  return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Checkpoint clue cards</div></div>
+<p class="aq-note">Print ONE set per team (4) plus 1 spare set, then cut apart. Staff write which tagged tree or post each numbered checkpoint is; teams record their identification and the one clue that decided it. Laminating is optional; teams write on these, so plain cardstock is fine.</p>
+<div class="aq-grid">${cards}</div>`;
+}
+
+export function questKey() {
+  const couplets = [
+    ["1a", "Leaves are needles or flat scales (evergreen)", "go to 2"],
+    ["1b", "Leaves are broad and flat", "go to 4"],
+    ["2a", "Needles in bundles or clusters", "Pine"],
+    ["2b", "Needles attached singly to the twig", "go to 3"],
+    ["3a", "Needles flat and soft, will not roll between your fingers", "Fir or Hemlock"],
+    ["3b", "Needles four-sided and sharp, roll between your fingers", "Spruce"],
+    ["4a", "Leaves grow in opposite pairs", "go to 5"],
+    ["4b", "Leaves grow alternately (staggered)", "go to 6"],
+    ["5a", "Leaf is one blade with palm-like lobes", "Maple"],
+    ["5b", "Leaf is divided into leaflets", "Ash"],
+    ["6a", "Leaf is divided into many leaflets", "go to 7"],
+    ["6b", "Leaf is a single blade", "go to 8"],
+    ["7a", "Small leaflets, twig may have thorns", "Locust"],
+    ["7b", "Large leaflets, no thorns", "Hickory or Walnut"],
+    ["8a", "Leaf margin has teeth", "go to 9"],
+    ["8b", "Leaf margin is smooth or lobed", "go to 10"],
+    ["9a", "Bark white or papery, peels in strips", "Birch"],
+    ["9b", "Bark smooth gray, buds long and pointed", "Beech"],
+    ["10a", "Leaf has rounded or pointed lobes", "Oak"],
+    ["10b", "Leaf is heart-shaped, margin smooth", "Redbud or Katsura"],
+  ];
+  const rows = couplets.map(([k, test, res]) =>
+    `<tr><td class="aq-k">${k}</td><td>${test}</td><td class="aq-r">${res}</td></tr>`).join("");
+  return `<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Tree dichotomous key</div></div>
+<p class="aq-note">A general temperate-tree key. Staff: trim or extend it so every couplet ends at a tree that is actually on your route, then print 1 per team (4) plus 1 spare and laminate for reuse. Start at 1 and follow the choice that matches what you see.</p>
+<table class="aq-key"><thead><tr><th>Step</th><th>What to look for</th><th>Then</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+export function questRouteMap() {
+  const markers = Array.from({ length: AQ_CHECKPOINTS }, (_, i) => {
+    const n = i + 1, x = 70 + (i % 3) * 190, y = 90 + Math.floor(i / 3) * 150;
+    return `<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#2a5736" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#2a5736">${n}</text><text x="${x}" y="${y + 30}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#5A564F">tree: __________</text>`;
+  }).join("");
+  return `<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Route map (staff template)</div></div>
+<p class="aq-note"><b>TEMPLATE &mdash; needs your input.</b> This map is a placeholder: the checkpoints are numbered but not placed, because the route is specific to your approved arboretum path. Staff: draw the paths between the posts, move or renumber the checkpoints to match the ground, and write the tree or garden at each. Print 4 (plus 2 spares) once finalized. Base map: Ambler Arboretum self-guided tour and Arboretum Explorer.</p>
+<svg viewBox="0 0 620 420" style="width:6.5in;display:block;margin:6pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
+<rect x="18" y="18" width="584" height="384" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="34" y="40" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#2a5736">START / FINISH</text>
+<circle cx="40" cy="55" r="7" fill="#2a5736"/>
+${markers}
+</svg>`;
+}
+
+export function questTokens() {
+  const cols = AQ_CHECKPOINTS, rowsN = 5; // 4 teams + 1 spare set = 30 tokens
+  let cells = "";
+  for (let r = 0; r < rowsN; r++) for (let n = 1; n <= cols; n++) {
+    cells += `<div class="aq-tokcell"><span class="aq-tokleaf">&#127811;</span><span class="aq-toknum">CP ${n}</span></div>`;
+  }
+  return `<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Evidence tokens (cut apart)</div></div>
+<p class="aq-note">Cut apart. Each team collects one token per solved checkpoint. This sheet makes ${cols * rowsN} tokens (4 teams + 1 spare set of ${cols}). Print on cardstock; no lamination needed.</p>
+<div class="aq-tokgrid">${cells}</div>`;
+}
+
+export function arboretumQuestAppendix() {
+  const css = `
+.aq-apx .aq-note { color: var(--ink2); font-size: 9pt; margin: 0 0 7pt; }
+.aq-apx .aq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; }
+.aq-apx .aq-card { border: 1.3pt solid var(--camp-ink); border-radius: 6pt; padding: 8pt 10pt; break-inside: avoid; }
+.aq-apx .aq-card-h { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.4pt solid var(--camp-acc); padding-bottom: 3pt; margin-bottom: 5pt; }
+.aq-apx .aq-cp { font-family: var(--serif); font-weight: 600; color: var(--camp-ink); font-size: 12pt; }
+.aq-apx .aq-tok { font-family: var(--mono); font-size: 8pt; color: var(--ink2); }
+.aq-apx .aq-fill { font-size: 9pt; margin-bottom: 6pt; }
+.aq-apx .aq-line { display: inline-block; min-width: 40%; border-bottom: 0.8pt solid var(--rule2); }
+.aq-apx .aq-work > div { font-size: 9pt; margin: 5pt 0; }
+.aq-apx .aq-clue { color: var(--camp-ink); font-weight: 600; }
+.aq-apx table.aq-key { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+.aq-apx table.aq-key th { background: var(--camp-ink); color: #fff; text-align: left; padding: 4pt 8pt; font-size: 8pt; text-transform: uppercase; letter-spacing: .05em; }
+.aq-apx table.aq-key td { border-bottom: 0.7pt solid var(--rule2); padding: 4pt 8pt; vertical-align: top; }
+.aq-apx table.aq-key td.aq-k { font-family: var(--mono); font-weight: 700; color: var(--camp-acc); width: 12%; }
+.aq-apx table.aq-key td.aq-r { font-family: var(--serif); color: var(--camp-ink); width: 26%; }
+.aq-apx .aq-tokgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5pt; }
+.aq-apx .aq-tokcell { border: 1pt dashed var(--camp-ink); border-radius: 5pt; padding: 9pt 2pt; text-align: center; break-inside: avoid; }
+.aq-apx .aq-tokleaf { display: block; font-size: 15pt; }
+.aq-apx .aq-toknum { font-family: var(--mono); font-size: 8pt; font-weight: 700; color: var(--camp-ink); }
+`;
+  return `<div class="aq-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+${questClueCards()}
+${questKey()}
+${questRouteMap()}
+${questTokens()}
+</div>`;
+}
+
+// TTT-09 Minecraft Tree World Resilience Cup paper-grid fallback kit: a design
+// grid and a feature legend so a team can build the same resilient landscape on
+// paper if a device or login fails. General, not site-specific. Exposed as
+// resilienceGridAppendix(); render.mjs appends it after the TTT-09 guide section
+// and the TTT-09 packet section.
+export function resilienceGridAppendix() {
+  const cols = 12, rowsN = 9, cell = 42;
+  const W = cols * cell, H = rowsN * cell;
+  let g = "";
+  for (let i = 0; i <= cols; i++) g += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#cfcabf" stroke-width="${i % 4 === 0 ? 1.2 : 0.6}"/>`;
+  for (let j = 0; j <= rowsN; j++) g += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#cfcabf" stroke-width="${j % 4 === 0 ? 1.2 : 0.6}"/>`;
+  const legend = [
+    ["&#127795;", "Diverse tree cluster", "mix species, not a monoculture"],
+    ["&#127807;", "Connected green space", "link habitats into a corridor"],
+    ["&#9730;", "Shade canopy", "shade buildings and paths"],
+    ["&#128167;", "Water control", "rain garden, swale, or wetland"],
+    ["&#9632;", "Built or paved", "keep this to a minimum"],
+  ].map(([sym, name, hint]) => `<li><span class="rg-sym">${sym}</span><b>${name}</b> &mdash; ${hint}</li>`).join("");
+  const css = `
+.rg-apx .rg-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.rg-apx .rg-stress { font-size: 10pt; margin: 4pt 0 8pt; }
+.rg-apx .rg-stress b { color: var(--camp-ink); }
+.rg-apx .rg-cols { display: flex; gap: 18pt; }
+.rg-apx .rg-legend { flex: 0 0 40%; }
+.rg-apx .rg-legend .rg-h { font-family: var(--mono); font-size: 8pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--camp-acc); margin-bottom: 4pt; }
+.rg-apx ul { list-style: none; margin: 0; padding: 0; font-size: 9pt; }
+.rg-apx ul li { margin: 5pt 0; }
+.rg-apx .rg-sym { display: inline-block; width: 20pt; font-size: 13pt; }
+.rg-apx svg { width: 100%; height: auto; }
+.rg-apx .rg-grid { flex: 1; border: 1.2pt solid var(--camp-ink); border-radius: 5pt; padding: 5pt; }
+`;
+  return `<div class="rg-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-09 Minecraft Tree World Resilience Cup</div><div class="sheet-title">Paper-grid fallback kit</div></div>
+<p class="rg-note">Use this if a device or login fails so no team loses build time. Draw your resilient landscape on the grid, label every feature with the strategy it represents, then defend it to the judges just like the on-screen build. Print 1 per team (4) plus 1 spare.</p>
+<div class="rg-stress">Team ___________________   Stress we design against (circle one): &nbsp; <b>flood</b> &nbsp; <b>drought</b> &nbsp; <b>heat</b></div>
+<div class="rg-cols">
+<div class="rg-legend"><div class="rg-h">Feature legend &mdash; label each on the grid</div><ul>${legend}</ul></div>
+<div class="rg-grid"><svg viewBox="-1 -1 ${W + 2} ${H + 2}">${g}</svg></div>
+</div>
+<p class="rg-note" style="margin-top:6pt">Scored on biodiversity support, resilience features, realism, and how well you explain each choice &mdash; not on looks.</p>`;
+}
+
+// TTT-12 Leaf Stomata Microscope Detective counting sheet: a field-of-view
+// counting reference and a per-leaf tally table so every team counts the same
+// way (every stoma fully inside the field, at least three fields per leaf).
+// Exposed as stomataCountAppendix(); render.mjs appends it after the TTT-12
+// guide section and the TTT-12 packet section.
+export function stomataCountAppendix() {
+  // A field-of-view circle with a light grid, plus a few example dots, to fix
+  // the "count every stoma fully inside the circle" convention.
+  const fov = `<svg viewBox="0 0 200 200" style="width:1.7in;display:block" xmlns="http://www.w3.org/2000/svg">
+<circle cx="100" cy="100" r="92" fill="none" stroke="#2a5736" stroke-width="2"/>
+<clipPath id="fovc"><circle cx="100" cy="100" r="92"/></clipPath>
+<g clip-path="url(#fovc)" stroke="#e2ded5" stroke-width="1">
+${[40, 70, 100, 130, 160].map((v) => `<line x1="${v}" y1="8" x2="${v}" y2="192"/><line x1="8" y1="${v}" x2="192" y2="${v}"/>`).join("")}
+</g>
+<text x="100" y="104" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#5A564F">count inside</text>
+<text x="100" y="118" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#5A564F">the circle</text>
+</svg>`;
+  const rows = [1, 2, 3, 4].map((n) =>
+    `<tr><td class="sc-leaf">Leaf ${n}<div class="sc-name">name/type: ____________</div></td><td></td><td></td><td></td><td class="sc-avg"></td></tr>`).join("");
+  const css = `
+.sc-apx .sc-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.sc-apx .sc-cols { display: flex; gap: 16pt; align-items: flex-start; }
+.sc-apx .sc-conv { flex: 0 0 34%; font-size: 9pt; }
+.sc-apx .sc-conv .sc-h { font-family: var(--mono); font-size: 8pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--camp-acc); margin-bottom: 4pt; }
+.sc-apx .sc-conv ul { margin: 4pt 0 0 14pt; padding: 0; }
+.sc-apx .sc-conv li { margin: 3pt 0; }
+.sc-apx table.sc-t { flex: 1; border-collapse: collapse; width: 100%; font-size: 9.5pt; }
+.sc-apx table.sc-t th { background: var(--camp-ink); color: #fff; padding: 4pt 6pt; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; }
+.sc-apx table.sc-t td { border: 0.7pt solid var(--rule2); height: 0.42in; padding: 3pt 6pt; }
+.sc-apx table.sc-t td.sc-leaf { font-size: 9pt; color: var(--camp-ink); width: 28%; }
+.sc-apx table.sc-t td.sc-name { font-size: 7.5pt; color: var(--ink2); font-weight: 400; }
+.sc-apx table.sc-t td.sc-avg { background: var(--camp-tint); }
+.sc-apx .sc-rank { font-size: 9.5pt; margin-top: 8pt; }
+`;
+  return `<div class="sc-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-12 Leaf Stomata Microscope Detective</div><div class="sheet-title">Stomata counting sheet</div></div>
+<p class="sc-note">Print 1 per team or per student (about 20 with buffer). Everyone counts the same way, then ranks the leaves by how they manage water.</p>
+<div class="sc-cols">
+<div class="sc-conv"><div class="sc-h">Counting convention</div>
+<div style="text-align:center;margin:4pt 0">${fov}</div>
+<ul><li>Count every stoma <b>fully inside</b> the field of view.</li><li>Do at least <b>three fields</b> per leaf.</li><li>Average the three counts for that leaf.</li></ul></div>
+<table class="sc-t"><thead><tr><th>Leaf</th><th>Field 1</th><th>Field 2</th><th>Field 3</th><th>Average</th></tr></thead><tbody>${rows}</tbody></table>
+</div>
+<div class="sc-rank">Our ranking, water-saving to water-spending (use the averages; more stomata generally means more water lost): <br>_______________________________________________________________________________</div>`;
+}
+
+// TTB-02 Tree Height Triangulation Shootout paper clinometer and tan table. The
+// clinometer geometry is the same trig-exact half circle as TTT-02 (reused), and
+// the printed tan table is the calculator-free option the guide calls for.
+// Exposed as clinometerTanAppendix(); render.mjs appends it after the TTB-02
+// guide section and the TTB-02 packet section.
+export function clinometerTanAppendix() {
+  const assemble = [
+    "Cut out the half circle along the curved outline.",
+    "Tape a straight straw along the top straight edge.",
+    "Punch the center dot, thread a string through it, and tie a washer on the end as a weight.",
+    "Sight the treetop through the straw, let the string hang, then pinch it against the scale and read the angle.",
+    "Self-check: sight something level (reads 0) and straight up (reads 90).",
+  ].map((s) => `<li>${s}</li>`).join("");
+  const tan = [[15, "0.27"], [20, "0.36"], [25, "0.47"], [30, "0.58"], [35, "0.70"], [40, "0.84"], [45, "1.00"],
+    [50, "1.19"], [55, "1.43"], [60, "1.73"], [65, "2.14"], [70, "2.75"], [75, "3.73"]];
+  const half = Math.ceil(tan.length / 2);
+  const tanTable = (rows) => `<table class="tight cl-tan"><thead><tr><th>Angle</th><th>tan</th></tr></thead><tbody>${rows.map(([d, t]) => `<tr><td>${d}&deg;</td><td>${t}</td></tr>`).join("")}</tbody></table>`;
+  const css = `
+.cl-apx .cl-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.cl-apx .cl-cut { text-align: center; font-size: 8pt; color: var(--ink2); margin: 0 0 6pt; }
+.cl-apx .cl-cols { display: flex; gap: 22pt; margin-top: 4pt; }
+.cl-apx .cl-cols > div { flex: 1; }
+.cl-apx .cl-h { font-family: var(--mono); font-size: 8pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--camp-acc); margin-bottom: 3pt; }
+.cl-apx ol { margin: 0 0 0 14pt; font-size: 9.5pt; }
+.cl-apx ol li { margin: 2pt 0; break-inside: avoid; }
+.cl-apx .cl-formula { font-size: 9.5pt; margin-bottom: 5pt; }
+.cl-apx .cl-tans { display: flex; gap: 10pt; }
+.cl-apx table.cl-tan { font-size: 8.5pt; margin: 2pt 0 5pt; }
+.cl-apx table.cl-tan th, .cl-apx table.cl-tan td { border: 0.6pt solid var(--rule2); padding: 2pt 8pt; text-align: center; font-family: var(--mono); }
+.cl-apx table.cl-tan th { color: var(--camp-ink); }
+.cl-apx .cl-eg { font-size: 9pt; color: var(--ink2); }
+`;
+  return `<div class="cl-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTB-02 Tree Height Triangulation Shootout</div><div class="sheet-title">Paper clinometer and tan table</div></div>
+<p class="cl-note">Print on cardstock: 4 per station plus 2 spares. This is the one consumable the activity needs. Read the angle to the treetop, then use the tan table (no calculator needed) to find the height.</p>
+${clinometerSvg()}
+<p class="cl-cut">Cut along the flat top edge and the curved outline.</p>
+<div class="cl-cols">
+<div><p class="cl-h">Assemble</p><ol>${assemble}</ol></div>
+<div><p class="cl-h">Find the tree height</p>
+<p class="cl-formula">Tree height = eye height + (distance to the tree &times; tan of the angle). Use the standoff distance the instructor pre-marked with the long tape.</p>
+<div class="cl-tans">${tanTable(tan.slice(0, half))}${tanTable(tan.slice(half))}</div>
+<p class="cl-eg">Example: eye height 1.5 m, distance 15 m, angle 40&deg; gives 1.5 + 15 &times; 0.84 = about 14.1 m.</p></div>
+</div>`;
+}
+
+// TTB-04 Photosynthesis Float-Off Playoffs data table: the minute-by-minute
+// floating-disk record for the baseline and redesign runs, which the rubric
+// grades but the handout leaves no room for. Exposed as floatOffDataAppendix();
+// render.mjs appends it after the TTB-04 guide section and the TTB-04 packet
+// section.
+export function floatOffDataAppendix() {
+  const rows = Array.from({ length: 11 }, (_, m) =>
+    `<tr><td class="fo-min">${m}</td><td></td><td></td></tr>`).join("");
+  const css = `
+.fo-apx .fo-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
+.fo-apx .fo-meta { font-family: var(--mono); font-size: 9pt; margin: 4pt 0 8pt; }
+.fo-apx table.fo-t { border-collapse: collapse; width: 70%; font-size: 9.5pt; }
+.fo-apx table.fo-t th { background: var(--camp-ink); color: #fff; padding: 4pt 7pt; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; }
+.fo-apx table.fo-t td { border: 0.7pt solid var(--rule2); height: 0.3in; padding: 2pt 7pt; text-align: center; }
+.fo-apx table.fo-t td.fo-min { font-family: var(--mono); font-weight: 700; color: var(--camp-ink); background: var(--camp-tint); }
+.fo-apx .fo-half { font-size: 9.5pt; margin-top: 9pt; }
+.fo-apx .fo-half div { margin: 4pt 0; }
+`;
+  return `<div class="fo-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTB-04 Photosynthesis Float-Off Playoffs</div><div class="sheet-title">Floating-disk data table</div></div>
+<p class="fo-note">Print 1 per team. Load 10 disks, start the timer, and record how many are floating at the end of each minute for the baseline run, then again after your redesign. The graded data table is worth 20 points.</p>
+<div class="fo-meta">Team ___________________   The ONE variable we changed for the redesign: ___________________</div>
+<table class="fo-t"><thead><tr><th>Minute</th><th>Baseline: disks floating</th><th>Redesign: disks floating</th></tr></thead><tbody>${rows}</tbody></table>
+<div class="fo-half">
+<div>Half-float time, baseline (minutes until 5 of 10 disks float): ________________</div>
+<div>Half-float time, after redesign: ________________</div>
+</div>`;
+}

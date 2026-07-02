@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix } from "./team_tools.mjs";
+import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix, arboretumQuestAppendix, resilienceGridAppendix, stomataCountAppendix, clinometerTanAppendix, floatOffDataAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -539,6 +539,13 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
       if (doc.id === "pk-trees-guide" && code === "TTT-07") html += "\n" + pollinatorNetworkAppendix();
       // The TTT-10 tree ring cards, reading board, and claim-evidence cards follow TTT-10.
       if (doc.id === "pk-trees-guide" && code === "TTT-10") html += "\n" + treeRingAppendix();
+      // The TTT-08 quest pack, TTT-09 paper-grid fallback, TTT-12 counting sheet,
+      // and the TTB-02 clinometer and TTB-04 data table follow their sections.
+      if (doc.id === "pk-trees-guide" && code === "TTT-08") html += "\n" + arboretumQuestAppendix();
+      if (doc.id === "pk-trees-guide" && code === "TTT-09") html += "\n" + resilienceGridAppendix();
+      if (doc.id === "pk-trees-guide" && code === "TTT-12") html += "\n" + stomataCountAppendix();
+      if (doc.id === "pk-trees-guide" && code === "TTB-02") html += "\n" + clinometerTanAppendix();
+      if (doc.id === "pk-trees-guide" && code === "TTB-04") html += "\n" + floatOffDataAppendix();
       return html;
     })
     .join("\n");
@@ -805,6 +812,11 @@ function main() {
     if (doc.id === "TTT-05-guide") body += greenhouseControllerAppendix();
     if (doc.id === "TTT-07-guide") body += pollinatorNetworkAppendix();
     if (doc.id === "TTT-10-guide") body += treeRingAppendix();
+    if (doc.id === "TTT-08-guide") body += arboretumQuestAppendix();
+    if (doc.id === "TTT-09-guide") body += resilienceGridAppendix();
+    if (doc.id === "TTT-12-guide") body += stomataCountAppendix();
+    if (doc.id === "TTB-02-guide") body += clinometerTanAppendix();
+    if (doc.id === "TTB-04-guide") body += floatOffDataAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>
