@@ -694,70 +694,83 @@ ${bloomBoard()}`;
 // general temperate-tree key the operator trims to the checkpoints on the route.
 // Exposed as arboretumQuestAppendix(); render.mjs appends it after the TTT-08
 // guide section and the TTT-08 packet section.
-const AQ_CHECKPOINTS = 6;
+// A concrete route through real Ambler Arboretum collection areas (Temple
+// University Ambler). Locations are from the arboretum text map; the tree at
+// each area and its deciding clue drive the dichotomous key below. Staff confirm
+// the exact tagged tree and post on the ground, since specimens move over time.
+const AQ_ROUTE = [
+  { area: "Pinetum", loc: "south of the Learning Center, along Loop Drive", tree: "Eastern white pine", clue: "needles in soft bundles of five" },
+  { area: "Oak Canopy", loc: "southeast of the Research and Collaboration Building", tree: "Oak (Bender oak)", clue: "alternate leaf with rounded or pointed lobes; acorns" },
+  { area: "Beech Grove", loc: "west of Dixon Hall, across the bluestone Accessible Path", tree: "American beech", clue: "smooth gray bark and long, pointed buds" },
+  { area: "Native Formal Garden", loc: "southeast of Dixon Hall; the black gum allee", tree: "Black gum", clue: "alternate glossy leaves, dark blocky bark, brilliant red fall color" },
+  { area: "Trident maple", loc: "a Delaware Valley tree-of-record; staff mark its post", tree: "Trident maple", clue: "opposite leaves with three palm-like lobes" },
+  { area: "Katsura", loc: "a Delaware Valley tree-of-record; staff mark its post", tree: "Katsura", clue: "opposite heart-shaped leaves with a smooth edge" },
+];
+const AQ_CHECKPOINTS = AQ_ROUTE.length;
 
 export function questClueCards() {
-  const cards = Array.from({ length: AQ_CHECKPOINTS }, (_, i) => {
+  const cards = AQ_ROUTE.map(({ area, loc }, i) => {
     const n = i + 1;
     return `<div class="aq-card keep">
 <div class="aq-card-h"><span class="aq-cp">Checkpoint ${n}</span><span class="aq-tok">token &#9711;</span></div>
-<div class="aq-fill">Tree or marker at this post (staff fill): <span class="aq-line"></span></div>
+<div class="aq-fill"><b>${area}</b><br><span class="aq-loc">${loc}</span></div>
 <div class="aq-work">
-  <div>Your ID for this tree: <span class="aq-line"></span></div>
+  <div>Identify the tagged tree here. Your ID: <span class="aq-line"></span></div>
   <div class="aq-clue">Deciding clue (circle one): &nbsp; leaf &nbsp;&middot;&nbsp; bark &nbsp;&middot;&nbsp; branching &nbsp;&middot;&nbsp; seed</div>
   <div>The specific feature you saw: <span class="aq-line"></span></div>
 </div></div>`;
   }).join("");
   return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Checkpoint clue cards</div></div>
-<p class="aq-note">Print ONE set per team (4) plus 1 spare set, then cut apart. Staff write which tagged tree or post each numbered checkpoint is; teams record their identification and the one clue that decided it. Laminating is optional; teams write on these, so plain cardstock is fine.</p>
+<p class="aq-note">Print ONE set per team (4) plus 1 spare set, then cut apart. Each card names the arboretum area; teams walk there, identify the tagged tree with the key, and record the one clue that decided it. Staff: confirm the tagged tree at each post before the run. Laminating is optional; teams write on these, so plain cardstock is fine.</p>
 <div class="aq-grid">${cards}</div>`;
 }
 
 export function questKey() {
   const couplets = [
-    ["1a", "Leaves are needles or flat scales (evergreen)", "go to 2"],
-    ["1b", "Leaves are broad and flat", "go to 4"],
-    ["2a", "Needles in bundles or clusters", "Pine"],
-    ["2b", "Needles attached singly to the twig", "go to 3"],
-    ["3a", "Needles flat and soft, will not roll between your fingers", "Fir or Hemlock"],
-    ["3b", "Needles four-sided and sharp, roll between your fingers", "Spruce"],
-    ["4a", "Leaves grow in opposite pairs", "go to 5"],
-    ["4b", "Leaves grow alternately (staggered)", "go to 6"],
-    ["5a", "Leaf is one blade with palm-like lobes", "Maple"],
-    ["5b", "Leaf is divided into leaflets", "Ash"],
-    ["6a", "Leaf is divided into many leaflets", "go to 7"],
-    ["6b", "Leaf is a single blade", "go to 8"],
-    ["7a", "Small leaflets, twig may have thorns", "Locust"],
-    ["7b", "Large leaflets, no thorns", "Hickory or Walnut"],
-    ["8a", "Leaf margin has teeth", "go to 9"],
-    ["8b", "Leaf margin is smooth or lobed", "go to 10"],
-    ["9a", "Bark white or papery, peels in strips", "Birch"],
-    ["9b", "Bark smooth gray, buds long and pointed", "Beech"],
-    ["10a", "Leaf has rounded or pointed lobes", "Oak"],
-    ["10b", "Leaf is heart-shaped, margin smooth", "Redbud or Katsura"],
+    ["1a", "Leaves are needles in soft bundles (evergreen)", "Eastern white pine"],
+    ["1b", "Leaves are broad and flat", "go to 2"],
+    ["2a", "Leaves grow in opposite pairs", "go to 3"],
+    ["2b", "Leaves grow alternately (staggered)", "go to 4"],
+    ["3a", "Leaf is one blade with three palm-like lobes", "Trident maple"],
+    ["3b", "Leaf is a single blade, heart-shaped, edge smooth", "Katsura"],
+    ["4a", "Leaf edge is lobed; acorns on or under the tree", "Oak"],
+    ["4b", "Leaf edge is smooth or finely toothed", "go to 5"],
+    ["5a", "Bark smooth gray, buds long and pointed", "American beech"],
+    ["5b", "Leaf glossy, bark dark and blocky, red fall color", "Black gum"],
   ];
   const rows = couplets.map(([k, test, res]) =>
     `<tr><td class="aq-k">${k}</td><td>${test}</td><td class="aq-r">${res}</td></tr>`).join("");
   return `<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Tree dichotomous key</div></div>
-<p class="aq-note">A general temperate-tree key. Staff: trim or extend it so every couplet ends at a tree that is actually on your route, then print 1 per team (4) plus 1 spare and laminate for reuse. Start at 1 and follow the choice that matches what you see.</p>
+<p class="aq-note">Keyed to the six trees on this route. Print 1 per team (4) plus 1 spare and laminate for reuse. Start at step 1 and follow the choice that matches what you see. Staff: if you swap a checkpoint tree, update the matching couplet.</p>
 <table class="aq-key"><thead><tr><th>Step</th><th>What to look for</th><th>Then</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 export function questRouteMap() {
-  const markers = Array.from({ length: AQ_CHECKPOINTS }, (_, i) => {
-    const n = i + 1, x = 70 + (i % 3) * 190, y = 90 + Math.floor(i / 3) * 150;
-    return `<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#2a5736" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#2a5736">${n}</text><text x="${x}" y="${y + 30}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" fill="#5A564F">tree: __________</text>`;
+  const markers = AQ_ROUTE.map(({ area }, i) => {
+    const n = i + 1, x = 70 + (i % 3) * 190, y = 95 + Math.floor(i / 3) * 150;
+    return `<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#2a5736" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#2a5736">${n}</text><text x="${x}" y="${y + 30}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9.5" font-weight="600" fill="#2a5736">${area}</text>`;
   }).join("");
+  const list = AQ_ROUTE.map(({ area, loc }, i) => `<li><b>${i + 1}. ${area}</b> &mdash; ${loc}</li>`).join("");
   return `<div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Route map (staff template)</div></div>
-<p class="aq-note"><b>TEMPLATE &mdash; needs your input.</b> This map is a placeholder: the checkpoints are numbered but not placed, because the route is specific to your approved arboretum path. Staff: draw the paths between the posts, move or renumber the checkpoints to match the ground, and write the tree or garden at each. Print 4 (plus 2 spares) once finalized. Base map: Ambler Arboretum self-guided tour and Arboretum Explorer.</p>
-<svg viewBox="0 0 620 420" style="width:6.5in;display:block;margin:6pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
-<rect x="18" y="18" width="584" height="384" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Route map</div></div>
+<p class="aq-note">Six checkpoints through the Ambler Arboretum collection areas. Walk them in an order that avoids backtracking. Staff: the layout below is a schematic; place a numbered post at each area and confirm the walking path and boundaries with the arboretum host before the run. Print 4 (plus 2 spares). Base map: Ambler Arboretum self-guided tour and Arboretum Explorer.</p>
+<svg viewBox="0 0 620 400" style="width:6.5in;display:block;margin:6pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
+<rect x="18" y="18" width="584" height="364" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
 <text x="34" y="40" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#2a5736">START / FINISH</text>
 <circle cx="40" cy="55" r="7" fill="#2a5736"/>
 ${markers}
-</svg>`;
+</svg>
+<ol class="aq-routelist">${list}</ol>`;
+}
+
+export function questAnswerKey() {
+  const rows = AQ_ROUTE.map(({ area, tree, clue }, i) =>
+    `<tr><td class="aq-k">${i + 1}</td><td>${area}</td><td class="aq-r">${tree}</td><td>${clue}</td></tr>`).join("");
+  return `<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Instructor answer key (do not hand out)</div></div>
+<p class="aq-note">Keep this with the instructor. The expected tree at each checkpoint and the clue that decides it. If a tagged specimen has changed, update the checkpoint and the matching couplet in the key.</p>
+<table class="aq-key"><thead><tr><th>CP</th><th>Area</th><th>Expected tree</th><th>Deciding clue</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 export function questTokens() {
@@ -780,8 +793,13 @@ export function arboretumQuestAppendix() {
 .aq-apx .aq-card-h { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.4pt solid var(--camp-acc); padding-bottom: 3pt; margin-bottom: 5pt; }
 .aq-apx .aq-cp { font-family: var(--serif); font-weight: 600; color: var(--camp-ink); font-size: 12pt; }
 .aq-apx .aq-tok { font-family: var(--mono); font-size: 8pt; color: var(--ink2); }
-.aq-apx .aq-fill { font-size: 9pt; margin-bottom: 6pt; }
+.aq-apx .aq-fill { font-size: 9.5pt; margin-bottom: 6pt; }
+.aq-apx .aq-fill b { color: var(--camp-ink); }
+.aq-apx .aq-loc { font-size: 8pt; color: var(--ink2); }
 .aq-apx .aq-line { display: inline-block; min-width: 40%; border-bottom: 0.8pt solid var(--rule2); }
+.aq-apx ol.aq-routelist { margin: 8pt 0 0 16pt; font-size: 9pt; color: var(--ink); }
+.aq-apx ol.aq-routelist li { margin: 2pt 0; }
+.aq-apx ol.aq-routelist b { color: var(--camp-ink); }
 .aq-apx .aq-work > div { font-size: 9pt; margin: 5pt 0; }
 .aq-apx .aq-clue { color: var(--camp-ink); font-weight: 600; }
 .aq-apx table.aq-key { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
@@ -800,6 +818,7 @@ ${questClueCards()}
 ${questKey()}
 ${questRouteMap()}
 ${questTokens()}
+${questAnswerKey()}
 </div>`;
 }
 
