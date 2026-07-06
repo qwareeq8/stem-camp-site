@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix, arboretumQuestAppendix, resilienceGridAppendix, stomataCountAppendix, clinometerTanAppendix, floatOffDataAppendix } from "./team_tools.mjs";
+import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix, arboretumQuestAppendix, resilienceGridAppendix, stomataCountAppendix, clinometerTanAppendix, floatOffDataAppendix, magnetMazeAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -546,6 +546,8 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
       if (doc.id === "pk-trees-guide" && code === "TTT-12") html += "\n" + stomataCountAppendix();
       if (doc.id === "pk-trees-guide" && code === "TTB-02") html += "\n" + clinometerTanAppendix();
       if (doc.id === "pk-trees-guide" && code === "TTB-04") html += "\n" + floatOffDataAppendix();
+      // The PYS-01 laminate-ready maze boards follow the PYS-01 guide section.
+      if (doc.id === "pk-pystem-guide" && code === "PYS-01") html += "\n" + magnetMazeAppendix();
       return html;
     })
     .join("\n");
@@ -817,6 +819,7 @@ function main() {
     if (doc.id === "TTT-12-guide") body += stomataCountAppendix();
     if (doc.id === "TTB-02-guide") body += clinometerTanAppendix();
     if (doc.id === "TTB-04-guide") body += floatOffDataAppendix();
+    if (doc.id === "PYS-01-guide") body += magnetMazeAppendix();
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>

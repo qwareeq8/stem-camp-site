@@ -144,9 +144,12 @@ function main() {
         problems.push(`page ${i + 1} ends with heading: ${content[content.length - 1].slice(0, 60)}`);
       }
       // A page whose body is one or two lines is an orphan unless it is a
-      // divider page, which opens with a short all-uppercase display line.
+      // divider page, which opens with a short all-uppercase display line, or a
+      // full-page image board (the PYS-01 maze appendix pages carry only the
+      // board title plus the SVG maze, which prints no text).
       const isDivider = content.length > 0 && content[0] === content[0].toUpperCase() && content[0].length < 40;
-      if (content.length > 0 && content.length <= 2 && !isDivider) {
+      const isBoard = content.length > 0 && /^Maze [A-D]\b/.test(content[0]);
+      if (content.length > 0 && content.length <= 2 && !isDivider && !isBoard) {
         problems.push(`page ${i + 1} is nearly blank: ${content.join(" / ").slice(0, 70)}`);
       }
       // A short label ending in a colon at the very bottom of a page sits

@@ -988,3 +988,78 @@ export function floatOffDataAppendix() {
 <div>Half-float time, after redesign: ________________</div>
 </div>`;
 }
+
+// PYS-01 Magnetic Capsule Maze Cup: the seeded maze generator and the four
+// laminate-ready boards. The geometry lives here as the single source, so the
+// standalone printable (tools/docgen/build_pystem.mjs) and the instructor-guide
+// appendix (render.mjs: PYS-01 guide and the pk-pystem-guide packet) can never
+// drift apart. Seeds are chosen so the solvable path length rises A<B<C<D
+// (5<9<11<14 cells), verified by BFS on the seeded generator; one full-width
+// board per page keeps the corridor pitch wide enough for the steel token.
+function mazeRng(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32; }
+function genMaze(cols, rows, seed) {
+  const rand = mazeRng(seed);
+  const c = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ({ n: true, e: true, s: true, w: true, v: false })));
+  const stack = [[0, 0]]; c[0][0].v = true;
+  const dirs = [["n", 0, -1, "s"], ["s", 0, 1, "n"], ["e", 1, 0, "w"], ["w", -1, 0, "e"]];
+  while (stack.length) {
+    const [x, y] = stack[stack.length - 1];
+    const opts = dirs.filter(([d, dx, dy]) => { const nx = x + dx, ny = y + dy; return nx >= 0 && nx < cols && ny >= 0 && ny < rows && !c[ny][nx].v; });
+    if (!opts.length) { stack.pop(); continue; }
+    const [d, dx, dy, opp] = opts[Math.floor(rand() * opts.length)];
+    c[y][x][d] = false; const nx = x + dx, ny = y + dy; c[ny][nx][opp] = false; c[ny][nx].v = true; stack.push([nx, ny]);
+  }
+  return c;
+}
+export function mazeSvg(cols, rows, seed, cell) {
+  const m = genMaze(cols, rows, seed);
+  const W = cols * cell, H = rows * cell, t = 4;
+  let lines = "";
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const px = x * cell, py = y * cell, q = m[y][x];
+    if (q.n) lines += `<line x1="${px}" y1="${py}" x2="${px + cell}" y2="${py}"/>`;
+    if (q.w) lines += `<line x1="${px}" y1="${py}" x2="${px}" y2="${py + cell}"/>`;
+    if (x === cols - 1 && q.e) lines += `<line x1="${px + cell}" y1="${py}" x2="${px + cell}" y2="${py + cell}"/>`;
+    if (y === rows - 1 && q.s) lines += `<line x1="${px}" y1="${py + cell}" x2="${px + cell}" y2="${py + cell}"/>`;
+  }
+  const r = cell * 0.26;
+  return `<svg viewBox="-${t} -${t} ${W + 2 * t} ${H + 2 * t}" width="${(W / 96).toFixed(2)}in">
+<rect x="${cell * 0.5 - r}" y="${cell * 0.5 - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="#1f7a4d"/>
+<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r}" fill="none" stroke="#b3402a" stroke-width="3"/>
+<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r * 0.45}" fill="#b3402a"/>
+<g stroke="#111" stroke-width="${t}" stroke-linecap="round">${lines}</g>
+<text x="${cell * 0.5}" y="${cell * 0.5 + 3}" font-size="8" text-anchor="middle" fill="#fff" font-family="JetBrains Mono">S</text></svg>`;
+}
+export const MAZE_DEFS = [["Maze A", "warm-up", 4, 3, 2], ["Maze B", "easy", 5, 4, 1], ["Maze C", "medium", 5, 4, 2], ["Maze D", "hard", 6, 4, 7]];
+
+// The four framed boards plus their scoped styles, one board per page. Shared
+// verbatim by the standalone printable and the guide appendix.
+export function mazeBoardsHtml() {
+  const cards = MAZE_DEFS.map(([n, lv, c, r, s], i) => `<div class="mz"${i ? ' style="break-before:page"' : ""}><div class="mz-h"><b>${n}</b><span>${lv}</span></div>${mazeSvg(c, r, s, 96)}</div>`).join("");
+  return `<style>
+.mz-wrap{display:flex;flex-direction:column;gap:16pt;}
+.mz{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:12pt;text-align:center;break-inside:avoid;}
+.mz-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8pt;}
+.mz-h b{font-family:var(--serif);color:var(--camp-ink);font-size:15pt;}
+.mz-h span{font-family:var(--mono);font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:var(--camp-acc);}
+.mz svg{width:100%;height:auto;}
+</style>
+<div class="mz-wrap">${cards}</div>`;
+}
+
+// The maze-board note shared by the printable and the appendix.
+export const MAZE_NOTE = `Print on cardstock and laminate, one board per team at the difficulty you assign. The green square <b>S</b> is the start; the red target is the finish. Place a steel washer or small nut (the "capsule") on S and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the target without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.`;
+
+// Exposed as magnetMazeAppendix(); render.mjs appends it to the standalone
+// PYS-01 instructor guide and to the PY-STEM instructor guide packet right
+// after its PYS-01 section, so the boards travel with the guide.
+export function magnetMazeAppendix() {
+  const css = `
+.mz-apx .mz-note { color: var(--ink2); font-size: 9pt; margin: 0 0 7pt; }
+`;
+  return `<div class="mz-apx"><style>${css}</style>
+<div style="page-break-before:always"></div>
+<div class="sheet-head"><div class="sheet-eyebrow">PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup</div><div class="sheet-title">Maze boards (laminate; one board per team)</div></div>
+<p class="mz-note">${MAZE_NOTE}</p>
+${mazeBoardsHtml()}</div>`;
+}

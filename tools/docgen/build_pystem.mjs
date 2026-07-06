@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { mazeBoardsHtml, MAZE_NOTE } from "./team_tools.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "..", "..");
@@ -59,59 +60,15 @@ function head(eyebrow, title) {
   return `<div class="sheet-head"><div class="sheet-eyebrow">${eyebrow}</div><div class="sheet-title">${title}</div></div>`;
 }
 
-// ---------- seeded RNG + maze generator (wide corridors) ----------
-function rng(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32; }
-function genMaze(cols, rows, seed) {
-  const rand = rng(seed);
-  const c = Array.from({ length: rows }, () => Array.from({ length: cols }, () => ({ n: true, e: true, s: true, w: true, v: false })));
-  const stack = [[0, 0]]; c[0][0].v = true;
-  const dirs = [["n", 0, -1, "s"], ["s", 0, 1, "n"], ["e", 1, 0, "w"], ["w", -1, 0, "e"]];
-  while (stack.length) {
-    const [x, y] = stack[stack.length - 1];
-    const opts = dirs.filter(([d, dx, dy]) => { const nx = x + dx, ny = y + dy; return nx >= 0 && nx < cols && ny >= 0 && ny < rows && !c[ny][nx].v; });
-    if (!opts.length) { stack.pop(); continue; }
-    const [d, dx, dy, opp] = opts[Math.floor(rand() * opts.length)];
-    c[y][x][d] = false; const nx = x + dx, ny = y + dy; c[ny][nx][opp] = false; c[ny][nx].v = true; stack.push([nx, ny]);
-  }
-  return c;
-}
-function mazeSvg(cols, rows, seed, cell) {
-  const m = genMaze(cols, rows, seed);
-  const W = cols * cell, H = rows * cell, t = 4;
-  let lines = "";
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-    const px = x * cell, py = y * cell, q = m[y][x];
-    if (q.n) lines += `<line x1="${px}" y1="${py}" x2="${px + cell}" y2="${py}"/>`;
-    if (q.w) lines += `<line x1="${px}" y1="${py}" x2="${px}" y2="${py + cell}"/>`;
-    if (x === cols - 1 && q.e) lines += `<line x1="${px + cell}" y1="${py}" x2="${px + cell}" y2="${py + cell}"/>`;
-    if (y === rows - 1 && q.s) lines += `<line x1="${px}" y1="${py + cell}" x2="${px + cell}" y2="${py + cell}"/>`;
-  }
-  const r = cell * 0.26;
-  return `<svg viewBox="-${t} -${t} ${W + 2 * t} ${H + 2 * t}" width="${(W / 96).toFixed(2)}in">
-<rect x="${cell * 0.5 - r}" y="${cell * 0.5 - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="#1f7a4d"/>
-<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r}" fill="none" stroke="#b3402a" stroke-width="3"/>
-<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r * 0.45}" fill="#b3402a"/>
-<g stroke="#111" stroke-width="${t}" stroke-linecap="round">${lines}</g>
-<text x="${cell * 0.5}" y="${cell * 0.5 + 3}" font-size="8" text-anchor="middle" fill="#fff" font-family="JetBrains Mono">S</text></svg>`;
-}
-
+// ---------- PYS-01 maze boards ----------
+// The seeded maze generator, board defs, and shared note now live in
+// team_tools.mjs (single source), so these boards and the instructor-guide
+// appendix rendered by render.mjs can never drift apart.
 function magnetMazes() {
-  // Seeds chosen so the solvable path length rises A<B<C<D (5<9<11<14 cells),
-  // verified by BFS on the seeded generator. One full-width board per page keeps
-  // the corridor pitch (about 44/35/35/29 mm) wide enough for the steel token.
-  const defs = [["Maze A", "warm-up", 4, 3, 2], ["Maze B", "easy", 5, 4, 1], ["Maze C", "medium", 5, 4, 2], ["Maze D", "hard", 6, 4, 7]];
-  const cards = defs.map(([n, lv, c, r, s], i) => `<div class="mz"${i ? ' style="break-before:page"' : ""}><div class="mz-h"><b>${n}</b><span>${lv}</span></div>${mazeSvg(c, r, s, 96)}</div>`).join("");
-  return `<div class="sheet"><style>
-.mz-wrap{display:flex;flex-direction:column;gap:16pt;}
-.mz{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:12pt;text-align:center;break-inside:avoid;}
-.mz-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8pt;}
-.mz-h b{font-family:var(--serif);color:var(--camp-ink);font-size:15pt;}
-.mz-h span{font-family:var(--mono);font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:var(--camp-acc);}
-.mz svg{width:100%;height:auto;}
-</style>
+  return `<div class="sheet">
 ${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards (laminate; one board per team)")}
-<p class="note">Print on cardstock and laminate, one board per team at the difficulty you assign. The green square <b>S</b> is the start; the red target is the finish. Place a steel washer or small nut (the "capsule") on S and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the target without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.</p>
-<div class="mz-wrap">${cards}</div></div>`;
+<p class="note">${MAZE_NOTE}</p>
+${mazeBoardsHtml()}</div>`;
 }
 
 // ---------- PYS-05 reaction time conversion ----------
