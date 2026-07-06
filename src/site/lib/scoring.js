@@ -14,10 +14,14 @@ export function teamTotals(teams, scores, limit = COUNTING_SCORES) {
     .map((t) => {
       const pts = (byTeam[t.id] || []).slice().sort((a, b) => b - a);
       const counted = pts.slice(0, limit);
-      const total = counted.reduce((a, b) => a + b, 0);
-      return { ...t, total, stations: pts.length, counted: counted.length };
+      const raw = counted.reduce((a, b) => a + b, 0);
+      // Round the displayed total to 2 decimals so floating-point sums never
+      // leak artifacts like 173.92000000000002 onto the leaderboard; raw
+      // keeps the ranking exact.
+      const total = Math.round(raw * 100) / 100;
+      return { ...t, raw, total, stations: pts.length, counted: counted.length };
     })
-    .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+    .sort((a, b) => b.raw - a.raw || a.name.localeCompare(b.name));
 }
 
 export function maxTotal(rows) {
