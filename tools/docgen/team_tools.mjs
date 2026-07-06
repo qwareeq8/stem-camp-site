@@ -1004,7 +1004,7 @@ function genMaze(cols, rows, seed) {
   const dirs = [["n", 0, -1, "s"], ["s", 0, 1, "n"], ["e", 1, 0, "w"], ["w", -1, 0, "e"]];
   while (stack.length) {
     const [x, y] = stack[stack.length - 1];
-    const opts = dirs.filter(([d, dx, dy]) => { const nx = x + dx, ny = y + dy; return nx >= 0 && nx < cols && ny >= 0 && ny < rows && !c[ny][nx].v; });
+    const opts = dirs.filter(([, dx, dy]) => { const nx = x + dx, ny = y + dy; return nx >= 0 && nx < cols && ny >= 0 && ny < rows && !c[ny][nx].v; });
     if (!opts.length) { stack.pop(); continue; }
     const [d, dx, dy, opp] = opts[Math.floor(rand() * opts.length)];
     c[y][x][d] = false; const nx = x + dx, ny = y + dy; c[ny][nx][opp] = false; c[ny][nx].v = true; stack.push([nx, ny]);
@@ -1013,24 +1013,48 @@ function genMaze(cols, rows, seed) {
 }
 export function mazeSvg(cols, rows, seed, cell) {
   const m = genMaze(cols, rows, seed);
-  const W = cols * cell, H = rows * cell, t = 4;
+  const W = cols * cell, H = rows * cell, t = 8;
+  // Interior walls only; the arena border is a dedicated rounded frame below.
   let lines = "";
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     const px = x * cell, py = y * cell, q = m[y][x];
-    if (q.n) lines += `<line x1="${px}" y1="${py}" x2="${px + cell}" y2="${py}"/>`;
-    if (q.w) lines += `<line x1="${px}" y1="${py}" x2="${px}" y2="${py + cell}"/>`;
-    if (x === cols - 1 && q.e) lines += `<line x1="${px + cell}" y1="${py}" x2="${px + cell}" y2="${py + cell}"/>`;
-    if (y === rows - 1 && q.s) lines += `<line x1="${px}" y1="${py + cell}" x2="${px + cell}" y2="${py + cell}"/>`;
+    if (y > 0 && q.n) lines += `<line x1="${px}" y1="${py}" x2="${px + cell}" y2="${py}"/>`;
+    if (x > 0 && q.w) lines += `<line x1="${px}" y1="${py}" x2="${px}" y2="${py + cell}"/>`;
   }
-  const r = cell * 0.26;
+  // Faint lattice dots at the interior corridor grid so the board reads as a
+  // designed game surface; walls and markers paint over them.
+  let dots = "";
+  for (let y = 1; y < rows; y++) for (let x = 1; x < cols; x++) {
+    dots += `<circle cx="${x * cell}" cy="${y * cell}" r="2.4" fill="#d9d3c7"/>`;
+  }
+  // Endpoint cells get a soft tint; START is a labeled green pad, FINISH a
+  // labeled bullseye, so the endpoints are unmistakable at arm's length.
+  const inset = 7;
+  const fx = (cols - 1) * cell, fy = (rows - 1) * cell;
+  const cellTint = (px, py, fill) =>
+    `<rect x="${px + inset}" y="${py + inset}" width="${cell - 2 * inset}" height="${cell - 2 * inset}" rx="10" fill="${fill}"/>`;
+  const padW = cell * 0.66, padH = cell * 0.4;
+  const start = `${cellTint(0, 0, "#e7f0e9")}
+<rect x="${cell / 2 - padW / 2}" y="${cell / 2 - padH / 2}" width="${padW}" height="${padH}" rx="9" fill="#1f7a4d"/>
+<text x="${cell / 2}" y="${cell / 2 + 5}" font-size="14.5" font-weight="700" letter-spacing="1.5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono">START</text>`;
+  const bcx = fx + cell / 2, bcy = fy + cell / 2 - 7;
+  const finish = `${cellTint(fx, fy, "#f7e9e5")}
+<circle cx="${bcx}" cy="${bcy}" r="21" fill="#fff" stroke="#b3402a" stroke-width="4.5"/>
+<circle cx="${bcx}" cy="${bcy}" r="12" fill="none" stroke="#b3402a" stroke-width="3"/>
+<circle cx="${bcx}" cy="${bcy}" r="4.5" fill="#b3402a"/>
+<text x="${bcx}" y="${bcy + 40}" font-size="12.5" font-weight="700" letter-spacing="1.2" text-anchor="middle" fill="#b3402a" font-family="JetBrains Mono">FINISH</text>`;
   return `<svg viewBox="-${t} -${t} ${W + 2 * t} ${H + 2 * t}" width="${(W / 96).toFixed(2)}in">
-<rect x="${cell * 0.5 - r}" y="${cell * 0.5 - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="#1f7a4d"/>
-<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r}" fill="none" stroke="#b3402a" stroke-width="3"/>
-<circle cx="${W - cell * 0.5}" cy="${H - cell * 0.5}" r="${r * 0.45}" fill="#b3402a"/>
-<g stroke="#111" stroke-width="${t}" stroke-linecap="round">${lines}</g>
-<text x="${cell * 0.5}" y="${cell * 0.5 + 3}" font-size="8" text-anchor="middle" fill="#fff" font-family="JetBrains Mono">S</text></svg>`;
+<rect x="0" y="0" width="${W}" height="${H}" rx="12" fill="#faf8f4"/>
+${dots}
+${start}
+${finish}
+<g stroke="#111" stroke-width="5.5" stroke-linecap="round">${lines}</g>
+<rect x="0" y="0" width="${W}" height="${H}" rx="12" fill="none" stroke="#111" stroke-width="7"/></svg>`;
 }
-export const MAZE_DEFS = [["Maze A", "warm-up", 4, 3, 2], ["Maze B", "easy", 5, 4, 1], ["Maze C", "medium", 5, 4, 2], ["Maze D", "hard", 6, 4, 7]];
+// Seeds chosen by BFS on the seeded generator so the unique solution path
+// rises A<B<C<D (6<10<12<15 cells) with walls spread evenly across the board
+// quadrants and the route turning often instead of hugging the border.
+export const MAZE_DEFS = [["Maze A", "warm-up", 4, 3, 696], ["Maze B", "easy", 5, 4, 214], ["Maze C", "medium", 5, 4, 904], ["Maze D", "hard", 6, 4, 642]];
 
 // The four framed boards plus their scoped styles, one board per page. Shared
 // verbatim by the standalone printable and the guide appendix.
@@ -1048,7 +1072,7 @@ export function mazeBoardsHtml() {
 }
 
 // The maze-board note shared by the printable and the appendix.
-export const MAZE_NOTE = `Print on cardstock and laminate, one board per team at the difficulty you assign. The green square <b>S</b> is the start; the red target is the finish. Place a steel washer or small nut (the "capsule") on S and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the target without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.`;
+export const MAZE_NOTE = `Print on cardstock and laminate, one board per team at the difficulty you assign. Place a steel washer or small nut (the "capsule") on the green <b>START</b> pad and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the red <b>FINISH</b> bullseye without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.`;
 
 // Exposed as magnetMazeAppendix(); render.mjs appends it to the standalone
 // PYS-01 instructor guide and to the PY-STEM instructor guide packet right
