@@ -1,7 +1,8 @@
 // Leaderboard math shared by Home and Leaderboard. Per the competition rules,
-// only a team's best 9 of its (up to 12) primary station scores count toward the
-// standings, so one rough activity does not sink a team. teamTotals therefore
-// sums each team's top scores up to COUNTING_SCORES.
+// only a team's best 9 station scores count toward the standings (12 primary
+// stations, plus any scored warm-up like PYS-00), so one rough activity does
+// not sink a team. teamTotals therefore sums each team's top scores up to
+// COUNTING_SCORES.
 export const COUNTING_SCORES = 9;
 
 export function teamTotals(teams, scores, limit = COUNTING_SCORES) {

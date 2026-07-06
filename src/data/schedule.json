@@ -75,7 +75,7 @@
     "theme": "Orientation and materials",
     "blocks": [
       { "start": "09:00", "end": "10:00", "title": "Welcome and safety briefing", "location": "COE 102" },
-      { "start": "10:00", "end": "10:20", "title": "Card Tower Kickoff warm-up", "location": "COE 102" },
+      { "start": "10:00", "end": "10:20", "title": "Card Tower Kickoff", "code": "PYS-00", "camp": "pystem", "location": "COE 102" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Magnetic Capsule Maze Cup", "code": "PYS-01", "camp": "pystem", "location": "COE 102" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
