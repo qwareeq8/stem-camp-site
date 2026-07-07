@@ -926,7 +926,7 @@
   {
     "id": "pys-print-slinky",
     "name": "Slinky Station Challenge Cards",
-    "desc": "Six predict-first pulse challenges plus an instructor key for PYS-06.",
+    "desc": "Six predict-first pulse challenges for PYS-06.",
     "type": "pdf",
     "path": "files/PYS_06_Slinky_Station_Cards.pdf",
     "camp": "pystem",
@@ -959,7 +959,7 @@
   {
     "id": "pys-print-museum",
     "name": "Museum Exhibit Clue Cards",
-    "desc": "Six predict-first exhibit clues plus an instructor key for PYS-10.",
+    "desc": "Six predict-first exhibit clues for PYS-10.",
     "type": "pdf",
     "path": "files/PYS_10_Museum_Clue_Cards.pdf",
     "camp": "pystem",
@@ -980,8 +980,8 @@
   },
   {
     "id": "pys-print-barcode",
-    "name": "Barcode Card Deck and Key",
-    "desc": "UPC-A cards, the check-digit rule, and a pre-computed answer key for PYB-04.",
+    "name": "Barcode Card Deck",
+    "desc": "UPC-A cards and the check-digit rule for PYB-04.",
     "type": "pdf",
     "path": "files/PYB_04_Barcode_Card_Deck.pdf",
     "camp": "pystem",

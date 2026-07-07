@@ -1072,7 +1072,7 @@ export function mazeBoardsHtml() {
 }
 
 // The maze-board note shared by the printable and the appendix.
-export const MAZE_NOTE = `Print on cardstock and laminate, one board per team at the difficulty you assign. Place a steel washer or small nut (the "capsule") on the green <b>START</b> pad and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the red <b>FINISH</b> bullseye without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly, and pre-test each token through the laminated sheet before the run.`;
+export const MAZE_NOTE = `Place a steel washer or small nut (the "capsule") on the green <b>START</b> pad and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the red <b>FINISH</b> bullseye without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly.`;
 
 // Exposed as magnetMazeAppendix(); render.mjs appends it to the standalone
 // PYS-01 instructor guide and to the PY-STEM instructor guide packet right

@@ -66,7 +66,7 @@ function head(eyebrow, title) {
 // appendix rendered by render.mjs can never drift apart.
 function magnetMazes() {
   return `<div class="sheet">
-${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards (laminate; one board per team)")}
+${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards")}
 <p class="note">${MAZE_NOTE}</p>
 ${mazeBoardsHtml()}</div>`;
 }
@@ -112,7 +112,7 @@ ${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Catch-distance to 
 }
 
 // ---------- PYS-08 balance challenge cards + COM template ----------
-function balanceCards() {
+function balanceCards(part = "cards") {
   // Student card face carries ONLY the challenge and a prediction blank; the
   // center-of-mass reason lives on the instructor answer-key page so the
   // predict-first step (35 of 100 points) is not spoiled on the handout.
@@ -132,7 +132,7 @@ function balanceCards() {
     ["Loaded Line Walk", "Steadier at the chest", "At arm's length the weight pulls your center of mass forward and sideways off the line; held at the chest it stays over your base, so you wobble less."],
   ];
   const keyRows = key.map(([n, verdict, why], i) => `<tr><td>${i + 1}</td><td>${n}</td><td>${verdict}</td><td>${why}</td></tr>`).join("");
-  return `<div class="sheet"><style>
+  const style = `<style>
 .bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:13pt;}
 .bc{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:9pt 11pt;break-inside:avoid;}
 .bc-h{display:flex;align-items:center;gap:8pt;margin-bottom:4pt;}
@@ -144,14 +144,15 @@ function balanceCards() {
 .bkey th{background:var(--camp-ink);color:#fff;text-align:left;padding:4pt 7pt;font-size:8pt;text-transform:uppercase;letter-spacing:.05em;}
 .bkey td{border-bottom:1pt solid var(--rule2);padding:5pt 7pt;vertical-align:top;}
 .bkey td:nth-child(3){color:var(--camp-acc);font-weight:600;}
-</style>
-${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Balance challenge cards (predict first)")}
-<p class="note">Four indoor challenges that replace a real ropes course. Do EVERY challenge next to a wall so a slip just leaves you leaning. Keep the floor clear; a helper spots the chair stand; the taped line stays flat (no running, no raised beam). Print the card page once per team; mark WORK or FAIL on the card FIRST, then test, then map the forces. The reasons are on the instructor answer key so the prediction stays a real prediction.</p>
-<div class="bc-grid">${cards}</div>
-<div style="break-before:page"></div>
-${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Instructor answer key (do not hand out)")}
-<p class="note">Keep this page with the instructor and print it once. Reveal a challenge's reason only after each team has recorded its prediction.</p>
+</style>`;
+  if (part === "key") return `<div class="sheet">${style}
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Instructor answer key")}
+<p class="note">Keep this page with the instructor. Reveal a challenge's reason only after each team has recorded its prediction.</p>
 <table class="bkey"><tr><th>#</th><th>Challenge</th><th>Result</th><th>Center-of-mass reason</th></tr>${keyRows}</table></div>`;
+  return `<div class="sheet">${style}
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Balance challenge cards (predict first)")}
+<p class="note">Four indoor challenges that replace a real ropes course. Do EVERY challenge next to a wall so a slip just leaves you leaning. Keep the floor clear; a helper spots the chair stand; the taped line stays flat (no running, no raised beam). Mark WORK or FAIL on the card FIRST, then test, then map the forces.</p>
+<div class="bc-grid">${cards}</div></div>`;
 }
 
 function comTemplate() {
@@ -166,7 +167,7 @@ function comTemplate() {
 .ct-l{font-family:var(--mono);font-size:8pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
 .ct-p{font-size:8.5pt;color:var(--ink2);margin-top:4pt;text-align:left;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Center-of-mass map template (one per team)")}
+${head("PY-STEM 2026 &middot; PYS-08 Low-Ropes Force Map Relay", "Center-of-mass map template")}
 <p class="note">For each of the four challenges, sketch the body in its box, mark the center of mass with an X, draw the line of gravity straight down, and shade the base of support (where you touch the floor). Balanced = the line of gravity falls inside the base.</p>
 <div class="ct-grid">${box("Challenge 1 &mdash; Wall and Heel")}${box("Challenge 2 &mdash; Backless Chair Stand")}${box("Challenge 3 &mdash; Toe Grab Hop")}${box("Challenge 4 &mdash; Loaded Line Walk")}</div></div>`;
 }
@@ -213,7 +214,7 @@ function bookbotMat() {
 .bin .addr{position:absolute;top:4pt;left:6pt;font-family:var(--mono);font-weight:700;color:var(--camp-ink);font-size:11pt;}
 .matkey{font-size:8.5pt;color:var(--ink2);margin-top:8pt;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Route mat (tape to a table; 24 addressed bins)")}
+${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Route mat (24 addressed bins)")}
 <p class="note">Print landscape and tape down, or copy the grid onto a table with painter tape. Rows are lettered A to D, columns numbered 1 to 6, so every bin has an address like <b>B3</b>. Place items by ADDRESS, not by subject &mdash; that is how a library BookBot (an automated storage and retrieval system) finds a book fast.</p>
 <div class="mat">${cells}</div>
 <p class="matkey">Aisle rule: only one team "crane" in a column at a time. Plan a route that fills an order with the fewest column changes and no collisions.</p></div>`;
@@ -236,7 +237,7 @@ function bookbotCards() {
 .tags{display:flex;flex-wrap:wrap;gap:5pt;margin-top:6pt;}
 .tag{font-family:var(--mono);font-weight:700;color:var(--camp-ink);border:1.2pt solid var(--camp-ink);border-radius:4pt;padding:2pt 8pt;font-size:10pt;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Order deck + bin address tags (cut apart)")}
+${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Order deck and bin address tags")}
 <p class="note">Hand a team one order card at a time. They plan the shortest collision-free route across the mat, then run it and log the time. The address tags below can be cut and taped onto real bins/cups if you build a physical mat.</p>
 <div class="oc-grid">${cards}</div>
 <div style="font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-top:11pt;">Cut-apart bin address tags</div>
@@ -259,7 +260,7 @@ const CARD_CSS = `
 `;
 
 // ---------- PYS-06 SONAR slinky station cards ----------
-function slinkyCards() {
+function slinkyCards(part = "cards") {
   const ch = [
     ["Count the round trips", "Send one sharp pulse down the stretched slinky. Predict how many times it will travel down and back before it fades out, then send it and count."],
     ["Tension change", "One teammate pulls the slinky a little tighter (do not overstretch). Predict whether the pulse comes back faster or slower than before, then time it."],
@@ -280,14 +281,14 @@ function slinkyCards() {
     ["Same speed", "Wave speed depends on the slinky's tension and mass per length, not on how big the pulse is; the big one just carries more energy."],
   ];
   const keyRows = key.map(([verdict, why], i) => `<tr><td>${i + 1}</td><td>${verdict}</td><td>${why}</td></tr>`).join("");
+  if (part === "key") return `<div class="sheet"><style>${CARD_CSS}</style>
+${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Instructor answer key")}
+<p class="note">Keep this page with the instructor. Reveal a station's reason only after each team has recorded its prediction.</p>
+<table class="bkey"><tr><th>#</th><th>What happens</th><th>Why</th></tr>${keyRows}</table></div>`;
   return `<div class="sheet"><style>${CARD_CSS}</style>
 ${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Station challenge cards (predict first)")}
-<p class="note">One card per challenge station. A team reads the card, writes a prediction FIRST, then tests it with the slinky and records what happened. Keep the slinky flat on the floor and never let go while it is stretched. The reasons are on the instructor answer key so predictions stay real.</p>
-<div class="bc-grid">${cards}</div>
-<div style="break-before:page"></div>
-${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Instructor answer key (do not hand out)")}
-<p class="note">Keep this page with the instructor and print it once. Reveal a station's reason only after each team has recorded its prediction.</p>
-<table class="bkey"><tr><th>#</th><th>What happens</th><th>Why</th></tr>${keyRows}</table></div>`;
+<p class="note">Read the card, write your prediction FIRST, then test it with the slinky and record what happened. Keep the slinky flat on the floor, never let go while it is stretched, and wear goggles while it is stretched.</p>
+<div class="bc-grid">${cards}</div></div>`;
 }
 
 // ---------- PYS-12 accessibility ramp client spec cards ----------
@@ -315,7 +316,7 @@ function rampClientCards() {
 .cl-t td:first-child{white-space:nowrap;color:var(--ink2);}
 .cl-t td:last-child{font-family:var(--mono);color:var(--camp-ink);font-weight:700;text-align:right;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-12 Accessibility Ramp Rescue Lab", "Client spec cards (one per team)")}
+${head("PY-STEM 2026 &middot; PYS-12 Accessibility Ramp Rescue Lab", "Client spec cards")}
 <p class="note">Hand each team one client card. Every design must meet ALL four of its client's numbers. Slope is written as rise:run, so 1:12 means 12 cm of ramp length for every 1 cm of height. Ramp length = rise &times; the run number.</p>
 <div class="cl-grid">${cards}</div>
 <p class="note" style="margin-top:12pt"><b>Length check (for the instructor):</b> ${lengths}.</p></div>`;
@@ -353,7 +354,7 @@ function heartRateLog() {
 .hr-plot svg{width:100%;height:auto;}
 .hr-lab{font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-04 Stethoscope Sprint and Recovery", "Heart-rate recovery log (one per team)")}
+${head("PY-STEM 2026 &middot; PYS-04 Stethoscope Sprint and Recovery", "Heart-rate recovery log")}
 <p class="note">Count heartbeats for 15 seconds and multiply by 4 to get beats per minute (bpm). With the person's consent, record a resting rate, then a rate right after one minute of light activity, then watch it recover. A faster drop back toward rest means better fitness. Fill both trials, then plot the points and connect them.</p>
 <table class="hr-t"><tr><th>When</th><th>Trial 1 count (15 s)</th><th>Trial 2 count (15 s)</th><th>Beats per minute</th></tr>${body}</table>
 <div class="hr-plot"><div class="hr-lab">Heart rate over time (bpm)</div>
@@ -389,12 +390,12 @@ ${head("PY-STEM 2026 &middot; PYS-09 Hovercraft Hockey Hackathon", "Glide test, 
 <li>Each team gets <b>five shots</b>: push the hovercraft from the shooting line so it comes to rest on the target.</li>
 <li>Score the ring the puck's centre stops on (5, 10, 20, or the 30 bullseye). Off the target scores 0. Add the five shots.</li>
 <li>Run it as a bracket: highest five-shot total advances. Ties take one extra shot.</li></ol></div>
-<div class="hv-target"><div class="hv-lab">Scoring target &mdash; print and tape to the floor or a table</div>
+<div class="hv-target"><div class="hv-lab">Scoring target</div>
 <svg viewBox="0 0 520 500">${circles}${labels}<circle cx="${cx}" cy="${cy}" r="4" fill="#1c3257"/></svg></div></div>`;
 }
 
 // ---------- PYS-10 museum exhibit clue cards ----------
-function museumClueCards() {
+function museumClueCards(part = "cards") {
   const clues = [
     ["The OPEN sign", "A shop's glowing orange-red OPEN sign in the window.", "Line spectrum", "Neon gas"],
     ["The film projector", "The warm bulb inside an old cinema film projector.", "Smooth rainbow", "Hot filament"],
@@ -407,14 +408,14 @@ function museumClueCards() {
 <div class="bc-how">${desc}</div>
 <div class="bc-pred">Spectrum I would see: &nbsp;____________________ &nbsp;&nbsp; Source type: &nbsp;____________________</div></div>`).join("");
   const keyRows = clues.map(([, , spec, src], i) => `<tr><td>${i + 1}</td><td>${spec}</td><td>${src}</td></tr>`).join("");
-  return `<div class="sheet"><style>${CARD_CSS}</style>
-${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Museum exhibit clue cards (predict first)")}
-<p class="note">Each card describes a real light you might meet in a museum or on the street. Predict the spectrum you would see through the grating and name the source type BEFORE you check it against the reference cards. This backs the exhibit-connection part of the score. Reasons are on the instructor answer key.</p>
-<div class="bc-grid">${cards}</div>
-<div style="break-before:page"></div>
-${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Instructor answer key (do not hand out)")}
+  if (part === "key") return `<div class="sheet"><style>${CARD_CSS}</style>
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Instructor answer key")}
 <p class="note">Keep this page with the instructor. A hot filament gives a smooth rainbow; a white LED gives a broad band with a blue spike; a neon, sodium, or metal-salt source gives separate bright lines.</p>
 <table class="bkey"><tr><th>#</th><th>Spectrum</th><th>Source</th></tr>${keyRows}</table></div>`;
+  return `<div class="sheet"><style>${CARD_CSS}</style>
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Museum exhibit clue cards (predict first)")}
+<p class="note">Each card describes a real light you might meet in a museum or on the street. Predict the spectrum you would see through the grating and name the source type BEFORE you check it against the reference cards. This backs the exhibit-connection part of the score.</p>
+<div class="bc-grid">${cards}</div></div>`;
 }
 
 // ---------- PYB-04 barcode checksum deck + answer key ----------
@@ -424,7 +425,7 @@ function upcCheckDigit(d) {
   for (let i = 0; i < 11; i++) s += d[i] * (i % 2 === 0 ? 3 : 1);
   return (10 - (s % 10)) % 10;
 }
-function barcodeDeck() {
+function barcodeDeck(part = "cards") {
   const bases = [
     "03600029145", "01234567890", "04012345678", "07350053850", "88491201203",
     "01200080351", "05000159407", "03800012345", "09780471486", "06414410062",
@@ -451,7 +452,7 @@ function barcodeDeck() {
   });
   const ex = "03600029145";
   const exChk = upcCheckDigit(ex.split("").map(Number));
-  return `<div class="sheet"><style>
+  const style = `<style>
 .rule{border:1.3pt solid var(--camp-ink);border-radius:8pt;padding:11pt 13pt;margin-bottom:12pt;font-size:9.5pt;}
 .rule h4{font-family:var(--serif);color:var(--camp-ink);font-size:12.5pt;margin:0 0 5pt;}
 .rule b{color:var(--camp-acc);}
@@ -464,19 +465,20 @@ function barcodeDeck() {
 .bkey td{border-bottom:1pt solid var(--rule2);padding:5pt 7pt;}
 .bkey td:nth-child(2){font-family:var(--mono);letter-spacing:.04em;}
 .bkey td:nth-child(3){color:var(--camp-acc);font-weight:600;}
-</style>
-${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Barcode cards, check-digit rule, and answer key")}
+</style>`;
+  if (part === "key") return `<div class="sheet">${style}
+${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Instructor answer key")}
+<p class="note">Keep this page with the instructor. Each corrupted card has exactly one wrong digit, which the mod-10 rule always catches. Reject the corrupted codes; accept the rest.</p>
+<table class="bkey"><tr><th>Card</th><th>Code</th><th>Verdict</th></tr>${key.join("")}</table></div>`;
+  return `<div class="sheet">${style}
+${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Barcode cards and the check-digit rule")}
 <div class="rule"><h4>The UPC-A check-digit rule</h4>
 A product barcode has 12 digits. The last one is a <b>check digit</b> computed from the first 11 by a fixed rule, so a single mistyped digit no longer matches and the scanner rejects the code.
 <ol style="margin:5pt 0 0 16pt"><li>Add the digits in the odd positions (1st, 3rd, 5th, ...) and multiply that sum by 3.</li>
 <li>Add the digits in the even positions (2nd, 4th, ...).</li>
 <li>Add those two results, then find what you must add to reach the next multiple of 10. That is the check digit.</li></ol>
 <div style="margin-top:6pt">Worked example for <b>${ex.replace(/(\d)(\d{5})(\d{5})/, "$1 $2 $3")}</b>: the rule gives a check digit of <b>${exChk}</b>, so the full valid code is ${ex}${exChk}. Card 1 uses it.</div></div>
-<div class="bcard-grid">${cards}</div>
-<div style="break-before:page"></div>
-${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Instructor answer key (do not hand out)")}
-<p class="note">Keep this page with the instructor. Each corrupted card has exactly one wrong digit, which the mod-10 rule always catches. Reject the corrupted codes; accept the rest.</p>
-<table class="bkey"><tr><th>Card</th><th>Code</th><th>Verdict</th></tr>${key.join("")}</table></div>`;
+<div class="bcard-grid">${cards}</div></div>`;
 }
 
 // ---------- staff run-sheets ----------
@@ -559,7 +561,7 @@ function reactionTrials() {
 .rt-t tr.med td:first-child{background:#fff;text-align:right;}
 .rt-meta{font-family:var(--mono);font-size:9pt;margin:2pt 0 9pt;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Trials and median sheet (one per student)")}
+${head("PY-STEM 2026 &middot; PYS-05 Reaction Time Combine", "Trials and median sheet")}
 <p class="note">Catch the falling meter stick, read the catch distance in cm, then convert it to milliseconds with the reaction-time strip. Record <b>at least ten catches</b> for each condition and take the <b>median</b> (the middle value when sorted), not your best single catch. Then test one strategy and compare medians.</p>
 <div class="rt-meta">Name ___________________     The ONE strategy I tested: ___________________ (for example, focus, warm up)</div>
 <table class="rt-t"><thead><tr><th>Trial</th><th class="grp">Baseline catch (cm)</th><th class="grp">Baseline (ms)</th><th class="grp">Strategy catch (cm)</th><th class="grp">Strategy (ms)</th></tr></thead><tbody>${rows}<tr class="med"><td>Median</td><td></td><td></td><td></td><td></td></tr></tbody></table>
@@ -584,9 +586,16 @@ ${bar()}
 .ss-line{display:inline-block;min-width:38%;border-bottom:0.8pt solid var(--rule2);}
 .ss-row{display:flex;justify-content:space-between;gap:14pt;font-size:9pt;margin-top:5pt;}
 </style>
-${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Spectrum sketch sheet (one per student)")}
+${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Spectrum sketch sheet")}
 <p class="note">Look at each source through the diffraction glasses and <b>draw what you see</b> across the bar: a smooth rainbow from a hot filament, a broad colored band from a white LED, or separate bright lines from a neon or gas source. Then match each source to its clue card. Do not view the sun directly.</p>
 ${blocks}</div>`;
+}
+
+// Staff-only compilation of the four instructor answer keys. Stays out of
+// public/files and files.json so answers never reach the public site library.
+function answerKeys() {
+  return [balanceCards("key"), slinkyCards("key"), museumClueCards("key"), barcodeDeck("key")]
+    .join(`<div style="break-before:page"></div>`);
 }
 
 const SHEETS = [
@@ -606,6 +615,7 @@ const SHEETS = [
   { slug: "PYS_12_Ramp_Client_Spec_Cards", body: rampClientCards },
   { slug: "PYB_04_Barcode_Card_Deck", body: barcodeDeck },
   { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets },
+  { slug: "PY_STEM_Instructor_Answer_Keys", body: answerKeys },
 ];
 
 async function main() {
