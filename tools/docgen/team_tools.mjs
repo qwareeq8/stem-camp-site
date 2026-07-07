@@ -1,11 +1,14 @@
-// Print-and-cut appendix for the From Trees to Tech instructor guide packet:
-// a trigonometry-exact paper clinometer and a team route card for TTT-02
-// Forest Sensor Sprint. The geometry is generated from real trig so the scale
-// is correct. Styled with the packet theme via CSS variables; the protractor
-// outline, ticks, and numbers are pure black so the sheet reads in grayscale.
+// Print-and-cut sheet builders for both camps: student-facing game pieces,
+// data sheets, and templates. Each top-level builder returns one standalone
+// sheet (or a small bundle of sheets) that tools/docgen/build_trees.mjs and
+// tools/docgen/build_pystem.mjs render into the standalone printables the
+// site library serves. Guides and packets carry NO embedded printables; every
+// sheet ships only as its own student-facing PDF. Print logistics (copy
+// counts, stock, lamination) live in the operator camp-prep checklists, never
+// on the sheets themselves.
 //
-// Exposed as teamToolsAppendix(); render.mjs appends it to the trees guide
-// packet body (doc.id === "pk-trees-guide") after the main content.
+// The TTT-02 clinometer below is trigonometry-exact so the scale is correct.
+// Scales, ticks, and numbers are pure black so the sheets read in grayscale.
 
 const DEG = Math.PI / 180;
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -121,7 +124,6 @@ export function teamToolsAppendix() {
   const tanRows = TAN.map(([d, t]) => `<tr><td>${d}</td><td>${t}</td></tr>`).join("");
 
   return `<div class="team-tools"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-02 Forest Sensor Sprint</div><div class="sheet-title">Paper clinometer</div></div>
 
 <div class="tt-clino">
@@ -154,8 +156,7 @@ ${routeCard()}
 // 1 mm) drop-lane distance ruler and a concentric-ring landing target. Numbers
 // are kept clear of the ticks and rings and the launch-line rule so the sheet
 // reads cleanly when printed at 100 percent. Exposed as seedDerbyAppendix();
-// render.mjs places it after the TTT-03 guide section, the same way the TTT-02
-// team tools follow TTT-02.
+// build_trees.mjs renders it as the standalone TTT-03 printable.
 export function dropLaneStrip() {
   const e = [];
   // The box runs to y=195.4, ~6 mm below the last tick (y=187), so the "18" label clears the bottom.
@@ -214,7 +215,6 @@ export function seedDerbyAppendix() {
     ["Ring 4", "Bullseye, right on the dot."],
   ].map(([t, d]) => `<div><b>${t}</b><br>${d}</div>`).join("");
   return `<div class="seed-derby"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-03 Seed Dispersal Derby</div><div class="sheet-title">Drop-lane distance strip</div></div>
 <p class="sd-note">Tape the strip flat down the lane with the <b>0</b> end at the launch line.</p>
 <div class="sd-sheet">${dropLaneStrip()}</div>
@@ -228,8 +228,9 @@ export function seedDerbyAppendix() {
 }
 
 // TTT-01 daily voltage log: the per-team sheet teams write a reading on each day
-// of the week. Exposed as voltageLogAppendix(); render.mjs appends it after the
-// TTT-01 guide section so the instructor guide keeps a record of every printable.
+// of the week. Day rows use generic weekday labels (not camp-week dates) so the
+// sheet reuses across seasons. Exposed as voltageLogAppendix(); build_trees.mjs
+// renders it as the standalone TTT-01 printable.
 export function voltageLogAppendix() {
   const css = `
 .vlog-apx h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 7pt 0 3pt; break-after: avoid; }
@@ -241,12 +242,11 @@ export function voltageLogAppendix() {
 .vlog-apx td { border-bottom: 1pt solid #000; height: .4in; padding: 5pt; }
 .vlog-apx tr.peak td { border-top: 1.6pt solid #000; font-weight: 700; }
 `;
-  const days = ["Mon Jun 22", "Tue Jun 23", "Wed Jun 24", "Thu Jun 25", "Fri Jun 26"];
+  const days = ["Day 1 (Mon)", "Day 2 (Tue)", "Day 3 (Wed)", "Day 4 (Thu)", "Day 5 (Fri)"];
   const rows = days
     .map((d) => `<tr><td style="font-family:var(--mono);font-size:9pt">${d}</td><td></td><td></td><td></td></tr>`)
     .join("");
   return `<div class="vlog-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-01 Mud Battery Bioelectric League</div><div class="sheet-title">Daily voltage log</div></div>
 <p class="va-note">Each day, set the multimeter to DC millivolts and read the voltage across the 100 k&#8486; resistor at the same time; the cell is weak on day 1 and climbs as the biofilm grows. Defend the design with the trend, not one number.</p>
 <div class="va-hdr"><span>Team <span class="fill"></span></span><span>The ONE variable we are testing <span class="fill"></span></span></div>
@@ -256,8 +256,8 @@ export function voltageLogAppendix() {
 }
 
 // TTT-02 standoff floor marker: the "stand here" sign placed at the pre-marked
-// tree-height distance. Exposed as standoffAppendix(); render.mjs appends it after
-// the TTT-02 team tools so the guide records this printable too.
+// tree-height distance. Exposed as standoffAppendix(); build_trees.mjs renders
+// it as its own standalone TTT-02 printable.
 export function standoffAppendix() {
   const css = `
 .standoff-apx h3 { font-family: var(--serif); color: var(--camp-ink); font-size: 13pt; margin: 7pt 0 3pt; break-after: avoid; }
@@ -270,9 +270,8 @@ export function standoffAppendix() {
 .standoff-apx .so-foot { font-size: 11pt; color: var(--ink2); max-width: 42ch; }
 `;
   return `<div class="standoff-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-02 Forest Sensor Sprint</div><div class="sheet-title">Standoff floor marker</div></div>
-<p class="so-note">Place it at the distance you pre-mark from the tree base with the long tape.</p>
+<p class="so-note">This sign sits at the measured distance from the tree base, marked out with the long tape.</p>
 <div class="so-sign">
 <div class="so-chip">From Trees to Tech 2026 &middot; TTT-02</div>
 <div class="so-rule"></div>
@@ -286,9 +285,9 @@ export function standoffAppendix() {
 
 // ---- TTT-05 Greenhouse Climate Controller: print-and-cut game pieces ----------
 // The card-and-board set for the greenhouse matching game. Three generators,
-// reused by camp-prep/print/build_print.mjs for the standalone Day-2 print files
-// and bundled by greenhouseControllerAppendix() so the TTT-05 guide records them
-// (mirrors teamToolsAppendix for TTT-02). Climate scales print pure black (#000)
+// reused by camp-prep/print/build_print.mjs for the operator-local Day-2 print
+// files and bundled by greenhouseControllerAppendix() for the standalone TTT-05
+// printable built by build_trees.mjs. Climate scales print pure black (#000)
 // so they survive grayscale; the rest uses the camp palette.
 //
 // Verified climate needs (deep research: UMass, AOS, Clemson, UF/IFAS, UC IPM):
@@ -419,13 +418,12 @@ export function tourClueSheet() {
 </div>`;
 }
 
-// Bundle all three for the TTT-05 instructor guide (mirrors teamToolsAppendix).
+// Bundle all three as the standalone TTT-05 printable (build_trees.mjs).
 // Student-facing print sheets only: each sheet carries its own title and student
 // usage note, so the wrapper adds no print logistics (counts, stock, laminate,
 // spares). Those live in the camp-prep print plan and Day-of facilitation docs.
 export function greenhouseControllerAppendix() {
-  return `<div style="page-break-before:always"></div>
-${plantProfileCards()}
+  return `${plantProfileCards()}
 <div style="page-break-before:always"></div>
 ${climateDialBoard()}
 <div style="page-break-before:always"></div>
@@ -552,10 +550,9 @@ export function claimEvidenceCard() {
 <div class="ce-cards">${card}${card}${card}${card}</div></div>`;
 }
 
-// Bundle for the TTT-10 instructor guide (student-facing sheets only).
+// Bundle as the standalone TTT-10 printable (student-facing sheets only).
 export function treeRingAppendix() {
-  return `<div style="page-break-before:always"></div>
-${treeRingCards()}
+  return `${treeRingCards()}
 <div style="page-break-before:always"></div>
 ${ringAnswerBoard()}
 <div style="page-break-before:always"></div>
@@ -676,24 +673,23 @@ export function bloomBoard() {
 </div>`;
 }
 
-// Bundle for the TTT-07 instructor guide (student-facing sheets only). Season
-// tokens stay a separate standalone sheet (camp-prep/print/build_print.mjs).
+// Bundle as the standalone TTT-07 printable (student-facing sheets only). Season
+// tokens stay a separate operator-local sheet (camp-prep/print/build_print.mjs).
 export function pollinatorNetworkAppendix() {
-  return `<div style="page-break-before:always"></div>
-${plantCards()}
+  return `${plantCards()}
 <div style="page-break-before:always"></div>
 ${pollinatorCards()}
 <div style="page-break-before:always"></div>
 ${bloomBoard()}`;
 }
 
-// TTT-08 Arboretum Eco-Quest print pack: a cut-apart clue-card set, a general
-// tree dichotomous key, a route-map TEMPLATE the staff fill with the approved
-// arboretum route, and a cut-apart evidence-token sheet. The route and the tree
-// list are site-specific, so the map is a labeled placeholder and the key is a
-// general temperate-tree key the operator trims to the checkpoints on the route.
-// Exposed as arboretumQuestAppendix(); render.mjs appends it after the TTT-08
-// guide section and the TTT-08 packet section.
+// TTT-08 Arboretum Eco-Quest print pack: a cut-apart clue-card set, a tree
+// dichotomous key keyed to the route, a schematic route map, and a cut-apart
+// evidence-token sheet. Exposed as arboretumQuestAppendix() (student sheets
+// only), rendered standalone by build_trees.mjs. The instructor answer key is
+// deliberately NOT in the pack: arboretumQuestAnswerKey() feeds the staff-only
+// From_Trees_to_Tech_Instructor_Answer_Keys.pdf, which never reaches
+// public/files or files.json.
 // A concrete route through real Ambler Arboretum collection areas (Temple
 // University Ambler). Locations are from the arboretum text map; the tree at
 // each area and its deciding clue drive the dichotomous key below. Staff confirm
@@ -721,7 +717,7 @@ export function questClueCards() {
 </div></div>`;
   }).join("");
   return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Checkpoint clue cards</div></div>
-<p class="aq-note">Print ONE set per team (4) plus 1 spare set, then cut apart. Each card names the arboretum area; teams walk there, identify the tagged tree with the key, and record the one clue that decided it. Staff: confirm the tagged tree at each post before the run. Laminating is optional; teams write on these, so plain cardstock is fine.</p>
+<p class="aq-note">Cut the cards apart. Each card names an arboretum area: walk there, identify the tagged tree with your dichotomous key, and record the one clue that decided it.</p>
 <div class="aq-grid">${cards}</div>`;
 }
 
@@ -742,7 +738,7 @@ export function questKey() {
     `<tr><td class="aq-k">${k}</td><td>${test}</td><td class="aq-r">${res}</td></tr>`).join("");
   return `<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Tree dichotomous key</div></div>
-<p class="aq-note">Keyed to the six trees on this route. Print 1 per team (4) plus 1 spare and laminate for reuse. Start at step 1 and follow the choice that matches what you see. Staff: if you swap a checkpoint tree, update the matching couplet.</p>
+<p class="aq-note">Keyed to the six trees on this route. Start at step 1 and follow the choice that matches what you see; keep going until you land on a tree name.</p>
 <table class="aq-key"><thead><tr><th>Step</th><th>What to look for</th><th>Then</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -754,7 +750,7 @@ export function questRouteMap() {
   const list = AQ_ROUTE.map(({ area, loc }, i) => `<li><b>${i + 1}. ${area}</b> &mdash; ${loc}</li>`).join("");
   return `<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Route map</div></div>
-<p class="aq-note">Six checkpoints through the Ambler Arboretum collection areas. Walk them in an order that avoids backtracking. Staff: the layout below is a schematic; place a numbered post at each area and confirm the walking path and boundaries with the arboretum host before the run. Print 4 (plus 2 spares). Base map: Ambler Arboretum self-guided tour and Arboretum Explorer.</p>
+<p class="aq-note">Six checkpoints through the Ambler Arboretum collection areas. Walk them in an order that avoids backtracking. The layout below is a schematic, not a to-scale path: a numbered post on the ground marks each checkpoint, and the list under the map tells you where each area is.</p>
 <svg viewBox="0 0 620 400" style="width:6.5in;display:block;margin:6pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
 <rect x="18" y="18" width="584" height="364" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
 <text x="34" y="40" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#2a5736">START / FINISH</text>
@@ -767,8 +763,7 @@ ${markers}
 export function questAnswerKey() {
   const rows = AQ_ROUTE.map(({ area, tree, clue }, i) =>
     `<tr><td class="aq-k">${i + 1}</td><td>${area}</td><td class="aq-r">${tree}</td><td>${clue}</td></tr>`).join("");
-  return `<div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Instructor answer key (do not hand out)</div></div>
+  return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Instructor answer key (do not hand out)</div></div>
 <p class="aq-note">Keep this with the instructor. The expected tree at each checkpoint and the clue that decides it. If a tagged specimen has changed, update the checkpoint and the matching couplet in the key.</p>
 <table class="aq-key"><thead><tr><th>CP</th><th>Area</th><th>Expected tree</th><th>Deciding clue</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
@@ -781,12 +776,11 @@ export function questTokens() {
   }
   return `<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Evidence tokens (cut apart)</div></div>
-<p class="aq-note">Cut apart. Each team collects one token per solved checkpoint. This sheet makes ${cols * rowsN} tokens (4 teams + 1 spare set of ${cols}). Print on cardstock; no lamination needed.</p>
+<p class="aq-note">Cut the tokens apart. Your team collects one token for each checkpoint you solve; ${cols} tokens means you finished the whole quest.</p>
 <div class="aq-tokgrid">${cells}</div>`;
 }
 
-export function arboretumQuestAppendix() {
-  const css = `
+const AQ_CSS = `
 .aq-apx .aq-note { color: var(--ink2); font-size: 9pt; margin: 0 0 7pt; }
 .aq-apx .aq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; }
 .aq-apx .aq-card { border: 1.3pt solid var(--camp-ink); border-radius: 6pt; padding: 8pt 10pt; break-inside: avoid; }
@@ -812,12 +806,22 @@ export function arboretumQuestAppendix() {
 .aq-apx .aq-tokleaf { display: block; font-size: 15pt; }
 .aq-apx .aq-toknum { font-family: var(--mono); font-size: 8pt; font-weight: 700; color: var(--camp-ink); }
 `;
-  return `<div class="aq-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
+
+// Student-facing quest pack: clue cards, key, route map, and tokens. The
+// instructor answer key is NOT bundled here; see arboretumQuestAnswerKey().
+export function arboretumQuestAppendix() {
+  return `<div class="aq-apx"><style>${AQ_CSS}</style>
 ${questClueCards()}
 ${questKey()}
 ${questRouteMap()}
 ${questTokens()}
+</div>`;
+}
+
+// Staff-only answer key for the Eco-Quest, compiled by build_trees.mjs into
+// From_Trees_to_Tech_Instructor_Answer_Keys.pdf (never published to the site).
+export function arboretumQuestAnswerKey() {
+  return `<div class="aq-apx"><style>${AQ_CSS}</style>
 ${questAnswerKey()}
 </div>`;
 }
@@ -825,8 +829,8 @@ ${questAnswerKey()}
 // TTT-09 Minecraft Tree World Resilience Cup paper-grid fallback kit: a design
 // grid and a feature legend so a team can build the same resilient landscape on
 // paper if a device or login fails. General, not site-specific. Exposed as
-// resilienceGridAppendix(); render.mjs appends it after the TTT-09 guide section
-// and the TTT-09 packet section.
+// resilienceGridAppendix(); build_trees.mjs renders it as the standalone
+// TTT-09 printable.
 export function resilienceGridAppendix() {
   const cols = 12, rowsN = 9, cell = 42;
   const W = cols * cell, H = rowsN * cell;
@@ -854,9 +858,8 @@ export function resilienceGridAppendix() {
 .rg-apx .rg-grid { flex: 1; border: 1.2pt solid var(--camp-ink); border-radius: 5pt; padding: 5pt; }
 `;
   return `<div class="rg-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-09 Minecraft Tree World Resilience Cup</div><div class="sheet-title">Paper-grid fallback kit</div></div>
-<p class="rg-note">Use this if a device or login fails so no team loses build time. Draw your resilient landscape on the grid, label every feature with the strategy it represents, then defend it to the judges just like the on-screen build. Print 1 per team (4) plus 1 spare.</p>
+<p class="rg-note">Use this if a device or login fails so no team loses build time. Draw your resilient landscape on the grid, label every feature with the strategy it represents, then defend it to the judges just like the on-screen build.</p>
 <div class="rg-stress">Team ___________________   Stress we design against (circle one): &nbsp; <b>flood</b> &nbsp; <b>drought</b> &nbsp; <b>heat</b></div>
 <div class="rg-cols">
 <div class="rg-legend"><div class="rg-h">Feature legend &mdash; label each on the grid</div><ul>${legend}</ul></div>
@@ -868,8 +871,8 @@ export function resilienceGridAppendix() {
 // TTT-12 Leaf Stomata Microscope Detective counting sheet: a field-of-view
 // counting reference and a per-leaf tally table so every team counts the same
 // way (every stoma fully inside the field, at least three fields per leaf).
-// Exposed as stomataCountAppendix(); render.mjs appends it after the TTT-12
-// guide section and the TTT-12 packet section.
+// Exposed as stomataCountAppendix(); build_trees.mjs renders it as the
+// standalone TTT-12 printable.
 export function stomataCountAppendix() {
   // A field-of-view circle with a light grid, plus a few example dots, to fix
   // the "count every stoma fully inside the circle" convention.
@@ -900,9 +903,8 @@ ${[40, 70, 100, 130, 160].map((v) => `<line x1="${v}" y1="8" x2="${v}" y2="192"/
 .sc-apx .sc-rank { font-size: 9.5pt; margin-top: 8pt; }
 `;
   return `<div class="sc-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-12 Leaf Stomata Microscope Detective</div><div class="sheet-title">Stomata counting sheet</div></div>
-<p class="sc-note">Print 1 per team or per student (about 20 with buffer). Everyone counts the same way, then ranks the leaves by how they manage water.</p>
+<p class="sc-note">Everyone counts the same way, then ranks the leaves by how they manage water.</p>
 <div class="sc-cols">
 <div class="sc-conv"><div class="sc-h">Counting convention</div>
 <div style="text-align:center;margin:4pt 0">${fov}</div>
@@ -915,8 +917,8 @@ ${[40, 70, 100, 130, 160].map((v) => `<line x1="${v}" y1="8" x2="${v}" y2="192"/
 // TTB-02 Tree Height Triangulation Shootout paper clinometer and tan table. The
 // clinometer geometry is the same trig-exact half circle as TTT-02 (reused), and
 // the printed tan table is the calculator-free option the guide calls for.
-// Exposed as clinometerTanAppendix(); render.mjs appends it after the TTB-02
-// guide section and the TTB-02 packet section.
+// Exposed as clinometerTanAppendix(); build_trees.mjs renders it as the
+// standalone TTB-02 printable.
 export function clinometerTanAppendix() {
   const assemble = [
     "Cut out the half circle along the curved outline.",
@@ -945,9 +947,8 @@ export function clinometerTanAppendix() {
 .cl-apx .cl-eg { font-size: 9pt; color: var(--ink2); }
 `;
   return `<div class="cl-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTB-02 Tree Height Triangulation Shootout</div><div class="sheet-title">Paper clinometer and tan table</div></div>
-<p class="cl-note">Print on cardstock: 4 per station plus 2 spares. This is the one consumable the activity needs. Read the angle to the treetop, then use the tan table (no calculator needed) to find the height.</p>
+<p class="cl-note">Read the angle to the treetop, then use the tan table (no calculator needed) to find the height.</p>
 ${clinometerSvg()}
 <p class="cl-cut">Cut along the flat top edge and the curved outline.</p>
 <div class="cl-cols">
@@ -962,8 +963,7 @@ ${clinometerSvg()}
 // TTB-04 Photosynthesis Float-Off Playoffs data table: the minute-by-minute
 // floating-disk record for the baseline and redesign runs, which the rubric
 // grades but the handout leaves no room for. Exposed as floatOffDataAppendix();
-// render.mjs appends it after the TTB-04 guide section and the TTB-04 packet
-// section.
+// build_trees.mjs renders it as the standalone TTB-04 printable.
 export function floatOffDataAppendix() {
   const rows = Array.from({ length: 11 }, (_, m) =>
     `<tr><td class="fo-min">${m}</td><td></td><td></td></tr>`).join("");
@@ -978,9 +978,8 @@ export function floatOffDataAppendix() {
 .fo-apx .fo-half div { margin: 4pt 0; }
 `;
   return `<div class="fo-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTB-04 Photosynthesis Float-Off Playoffs</div><div class="sheet-title">Floating-disk data table</div></div>
-<p class="fo-note">Print 1 per team. Load 10 disks, start the timer, and record how many are floating at the end of each minute for the baseline run, then again after your redesign. The graded data table is worth 20 points.</p>
+<p class="fo-note">Load 10 disks, start the timer, and record how many are floating at the end of each minute for the baseline run, then again after your redesign. The graded data table is worth 20 points.</p>
 <div class="fo-meta">Team ___________________   The ONE variable we changed for the redesign: ___________________</div>
 <table class="fo-t"><thead><tr><th>Minute</th><th>Baseline: disks floating</th><th>Redesign: disks floating</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="fo-half">
@@ -990,10 +989,9 @@ export function floatOffDataAppendix() {
 }
 
 // PYS-01 Magnetic Capsule Maze Cup: the seeded maze generator and the four
-// laminate-ready boards. The geometry lives here as the single source, so the
-// standalone printable (tools/docgen/build_pystem.mjs) and the instructor-guide
-// appendix (render.mjs: PYS-01 guide and the pk-pystem-guide packet) can never
-// drift apart. Seeds are chosen so the solvable path length rises A<B<C<D
+// maze boards. The geometry lives here as the single source consumed by the
+// standalone printable (tools/docgen/build_pystem.mjs), the only place the
+// boards ship. Seeds are chosen so the solvable path length rises A<B<C<D
 // (5<9<11<14 cells), verified by BFS on the seeded generator; one full-width
 // board per page keeps the corridor pitch wide enough for the steel token.
 function mazeRng(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32; }
@@ -1071,19 +1069,5 @@ export function mazeBoardsHtml() {
 <div class="mz-wrap">${cards}</div>`;
 }
 
-// The maze-board note shared by the printable and the appendix.
+// The student-facing maze-board note that heads the standalone printable.
 export const MAZE_NOTE = `Place a steel washer or small nut (the "capsule") on the green <b>START</b> pad and move the 6&nbsp;mm driver magnet UNDER the board to drag it to the red <b>FINISH</b> bullseye without touching the maze walls. A small washer turns corners more easily than a long paperclip, especially on Maze D. Move the driver slowly.`;
-
-// Exposed as magnetMazeAppendix(); render.mjs appends it to the standalone
-// PYS-01 instructor guide and to the PY-STEM instructor guide packet right
-// after its PYS-01 section, so the boards travel with the guide.
-export function magnetMazeAppendix() {
-  const css = `
-.mz-apx .mz-note { color: var(--ink2); font-size: 9pt; margin: 0 0 7pt; }
-`;
-  return `<div class="mz-apx"><style>${css}</style>
-<div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup</div><div class="sheet-title">Maze boards (laminate; one board per team)</div></div>
-<p class="mz-note">${MAZE_NOTE}</p>
-${mazeBoardsHtml()}</div>`;
-}

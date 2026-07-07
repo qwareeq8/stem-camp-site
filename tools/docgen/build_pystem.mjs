@@ -61,9 +61,9 @@ function head(eyebrow, title) {
 }
 
 // ---------- PYS-01 maze boards ----------
-// The seeded maze generator, board defs, and shared note now live in
-// team_tools.mjs (single source), so these boards and the instructor-guide
-// appendix rendered by render.mjs can never drift apart.
+// The seeded maze generator, board defs, and shared note live in
+// team_tools.mjs; this standalone printable is the only shipped form of the
+// boards (guides and packets embed no printables).
 function magnetMazes() {
   return `<div class="sheet">
 ${head("PY-STEM 2026 &middot; PYS-01 Magnetic Capsule Maze Cup", "Maze boards")}

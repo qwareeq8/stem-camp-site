@@ -737,6 +737,138 @@
     "kind": "guide"
   },
   {
+    "id": "ttt-print-voltage-log",
+    "name": "Daily Voltage Log",
+    "desc": "Five-day mud battery voltage log for TTT-01.",
+    "type": "pdf",
+    "path": "files/TTT_01_Daily_Voltage_Log.pdf",
+    "camp": "trees",
+    "code": "TTT-01",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-team-tools",
+    "name": "Paper Clinometer and Route Cards",
+    "desc": "Print-and-assemble field tools for the TTT-02 sensor sprint.",
+    "type": "pdf",
+    "path": "files/TTT_02_Paper_Clinometer_and_Route_Cards.pdf",
+    "camp": "trees",
+    "code": "TTT-02",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-standoff",
+    "name": "Standoff Floor Marker",
+    "desc": "Distance marker for the TTT-02 tree-height standoff.",
+    "type": "pdf",
+    "path": "files/TTT_02_Standoff_Floor_Marker.pdf",
+    "camp": "trees",
+    "code": "TTT-02",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-droplane",
+    "name": "Drop Lane Strip and Landing Target",
+    "desc": "Seed dispersal drop lane and landing target for TTT-03.",
+    "type": "pdf",
+    "path": "files/TTT_03_Drop_Lane_Strip_and_Landing_Target.pdf",
+    "camp": "trees",
+    "code": "TTT-03",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-greenhouse",
+    "name": "Greenhouse Matching Game Sheets",
+    "desc": "Plant profile and climate control matching game for TTT-05.",
+    "type": "pdf",
+    "path": "files/TTT_05_Greenhouse_Matching_Game_Sheets.pdf",
+    "camp": "trees",
+    "code": "TTT-05",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-pollinator",
+    "name": "Pollinator Cards and Bloom Board",
+    "desc": "Plant and pollinator draft cards with the bloom board for TTT-07.",
+    "type": "pdf",
+    "path": "files/TTT_07_Pollinator_Cards_and_Bloom_Board.pdf",
+    "camp": "trees",
+    "code": "TTT-07",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-questpack",
+    "name": "Eco-Quest Pack",
+    "desc": "Clue cards, route map, and evidence tags for the TTT-08 arboretum quest.",
+    "type": "pdf",
+    "path": "files/TTT_08_Eco_Quest_Pack.pdf",
+    "camp": "trees",
+    "code": "TTT-08",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-papergrid",
+    "name": "Paper Grid Fallback Kit",
+    "desc": "Paper world-grid kit for TTT-09 when computers are unavailable.",
+    "type": "pdf",
+    "path": "files/TTT_09_Paper_Grid_Fallback_Kit.pdf",
+    "camp": "trees",
+    "code": "TTT-09",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-treerings",
+    "name": "Tree Ring Cards and Boards",
+    "desc": "Ring reading cards and boards for TTT-10.",
+    "type": "pdf",
+    "path": "files/TTT_10_Tree_Ring_Cards_and_Boards.pdf",
+    "camp": "trees",
+    "code": "TTT-10",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttt-print-stomata",
+    "name": "Stomata Counting Sheet",
+    "desc": "Microscope field counting sheet for TTT-12.",
+    "type": "pdf",
+    "path": "files/TTT_12_Stomata_Counting_Sheet.pdf",
+    "camp": "trees",
+    "code": "TTT-12",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttb-print-clinometer",
+    "name": "Paper Clinometer and Tan Table",
+    "desc": "Clinometer and tan lookup for the TTB-02 height shootout.",
+    "type": "pdf",
+    "path": "files/TTB_02_Paper_Clinometer_and_Tan_Table.pdf",
+    "camp": "trees",
+    "code": "TTB-02",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "ttb-print-floatdata",
+    "name": "Floating Disk Data Table",
+    "desc": "Leaf disk float timing table for TTB-04.",
+    "type": "pdf",
+    "path": "files/TTB_04_Floating_Disk_Data_Table.pdf",
+    "camp": "trees",
+    "code": "TTB-04",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
     "id": "PYB-01-handout",
     "name": "Pencil Pressure Safety Lab",
     "desc": "Spread a force before it dents the target",

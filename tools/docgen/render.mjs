@@ -8,7 +8,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
-import { teamToolsAppendix, seedDerbyAppendix, voltageLogAppendix, standoffAppendix, greenhouseControllerAppendix, treeRingAppendix, pollinatorNetworkAppendix, arboretumQuestAppendix, resilienceGridAppendix, stomataCountAppendix, clinometerTanAppendix, floatOffDataAppendix, magnetMazeAppendix } from "./team_tools.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -510,9 +509,6 @@ ${sub ? `<p class="doc-sub">${esc(textOf(sub).trim())}</p>` : ""}
       const isDivider = blocks.every((b) => b.kind !== "table") && blocks.length <= 3 &&
         !blocks.some((b) => (sz0(b) || 0) >= 40 && classifyPara(b) === "title" && /ACTIVITY/.test(textOf(blocks[0])));
       void idx;
-      // The code, when present, lets us drop a per-activity appendix in place.
-      const ebCode = blocks.find((b) => b.kind === "p" && classifyPara(b) === "eyebrow" && /\b[A-Z]{3}-\d{2}\b/.test(textOf(b)));
-      const code = ebCode ? textOf(ebCode).match(/\b([A-Z]{3}-\d{2})\b/)[1] : null;
       let html;
       if (blocks.length <= 3 && blocks.some((b) => sz0(b) === 36)) {
         const eb = blocks.find((b) => classifyPara(b) === "eyebrow");
@@ -526,28 +522,6 @@ ${blocks.filter((b) => b !== eb && b !== kk).map((b) => `<p class="doc-sub">${es
         void isDivider;
         html = `<div class="page-break"></div>\n` + renderFlow(blocks, camp, { headerDone: false });
       }
-      // The TTT-01 daily voltage log follows the TTT-01 guide section.
-      if (doc.id === "pk-trees-guide" && code === "TTT-01") html += "\n" + voltageLogAppendix();
-      // The TTT-02 team tools print-and-cut sheets and the standoff floor marker
-      // follow the TTT-02 guide section.
-      if (doc.id === "pk-trees-guide" && code === "TTT-02") html += "\n" + teamToolsAppendix() + "\n" + standoffAppendix();
-      // The TTT-03 drop-lane strip and landing target follow the TTT-03 guide section.
-      if (doc.id === "pk-trees-guide" && code === "TTT-03") html += "\n" + seedDerbyAppendix();
-      // The TTT-05 greenhouse climate controller card-and-board set follows TTT-05.
-      if (doc.id === "pk-trees-guide" && code === "TTT-05") html += "\n" + greenhouseControllerAppendix();
-      // The TTT-07 plant and pollinator cards and bloom board follow TTT-07.
-      if (doc.id === "pk-trees-guide" && code === "TTT-07") html += "\n" + pollinatorNetworkAppendix();
-      // The TTT-10 tree ring cards, reading board, and claim-evidence cards follow TTT-10.
-      if (doc.id === "pk-trees-guide" && code === "TTT-10") html += "\n" + treeRingAppendix();
-      // The TTT-08 quest pack, TTT-09 paper-grid fallback, TTT-12 counting sheet,
-      // and the TTB-02 clinometer and TTB-04 data table follow their sections.
-      if (doc.id === "pk-trees-guide" && code === "TTT-08") html += "\n" + arboretumQuestAppendix();
-      if (doc.id === "pk-trees-guide" && code === "TTT-09") html += "\n" + resilienceGridAppendix();
-      if (doc.id === "pk-trees-guide" && code === "TTT-12") html += "\n" + stomataCountAppendix();
-      if (doc.id === "pk-trees-guide" && code === "TTB-02") html += "\n" + clinometerTanAppendix();
-      if (doc.id === "pk-trees-guide" && code === "TTB-04") html += "\n" + floatOffDataAppendix();
-      // The PYS-01 laminate-ready maze boards follow the PYS-01 guide section.
-      if (doc.id === "pk-pystem-guide" && code === "PYS-01") html += "\n" + magnetMazeAppendix();
       return html;
     })
     .join("\n");
@@ -801,25 +775,13 @@ function main() {
   const meta = {};
   let count = 0;
   for (const doc of DOCS) {
-    if (doc.isStatic) continue; // printables are pre-built by build_pystem.mjs
+    // Printables are pre-built straight to PDF by build_pystem.mjs and
+    // build_trees.mjs; guides and packets carry no embedded printables.
+    if (doc.isStatic) continue;
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
     const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
     const camp = CAMPS[doc.camp];
-    let body = TEMPLATES[doc.template](ir, camp, doc);
-    // TTT-02 print-and-cut team tools follow the standalone TTT-02 guide; the trees
-    // guide packet places them right after its TTT-02 section (see renderPacket).
-    if (doc.id === "TTT-01-guide") body += voltageLogAppendix();
-    if (doc.id === "TTT-02-guide") body += teamToolsAppendix() + standoffAppendix();
-    if (doc.id === "TTT-03-guide") body += seedDerbyAppendix();
-    if (doc.id === "TTT-05-guide") body += greenhouseControllerAppendix();
-    if (doc.id === "TTT-07-guide") body += pollinatorNetworkAppendix();
-    if (doc.id === "TTT-10-guide") body += treeRingAppendix();
-    if (doc.id === "TTT-08-guide") body += arboretumQuestAppendix();
-    if (doc.id === "TTT-09-guide") body += resilienceGridAppendix();
-    if (doc.id === "TTT-12-guide") body += stomataCountAppendix();
-    if (doc.id === "TTB-02-guide") body += clinometerTanAppendix();
-    if (doc.id === "TTB-04-guide") body += floatOffDataAppendix();
-    if (doc.id === "PYS-01-guide") body += magnetMazeAppendix();
+    const body = TEMPLATES[doc.template](ir, camp, doc);
     const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>${esc(doc.name)}</title>
