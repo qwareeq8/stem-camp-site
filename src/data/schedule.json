@@ -114,15 +114,15 @@
   {
     "day": "Thu, Jul 9",
     "camp": "pystem",
-    "theme": "Mechanics and museum trip",
+    "theme": "Mechanics, materials, and codes",
     "blocks": [
       { "start": "09:00", "end": "10:20", "title": "Pinhole Precision Challenge", "code": "PYS-07", "camp": "pystem", "location": "College of Engineering" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Low-Ropes Force Map Relay", "code": "PYS-08", "camp": "pystem", "location": "College of Engineering" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:15", "end": "14:20", "title": "TBD", "location": "College of Engineering" },
+      { "start": "13:15", "end": "14:20", "title": "Oobleck Armor Arena: Rematch", "code": "PYS-02", "camp": "pystem", "location": "College of Engineering" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
-      { "start": "14:40", "end": "16:00", "title": "TBD", "location": "College of Engineering" }
+      { "start": "14:40", "end": "16:00", "title": "Barcode Checksum Rescue", "code": "PYB-04", "camp": "pystem", "location": "College of Engineering" }
     ]
   },
   {
