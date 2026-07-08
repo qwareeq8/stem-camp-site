@@ -34,7 +34,7 @@ const hasSelect = await page.locator("select").count();
 const hasTextarea = await page.locator("textarea").count();
 await page.screenshot({ path: path.join(here, "out", "site_admin_console.png"), fullPage: true });
 
-// wrong password should NOT unlock (fresh context)
+// Wrong password should NOT unlock (fresh context).
 const page2 = await ctx.newPage();
 await page2.goto(`${base}/#/admin`, { waitUntil: "load" });
 await page2.waitForTimeout(500);
@@ -43,7 +43,7 @@ await page2.getByRole("button", { name: /sign in/i }).click();
 await page2.waitForTimeout(700);
 const wrongUnlocked = (await page2.locator("textarea").count()) > 0;
 
-// asset served?
+// Asset served?
 const asset = await page.request.get(`${base}/files/From_Trees_to_Tech_Station_Signs.pdf`);
 
 console.log("admin login -> console: select=" + hasSelect + " textarea=" + hasTextarea);

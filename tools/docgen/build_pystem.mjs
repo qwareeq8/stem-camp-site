@@ -79,7 +79,7 @@ function reactionStrip() {
   for (let d = 2; d <= 40; d += 2) rows.push(`<tr><td>${d}</td><td>${Math.round(tFor(d))}</td></tr>`);
   const half = Math.ceil(rows.length / 2);
   const tbl = (rs) => `<table class="rt"><tr><th>cm caught</th><th>reaction (ms)</th></tr>${rs.join("")}</table>`;
-  // ruler marks at round ms values
+  // Ruler marks at round ms values.
   const marks = [120, 150, 180, 200, 220, 250, 280, 300, 350, 400].map((ms) => {
     const d = 490.5 * (ms / 1000) ** 2; // cm
     return { ms, d: d.toFixed(1) };
@@ -178,7 +178,7 @@ function spectrumBar(kind) {
   const rainbow = `<defs><linearGradient id="rb${kind}" x1="0" x2="1"><stop offset="0" stop-color="#7a00ff"/><stop offset="0.18" stop-color="#0040ff"/><stop offset="0.36" stop-color="#00c853"/><stop offset="0.55" stop-color="#ffeb00"/><stop offset="0.75" stop-color="#ff7a00"/><stop offset="1" stop-color="#d50000"/></linearGradient></defs>`;
   if (kind === "inc") return `<svg viewBox="0 0 ${W} ${H}" width="3.3in">${rainbow}<rect width="${W}" height="${H}" fill="url(#rbinc)"/></svg>`;
   if (kind === "led") return `<svg viewBox="0 0 ${W} ${H}" width="3.3in"><defs><linearGradient id="ledband" x1="0" x2="1"><stop offset="0" stop-color="#00c853"/><stop offset="0.4" stop-color="#ffeb00"/><stop offset="0.72" stop-color="#ff7a00"/><stop offset="1" stop-color="#7a0000"/></linearGradient></defs><rect width="${W}" height="${H}" fill="#000"/><rect x="${W * 0.14}" y="0" width="6" height="${H}" fill="#2b6bff"/><rect x="${W * 0.30}" width="${W * 0.62}" height="${H}" fill="url(#ledband)"/></svg>`;
-  // neon: black with bright lines (orange/red dominant)
+  // Neon: black with bright lines (orange/red dominant).
   const lines = [[0.60, "#ff8a00"], [0.66, "#ff5a00"], [0.71, "#ff3000"], [0.78, "#e00000"], [0.84, "#c00000"], [0.50, "#ffd000"]];
   const ls = lines.map(([f, c]) => `<rect x="${(W * f).toFixed(0)}" y="0" width="3.5" height="${H}" fill="${c}"/>`).join("");
   return `<svg viewBox="0 0 ${W} ${H}" width="3.3in"><rect width="${W}" height="${H}" fill="#000"/>${ls}</svg>`;

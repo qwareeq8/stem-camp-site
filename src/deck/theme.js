@@ -15,12 +15,12 @@ const T = {
   rule06:   "rgba(34,34,34,.06)",
   warn:     "#C77A1F",        // amber: a fail never reads as the Cherry brand
   ok:       "#2E7D46",        // green
-  // camp identity PRESERVED unchanged:
+  // Camp identity PRESERVED unchanged:
   treesInk: "#2a5736",
   treesAcc: "#b04a2f",
   pyInk:    "#1c3257",
   pyAcc:    "#A85F12",        // darkened amber so it passes WCAG AA as text on warm paper
-  // site brand (Cherry) + AA-safe small-text status colors, used in SHELL chrome only:
+  // Site brand (Cherry) + AA-safe small-text status colors, used in SHELL chrome only:
   primary:     "#9D2235",
   primaryDark: "#7A1A29",
   primaryTint: "#F3E1E4",

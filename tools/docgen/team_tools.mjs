@@ -25,11 +25,11 @@ export function clinometerSvg() {
   const H = cy + R + 18;
   const e = [];
 
-  // outline (cut line): flat top edge + lower semicircle, pure black
+  // Outline (cut line): flat top edge + lower semicircle, pure black.
   e.push(`<line x1="${r2(cx - R)}" y1="${cy}" x2="${r2(cx + R)}" y2="${cy}" stroke="#000" stroke-width="2"/>`);
   e.push(`<path d="M ${r2(cx - R)} ${cy} A ${R} ${R} 0 0 0 ${r2(cx + R)} ${cy}" fill="none" stroke="#000" stroke-width="2"/>`);
 
-  // ticks every 5 deg, numbers every 10 deg; 0 shared at bottom center
+  // Ticks every 5 deg, numbers every 10 deg; 0 shared at bottom center.
   for (let a = 0; a <= 90; a += 5) {
     const major = a % 10 === 0;
     const len = major ? 16 : 9;
@@ -47,12 +47,12 @@ export function clinometerSvg() {
     }
   }
 
-  // center string hole (the plumb pivot)
+  // Center string hole (the plumb pivot).
   e.push(`<circle cx="${cx}" cy="${cy}" r="6" fill="none" stroke="#000" stroke-width="1.3"/>`);
   e.push(`<circle cx="${cx}" cy="${cy}" r="1.8" fill="#000"/>`);
   e.push(`<text x="${cx + 11}" y="${cy + 17}" font-family="Inter, sans-serif" font-size="10" fill="#000">string hole (center)</text>`);
 
-  // straw guide along the flat top edge
+  // Straw guide along the flat top edge.
   e.push(`<rect x="${r2(cx - R + 34)}" y="${cy - 16}" width="${r2(2 * R - 68)}" height="7" rx="3.5" fill="none" stroke="#000" stroke-width="1" stroke-dasharray="4 3"/>`);
   e.push(`<text x="${cx}" y="${cy - 23}" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#000">tape a straw along this edge and sight along it</text>`);
 
@@ -161,7 +161,7 @@ export function dropLaneStrip() {
   const e = [];
   // The box runs to y=195.4, ~6 mm below the last tick (y=187), so the "18" label clears the bottom.
   e.push(`<rect x="0.6" y="0.6" width="148.8" height="194.8" fill="none" stroke="#2a5736" stroke-width="1.2" rx="2"/>`);
-  // centimeter edge: spine at x=34, mm ticks 0..180 (major every cm, mid every 5 mm)
+  // Centimeter edge: spine at x=34, mm ticks 0..180 (major every cm, mid every 5 mm).
   e.push(`<line x1="34" y1="7" x2="34" y2="187" stroke="#000" stroke-width="1.3"/>`);
   for (let mm = 0; mm <= 180; mm++) {
     const y = 7 + mm, major = mm % 10 === 0, mid = mm % 10 === 5;
@@ -170,7 +170,7 @@ export function dropLaneStrip() {
   for (let k = 0; k <= 18; k++) {   // numbers centered on their cm tick line, sitting left of the spine
     e.push(`<text x="29" y="${7 + k * 10}" text-anchor="end" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
   }
-  // inch edge (backup): spine at x=116, quarter-inch ticks 0..28 (major every inch, mid every half)
+  // Inch edge (backup): spine at x=116, quarter-inch ticks 0..28 (major every inch, mid every half).
   e.push(`<line x1="116" y1="7" x2="116" y2="187" stroke="#000" stroke-width="1.3"/>`);
   for (let q = 0; q <= 28; q++) {
     const y = r2(7 + q * 6.35), major = q % 4 === 0, half = q % 4 === 2;
@@ -179,7 +179,7 @@ export function dropLaneStrip() {
   for (let k = 0; k <= 7; k++) {   // inch numbers centered on their tick line, sitting right of the spine
     e.push(`<text x="121" y="${r2(7 + k * 25.4)}" text-anchor="start" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
   }
-  // launch line at 0 and the cm / in orientation labels
+  // Launch line at 0 and the cm / in orientation labels.
   e.push(`<line x1="30" y1="7" x2="120" y2="7" stroke="#000" stroke-width="2"/>`);
   e.push(`<text x="75" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">LAUNCH LINE</text>`);
   e.push(`<text x="62" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">&larr; cm</text>`);
@@ -486,21 +486,21 @@ export function ringCookie(widths, scar = -1) {
   const radii = widths.map((w) => { cum += w; return r0 + (cum / total) * (Rmax - r0); });
   const H = top + Rmax + 8;
   const arc = (r, sw) => `<path d="M ${r2(cx - r)} ${top} A ${r2(r)} ${r2(r)} 0 0 0 ${r2(cx + r)} ${top}" fill="none" stroke="#000" stroke-width="${sw}"/>`;
-  // filled half-annulus between inner radius ri and outer radius ro
+  // Filled half-annulus between inner radius ri and outer radius ro.
   const band = (ri, ro, fill) => `<path d="M ${r2(cx - ro)} ${top} A ${r2(ro)} ${r2(ro)} 0 0 0 ${r2(cx + ro)} ${top} L ${r2(cx + ri)} ${top} A ${r2(ri)} ${r2(ri)} 0 0 1 ${r2(cx - ri)} ${top} Z" fill="${fill}" stroke="none"/>`;
   const e = [];
-  // year bands, inner to outer, alternating tone
+  // Year bands, inner to outer, alternating tone.
   let prev = r0;
   radii.forEach((r, i) => { e.push(band(prev, r, i % 2 === 0 ? "#d6d6d6" : "#ffffff")); prev = r; });
-  // ring lines between years (the scarred year's outer line is bold)
+  // Ring lines between years (the scarred year's outer line is bold).
   radii.slice(0, -1).forEach((r, i) => e.push(arc(r, i === scar ? 2.6 : 1.1)));
-  // bold bark arc and the flat cut-face edge
+  // Bold bark arc and the flat cut-face edge.
   e.push(arc(Rmax, 2.8));
   e.push(`<line x1="${r2(cx - Rmax)}" y1="${top}" x2="${r2(cx + Rmax)}" y2="${top}" stroke="#000" stroke-width="1.6"/>`);
-  // pith hub (small white half-disk) and pith dot
+  // Pith hub (small white half-disk) and pith dot.
   e.push(`<path d="M ${r2(cx - r0)} ${top} A ${r2(r0)} ${r2(r0)} 0 0 0 ${r2(cx + r0)} ${top} Z" fill="#fff" stroke="#000" stroke-width="1.1"/>`);
   e.push(`<circle cx="${cx}" cy="${top}" r="2.8" fill="#000"/>`);
-  // scar: a solid wedge cut from the outer line of the scarred year inward
+  // Scar: a solid wedge cut from the outer line of the scarred year inward.
   if (scar >= 0 && scar < radii.length) {
     const ro = radii[scar], ri = scar === 0 ? r0 : radii[scar - 1];
     const y0 = top + ri, y1 = top + ro, halfw = 7;
