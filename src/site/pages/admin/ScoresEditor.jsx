@@ -1,8 +1,8 @@
 // Scores editor: add, edit, reorder, and remove the raw per-station scores that
 // drive the leaderboard. Each row points at a team (teamId), names the station
 // (code), and records the points earned. Rows have no id of their own, so the
-// list index is the React key. teamTotals() later keeps only each team's best 9
-// of 12, so the admin just enters every activity at face value here.
+// list index is the React key. teamTotals() later cancels each team's lowest
+// quarter of scores, so the admin just enters every activity at face value here.
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Btn } from "../../ui.jsx";
@@ -120,8 +120,8 @@ export default function ScoresEditor() {
     <div>
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
         Every activity is scored out of 100. Enter each station score here at face
-        value; only a team's best 9 of 12 count toward the standings, and that math
-        is automatic.
+        value; each team's lowest quarter of scores is canceled automatically and
+        shows crossed out on the leaderboard, so never pre-drop anything here.
       </div>
 
       {groups.length === 0 && (

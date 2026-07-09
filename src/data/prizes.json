@@ -1,6 +1,6 @@
 [
-  { "id": "pz-trees-podium", "name": "From Trees to Tech: Top Three", "tier": "Camp", "desc": "The three highest-scoring From Trees to Tech teams of the week.", "criteria": "Top three by best 9 of 12 station scores." },
+  { "id": "pz-trees-podium", "name": "From Trees to Tech: Top Three", "tier": "Camp", "desc": "The three highest-scoring From Trees to Tech teams of the week.", "criteria": "Top three after each team's lowest quarter of scores is canceled." },
   { "id": "pz-trees-growth", "name": "From Trees to Tech: Growth Award", "tier": "Growth", "desc": "The Trees team that climbed the most across the week.", "criteria": "Largest gain from early to late activities, including comeback bonuses." },
-  { "id": "pz-py-podium", "name": "PY-STEM: Top Three", "tier": "Camp", "desc": "The three highest-scoring PY-STEM teams of the week.", "criteria": "Top three by best 9 of 12 station scores." },
+  { "id": "pz-py-podium", "name": "PY-STEM: Top Three", "tier": "Camp", "desc": "The three highest-scoring PY-STEM teams of the week.", "criteria": "Top three after each team's lowest quarter of scores is canceled." },
   { "id": "pz-py-growth", "name": "PY-STEM: Growth Award", "tier": "Growth", "desc": "The PY-STEM team that climbed the most across the week.", "criteria": "Largest gain from early to late activities, including comeback bonuses." }
 ]

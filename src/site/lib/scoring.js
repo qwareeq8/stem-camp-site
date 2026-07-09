@@ -1,25 +1,52 @@
-// Leaderboard math shared by Home and Leaderboard. Per the competition rules,
-// only a team's best 9 station scores count toward the standings (12 primary
-// stations, plus any scored warm-up like PYS-00), so one rough activity does
-// not sink a team. teamTotals therefore sums each team's top scores up to
-// COUNTING_SCORES.
-export const COUNTING_SCORES = 9;
+// Leaderboard math shared by Home, Teams, and Leaderboard. Per the competition
+// rules, the lowest quarter of a team's station scores is canceled: with n
+// scores on the books, the floor(n/4) lowest are dropped and only the rest sum
+// into the total, so a few rough activities do not sink a team. With all 12
+// primary stations scored this is exactly the classic "best 9 of 12". Canceled
+// entries still appear in station lists, crossed out.
+export const DROP_FRACTION = 1 / 4;
 
-export function teamTotals(teams, scores, limit = COUNTING_SCORES) {
+// How many of a team's n scores are canceled.
+export function droppedCount(n) {
+  return Math.floor(n * DROP_FRACTION);
+}
+
+// Split one team's score entries into counted and dropped (canceled) sets.
+// The sort is deterministic (points descending, then station code) so a tie at
+// the cut line cancels the same entry everywhere on the site.
+export function splitScores(entries) {
+  const sorted = (entries || [])
+    .slice()
+    .sort(
+      (a, b) =>
+        (Number(b.points) || 0) - (Number(a.points) || 0) ||
+        String(a.code || "").localeCompare(String(b.code || "")),
+    );
+  const keep = sorted.length - droppedCount(sorted.length);
+  return { counted: sorted.slice(0, keep), dropped: sorted.slice(keep) };
+}
+
+export function teamTotals(teams, scores) {
   const byTeam = {};
   for (const s of scores) {
-    (byTeam[s.teamId] = byTeam[s.teamId] || []).push(Number(s.points) || 0);
+    (byTeam[s.teamId] = byTeam[s.teamId] || []).push(s);
   }
   return teams
     .map((t) => {
-      const pts = (byTeam[t.id] || []).slice().sort((a, b) => b - a);
-      const counted = pts.slice(0, limit);
-      const raw = counted.reduce((a, b) => a + b, 0);
+      const { counted, dropped } = splitScores(byTeam[t.id] || []);
+      const raw = counted.reduce((a, s) => a + (Number(s.points) || 0), 0);
       // Round the displayed total to 2 decimals so floating-point sums never
       // leak artifacts like 173.92000000000002 onto the leaderboard; raw
       // keeps the ranking exact.
       const total = Math.round(raw * 100) / 100;
-      return { ...t, raw, total, stations: pts.length, counted: counted.length };
+      return {
+        ...t,
+        raw,
+        total,
+        stations: counted.length + dropped.length,
+        counted: counted.length,
+        dropped: dropped.length,
+      };
     })
     .sort((a, b) => b.raw - a.raw || a.name.localeCompare(b.name));
 }

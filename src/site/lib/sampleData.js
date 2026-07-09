@@ -41,9 +41,12 @@ export const SAMPLE_MEMBERS = [
 ];
 
 export const SAMPLE_SCORES = [
+  // t-moss and t-photon carry a 4th score so the demo data exercises the
+  // lowest-quarter cancellation (floor(4/4) = 1 crossed-out entry each).
   { teamId: "t-moss", code: "TTT-01", points: 88 },
   { teamId: "t-moss", code: "TTT-02", points: 74 },
   { teamId: "t-moss", code: "TTT-03", points: 81 },
+  { teamId: "t-moss", code: "TTT-06", points: 58 },
   { teamId: "t-canopy", code: "TTT-01", points: 79 },
   { teamId: "t-canopy", code: "TTT-02", points: 90 },
   { teamId: "t-canopy", code: "TTT-04", points: 72 },
@@ -56,6 +59,7 @@ export const SAMPLE_SCORES = [
   { teamId: "t-photon", code: "PYS-07", points: 88 },
   { teamId: "t-photon", code: "PYS-10", points: 84 },
   { teamId: "t-photon", code: "PYS-01", points: 69 },
+  { teamId: "t-photon", code: "PYS-04", points: 61 },
   { teamId: "t-vector", code: "PYS-08", points: 80 },
   { teamId: "t-vector", code: "PYS-12", points: 86 },
   { teamId: "t-vector", code: "PYS-03", points: 75 },

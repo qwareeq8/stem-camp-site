@@ -1,0 +1,8 @@
+-- Sync the prize list and criteria to the live Supabase database.
+-- Safe to run any time: updates ONLY the 'prizes' collection; leaves teams,
+-- members, scores, tickets, and the store untouched. Run in the Supabase SQL
+-- editor or: psql "$DATABASE_URL" -f supabase/sync_prizes.sql
+-- Generated from src/data/prizes.json by tools/gen_sync.mjs.
+insert into public.collections (name, data)
+values ('prizes', $prizes$[{"id":"pz-trees-podium","name":"From Trees to Tech: Top Three","tier":"Camp","desc":"The three highest-scoring From Trees to Tech teams of the week.","criteria":"Top three after each team's lowest quarter of scores is canceled."},{"id":"pz-trees-growth","name":"From Trees to Tech: Growth Award","tier":"Growth","desc":"The Trees team that climbed the most across the week.","criteria":"Largest gain from early to late activities, including comeback bonuses."},{"id":"pz-py-podium","name":"PY-STEM: Top Three","tier":"Camp","desc":"The three highest-scoring PY-STEM teams of the week.","criteria":"Top three after each team's lowest quarter of scores is canceled."},{"id":"pz-py-growth","name":"PY-STEM: Growth Award","tier":"Growth","desc":"The PY-STEM team that climbed the most across the week.","criteria":"Largest gain from early to late activities, including comeback bonuses."}]$prizes$::jsonb)
+on conflict (name) do update set data = excluded.data;

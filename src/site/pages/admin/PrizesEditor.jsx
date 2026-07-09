@@ -54,7 +54,7 @@ export default function PrizesEditor() {
               label="Criteria"
               value={p.criteria}
               onChange={(v) => set(i, { criteria: v })}
-              placeholder="Top three by best 9 of 12 station scores."
+              placeholder="Top three after each team's lowest quarter of scores is canceled."
             />
           </div>
         </RowCard>

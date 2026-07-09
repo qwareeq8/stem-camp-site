@@ -1,10 +1,11 @@
 // Generate safe, per-collection sync SQL for the live Supabase database.
 // Each output file upserts ONLY its named collection (insert ... on conflict
 // (name) do update), so it refreshes published content -- the document library
-// (files) and the program schedule -- WITHOUT touching the participant
-// collections (teams, members, scores, tickets) or the ticket store.
+// (files), the program schedule, and the prize criteria -- WITHOUT touching
+// the participant collections (teams, members, scores, tickets) or the
+// ticket store.
 //
-// Run after editing src/data/files.json or src/data/schedule.json:
+// Run after editing src/data/files.json, schedule.json, or prizes.json:
 //   node tools/gen_sync.mjs
 // Then paste the regenerated file into the Supabase SQL editor (or psql).
 import fs from "node:fs";
@@ -18,6 +19,7 @@ const outDir = path.resolve(here, "..", "supabase");
 const SYNCS = [
   { name: "files", out: "sync_files.sql", title: "the published document library" },
   { name: "schedule", out: "sync_schedule.sql", title: "the program schedule" },
+  { name: "prizes", out: "sync_prizes.sql", title: "the prize list and criteria" },
 ];
 
 for (const s of SYNCS) {

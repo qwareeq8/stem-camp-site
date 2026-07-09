@@ -3,7 +3,7 @@
 // via teamTotals(); nothing is hardcoded.
 import { useState } from "react";
 import { useCollection } from "../lib/store.js";
-import { teamTotals, maxTotal, ticketBalances } from "../lib/scoring.js";
+import { teamTotals, maxTotal, ticketBalances, splitScores } from "../lib/scoring.js";
 import { Page, Card, Badge, SectionTitle, Progress, CampBadge, Empty } from "../ui.jsx";
 
 const FILTERS = [
@@ -44,7 +44,7 @@ export default function Leaderboard() {
     <Page
       eyebrow="Standings"
       title="Leaderboard"
-      sub="Every activity is scored out of 100; only a team's best 9 of 12 primary scores count toward the total. Rank is absolute across both camps; use the filter to focus on one."
+      sub="Every activity is scored out of 100; a team's lowest quarter of scores is canceled and does not count toward the total (canceled scores show crossed out below). Rank is absolute across both camps; use the filter to focus on one."
       actions={
         <div className="row" role="group" aria-label="Filter by camp">
           {FILTERS.map((f) => (
@@ -88,7 +88,10 @@ export default function Leaderboard() {
                       </div>
                       <div className="lb-progress-m"><Progress value={barPct(t.total)} max={100} /></div>
                       {t.motto && <div className="muted lb-motto" style={{ fontSize: 12 }}>{t.motto}</div>}
-                      <div className="mono muted" style={{ fontSize: 11, marginTop: 2 }}>{t.stations} stations scored</div>
+                      <div className="mono muted" style={{ fontSize: 11, marginTop: 2 }}>
+                        {t.stations} stations scored
+                        {t.dropped > 0 && <> &middot; lowest {t.dropped} canceled</>}
+                      </div>
                     </td>
                     <td><Progress value={barPct(t.total)} max={100} /></td>
                     <td className="mono" style={{ textAlign: "right", fontSize: lead ? 22 : 18, fontWeight: 600 }}>
@@ -109,6 +112,9 @@ export default function Leaderboard() {
         <div className="grid cols-3">
           {rows.map((t) => {
             const entries = byTeam[t.id] || [];
+            // Same entry objects flow into splitScores, so identity survives
+            // and the canceled set can be matched back to the rendered rows.
+            const canceled = new Set(splitScores(entries).dropped);
             return (
               <Card key={t.id}>
                 <div className="row">
@@ -123,17 +129,32 @@ export default function Leaderboard() {
                   <div className="muted" style={{ fontSize: 13, marginTop: 12 }}>No stations scored.</div>
                 ) : (
                   <div style={{ marginTop: 12 }}>
-                    {entries.map((s, i) => (
-                      <div
-                        key={s.code + "-" + i}
-                        className="row"
-                        style={{ padding: "7px 0", borderBottom: i < entries.length - 1 ? "1px solid var(--rule12)" : "none" }}
-                      >
-                        <Badge tone={t.camp === "trees" ? "trees" : "py"}>{s.code}</Badge>
-                        <span className="spacer" />
-                        <span className="mono" style={{ fontSize: 15, fontWeight: 600 }}>{s.points}</span>
-                      </div>
-                    ))}
+                    {entries.map((s, i) => {
+                      const out = canceled.has(s);
+                      return (
+                        <div
+                          key={s.code + "-" + i}
+                          className="row"
+                          style={{
+                            padding: "7px 0",
+                            borderBottom: i < entries.length - 1 ? "1px solid var(--rule12)" : "none",
+                          }}
+                        >
+                          <Badge tone={t.camp === "trees" ? "trees" : "py"}>{s.code}</Badge>
+                          <span className="spacer" />
+                          {out && (
+                            <span className="mono muted" style={{ fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", marginRight: 8 }}>
+                              canceled
+                            </span>
+                          )}
+                          {out ? (
+                            <s className="mono muted" style={{ fontSize: 15, fontWeight: 600 }}>{s.points}</s>
+                          ) : (
+                            <span className="mono" style={{ fontSize: 15, fontWeight: 600 }}>{s.points}</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </Card>
