@@ -39,7 +39,7 @@ export default function Schedule() {
     <Page
       eyebrow="Daily plan"
       title="Schedule"
-      sub="Two separate weeks at two campuses. Every activity is scored out of 100; each team's lowest quarter of scores is canceled and the rest count toward the leaderboard."
+      sub="Two separate weeks at two campuses. Every activity is scored out of 100 (the Friday Crank Championship is worth up to 300); each team's lowest quarter of scores is canceled and the rest count toward the leaderboard."
       actions={
         <div className="row" role="group" aria-label="Filter by camp">
           {FILTERS.map((f) => (

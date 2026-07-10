@@ -119,7 +119,8 @@ export default function ScoresEditor() {
   return (
     <div>
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
-        Every activity is scored out of 100. Enter each station score here at face
+        Every activity is scored out of 100, except the Crank Championship: enter it as
+        code CRANK with the judges' card total doubled (up to 300). Enter each station score here at face
         value; each team's lowest quarter of scores is canceled automatically and
         shows crossed out on the leaderboard, so never pre-drop anything here.
       </div>
