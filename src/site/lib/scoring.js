@@ -1,29 +1,40 @@
 // Leaderboard math shared by Home, Teams, and Leaderboard. Per the competition
 // rules, the lowest quarter of a team's station scores is canceled: with n
-// scores on the books, the floor(n/4) lowest are dropped and only the rest sum
-// into the total, so a few rough activities do not sink a team. With all 12
-// primary stations scored this is exactly the classic "best 9 of 12". Canceled
-// entries still appear in station lists, crossed out.
+// cancelable scores on the books, the floor(n/4) lowest are dropped and only
+// the rest sum into the total, so a few rough activities do not sink a team.
+// With all 12 primary stations scored this is exactly the classic "best 9 of
+// 12". Canceled entries still appear in station lists, crossed out.
+//
+// The Friday Crank Championship (code CRANK) always counts: teams built their
+// machines all week, so it is never canceled and it does not add to the count
+// the quarter is taken from.
 export const DROP_FRACTION = 1 / 4;
+export const ALWAYS_COUNTED_CODES = ["CRANK"];
 
-// How many of a team's n scores are canceled.
+const isAlwaysCounted = (s) =>
+  ALWAYS_COUNTED_CODES.includes(String(s.code || "").toUpperCase());
+
+// How many of a team's n cancelable scores are canceled.
 export function droppedCount(n) {
   return Math.floor(n * DROP_FRACTION);
 }
 
 // Split one team's score entries into counted and dropped (canceled) sets.
 // The sort is deterministic (points descending, then station code) so a tie at
-// the cut line cancels the same entry everywhere on the site.
+// the cut line cancels the same entry everywhere on the site. Always-counted
+// entries go straight to the counted set and never enter the drop pool.
 export function splitScores(entries) {
-  const sorted = (entries || [])
-    .slice()
-    .sort(
-      (a, b) =>
-        (Number(b.points) || 0) - (Number(a.points) || 0) ||
-        String(a.code || "").localeCompare(String(b.code || "")),
-    );
+  const byPoints = (a, b) =>
+    (Number(b.points) || 0) - (Number(a.points) || 0) ||
+    String(a.code || "").localeCompare(String(b.code || ""));
+  const all = (entries || []).slice();
+  const exempt = all.filter(isAlwaysCounted);
+  const sorted = all.filter((s) => !isAlwaysCounted(s)).sort(byPoints);
   const keep = sorted.length - droppedCount(sorted.length);
-  return { counted: sorted.slice(0, keep), dropped: sorted.slice(keep) };
+  return {
+    counted: exempt.concat(sorted.slice(0, keep)).sort(byPoints),
+    dropped: sorted.slice(keep),
+  };
 }
 
 export function teamTotals(teams, scores) {

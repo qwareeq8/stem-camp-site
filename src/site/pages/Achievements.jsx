@@ -65,7 +65,7 @@ export default function Achievements() {
       <div className="notice" role="note" style={{ marginBottom: 18 }}>
         Every activity is scored out of 100 points for design, clean data, teamwork, and explanation, not just
         the fastest finish. The one exception is the Friday Crank Championship, worth up to 300 points
-        because teams built their machines all week. A team's lowest quarter of scores is canceled (shown crossed out on the
+        because teams built their machines all week; it always counts and is never canceled. A team's lowest quarter of scores is canceled (shown crossed out on the
         leaderboard) and the rest count toward the standings, and a 20-point
         redesign improvement or a strong evidence defense earns a comeback bonus. Standings are posted as the
         top three plus a growth award per camp; individual score slips stay private.

@@ -122,7 +122,8 @@ export default function ScoresEditor() {
         Every activity is scored out of 100, except the Crank Championship: enter it as
         code CRANK with the judges' card total doubled (up to 300). Enter each station score here at face
         value; each team's lowest quarter of scores is canceled automatically and
-        shows crossed out on the leaderboard, so never pre-drop anything here.
+        shows crossed out on the leaderboard, so never pre-drop anything here. The
+        CRANK entry always counts; it is never part of the canceled quarter.
       </div>
 
       {groups.length === 0 && (
@@ -168,7 +169,7 @@ export default function ScoresEditor() {
                       value={score.points}
                       onChange={(v) => set(index, { points: v })}
                       min={0}
-                      max={100}
+                      max={String(group.code || "").toUpperCase() === "CRANK" ? 300 : 100}
                       step={1}
                       placeholder="0"
                     />

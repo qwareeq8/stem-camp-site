@@ -44,7 +44,7 @@ export default function Leaderboard() {
     <Page
       eyebrow="Standings"
       title="Leaderboard"
-      sub="Every activity is scored out of 100 except the Friday Crank Championship, which is worth up to 300; a team's lowest quarter of scores is canceled and does not count toward the total (canceled scores show crossed out below). Rank is absolute across both camps; use the filter to focus on one."
+      sub="Every activity is scored out of 100 except the Friday Crank Championship, which is worth up to 300 and always counts; a team's lowest quarter of other scores is canceled and does not count toward the total (canceled scores show crossed out below). Rank is absolute across both camps; use the filter to focus on one."
       actions={
         <div className="row" role="group" aria-label="Filter by camp">
           {FILTERS.map((f) => (
