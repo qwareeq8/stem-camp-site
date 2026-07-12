@@ -6,6 +6,7 @@ import { ExtraCER } from "./ExtraCER.jsx";
 import { ExtraCascade } from "./ExtraCascade.jsx";
 import { ExtraCenterMass } from "./ExtraCenterMass.jsx";
 import { ExtraChecksum } from "./ExtraChecksum.jsx";
+import { ExtraCipherRule } from "./ExtraCipherRule.jsx";
 import { ExtraCircuit } from "./ExtraCircuit.jsx";
 import { ExtraClump } from "./ExtraClump.jsx";
 import { ExtraControls } from "./ExtraControls.jsx";
@@ -13,6 +14,7 @@ import { ExtraCoolRoute } from "./ExtraCoolRoute.jsx";
 import { ExtraDecision } from "./ExtraDecision.jsx";
 import { ExtraDetect } from "./ExtraDetect.jsx";
 import { ExtraDomino } from "./ExtraDomino.jsx";
+import { ExtraEncode } from "./ExtraEncode.jsx";
 import { ExtraFoodWeb } from "./ExtraFoodWeb.jsx";
 import { ExtraForceMap } from "./ExtraForceMap.jsx";
 import { ExtraGap } from "./ExtraGap.jsx";
@@ -101,6 +103,8 @@ const EXTRAS = {
   "Force and direction": ExtraVector,
   "Check digits catch errors": ExtraChecksum,
   "Detect without false alarms": ExtraDetect,
+  "A cipher is a rule, not magic": ExtraCipherRule,
+  "Codes swap symbols, not meaning": ExtraEncode,
 };
 
 export { EXTRAS };

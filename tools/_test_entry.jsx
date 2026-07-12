@@ -16,6 +16,7 @@ const NAMES = [
   "ExtraHeatGrid", "ExtraCoolRoute", "ExtraPhotoO2", "ExtraControls",
   "ExtraPressure", "ExtraStress", "ExtraDomino", "ExtraGap",
   "ExtraPulley", "ExtraVector", "ExtraChecksum", "ExtraDetect",
+  "ExtraCipherRule", "ExtraEncode",
   "DemoMudwatt", "DemoCapillary", "DemoOobleck", "DemoSamara", "DemoTreering", "DemoLotus",
   "DemoMagnet", "DemoCam", "DemoWave", "DemoPinhole", "DemoHover", "DemoSpectra",
   "DemoBookbot", "DemoRamp",
