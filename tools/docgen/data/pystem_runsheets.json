@@ -168,5 +168,17 @@
    "Verify each corrupted card against the rule before printing.",
    "For fast teams, add tiered rounds to fill the 60-min block (CS Unplugged budgets ~30 min): warm-up verify-a-valid-code, timed hunt deck, then a 'design your own fake we can still catch' round (forces single-digit changes), then explain-the-rule."
   ]
+ },
+ "PYB-05": {
+  "title": "Code Break Cipher Relay",
+  "points": [
+   "The whole team solves; ONE rotating runner delivers the answer, whispered or shown written, so rival teams cannot fish. A wrong answer gets 'not yet' with unlimited retries and no penalty.",
+   "Four minutes per code, ten codes. First five correct teams earn 10/8/6/4/2; any later correct answer before time earns 1; unsolved earns 0. A perfect sweep is exactly 100, so totals enter the site as a normal out-of-100 station.",
+   "Dead heat at the judge table: both teams take the higher finish slot and the next slot is skipped.",
+   "The decoder sheet is fair game the whole time; knowing which tool to grab is the skill being scored. Codes get harder round by round, and code 10 rewards a team that splits the work.",
+   "Never hand-type a ciphertext. Every slip is computed from the plaintext by the cipher functions in the print builder, so the slips and the answer key can never disagree.",
+   "Code 7 (the acrostic) counts as correct as one word or two: GOTEAMS or GO TEAMS.",
+   "Rotate the runner every code so everyone runs at least once; log the finish order as answers arrive, not after time is called."
+  ]
  }
 }

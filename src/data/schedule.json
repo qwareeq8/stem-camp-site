@@ -130,13 +130,14 @@
     "camp": "pystem",
     "theme": "Algorithms, light, and showcase",
     "blocks": [
-      { "start": "09:00", "end": "10:20", "title": "BookBot Bin Logic Challenge", "code": "PYS-11", "camp": "pystem", "location": "University Library (tour at 10:00 AM)" },
-      { "start": "10:20", "end": "10:40", "title": "Break" },
-      { "start": "10:40", "end": "12:00", "title": "Spectra Sleuth Showdown", "code": "PYS-10", "camp": "pystem", "location": "College of Engineering" },
-      { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:20", "title": "Accessibility Ramp Rescue Lab", "code": "PYS-12", "camp": "pystem", "location": "College of Engineering" },
-      { "start": "14:20", "end": "14:40", "title": "Break" },
-      { "start": "14:40", "end": "16:00", "title": "Final showcase: Crank Championship (worth 300 points) and awards", "location": "College of Engineering" }
+      { "start": "09:00", "end": "10:00", "title": "Friday Crank Championship Work Session" },
+      { "start": "10:00", "end": "11:20", "title": "Automated Storage & Retrieval System (BookBot) Tour", "location": "Charles Library" },
+      { "start": "11:20", "end": "11:40", "title": "Break" },
+      { "start": "11:40", "end": "12:00", "title": "Friday Crank Championship Judging Panel", "location": "College of Engineering" },
+      { "start": "12:00", "end": "14:00", "title": "Lunch and Movie Time" },
+      { "start": "14:00", "end": "15:20", "title": "Code Break Cipher Relay", "code": "PYB-05", "camp": "pystem", "location": "College of Engineering" },
+      { "start": "15:20", "end": "15:40", "title": "Break" },
+      { "start": "15:40", "end": "16:00", "title": "Closing Ceremony", "location": "College of Engineering" }
     ]
   }
 ]

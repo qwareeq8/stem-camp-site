@@ -481,6 +481,151 @@ A product barcode has 12 digits. The last one is a <b>check digit</b> computed f
 <div class="bcard-grid">${cards}</div></div>`;
 }
 
+// ---------- PYB-05 code break decoder, slips, and answer key ----------
+// Every ciphertext is computed by a cipher function from the plaintext, never
+// typed by hand, so each printed slip decodes exactly to the answer on the
+// staff key. Ported from the operator-local live-run builder
+// (camp-prep/print/build_pystem_codes.mjs), which is the content source of
+// truth for the ten rounds.
+const CB_A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const cbEsc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const cbA1z26 = (t) => t.split(" ").map((w) => [...w].map((c) => CB_A.indexOf(c) + 1).join("-")).join(" / ");
+const cbCaesar = (t, k) => [...t].map((c) => (CB_A.includes(c) ? CB_A[(CB_A.indexOf(c) + k) % 26] : c)).join("");
+const cbAtbash = (t) => [...t].map((c) => (CB_A.includes(c) ? CB_A[25 - CB_A.indexOf(c)] : c)).join("");
+const cbReverse = (t) => [...t].reverse().join("");
+
+const CB_MORSE = {
+  A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.", H: "....",
+  I: "..", J: ".---", K: "-.-", L: ".-..", M: "--", N: "-.", O: "---", P: ".--.",
+  Q: "--.-", R: ".-.", S: "...", T: "-", U: "..-", V: "...-", W: ".--", X: "-..-",
+  Y: "-.--", Z: "--..",
+};
+const cbMorse = (t) => t.split(" ").map((w) => [...w].map((c) => CB_MORSE[c]).join(" ")).join("  /\n");
+
+// Classic 5x5 Polybius square; I and J share a cell.
+const CB_POLY = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+const cbPolybius = (t) => t.split(" ").map((w) =>
+  [...w].map((c) => {
+    const i = CB_POLY.indexOf(c === "J" ? "I" : c);
+    return `${Math.floor(i / 5) + 1}${(i % 5) + 1}`;
+  }).join(" ")).join("  /\n");
+
+const cbBinary5 = (t) => t.split(" ").map((w) =>
+  [...w].map((c) => (CB_A.indexOf(c) + 1).toString(2).padStart(5, "0")).join(" ")).join("  /\n");
+
+// The acrostic sentence; the answer is derived from its initials so the slip
+// and the key can never disagree.
+const CB_ACROSTIC = "Great Owls Think Extra And Measure Stuff.";
+const cbAcrosticAnswer = CB_ACROSTIC.replace(/[^A-Za-z ]/g, "").split(/\s+/).map((w) => w[0].toUpperCase()).join("");
+
+// The ten rounds, easiest to hardest.
+const CB_CODES = [
+  { n: 1, type: "Numbers to letters", answer: "SCIENCE IS A TEAM SPORT",
+    cipher: (p) => cbA1z26(p), hint: "Every number is a letter: 1 is A, 26 is Z." },
+  { n: 2, type: "Reversed text", answer: "WE WALK BETWEEN STATIONS",
+    cipher: (p) => cbReverse(p), hint: "Try reading it another way." },
+  { n: 3, type: "Caesar shift by 1", answer: "OOBLECK IS WEIRD",
+    cipher: (p) => cbCaesar(p, 1), hint: "Every letter slid one step forward. Slide it back." },
+  { n: 4, type: "Caesar shift by 3", answer: "TRUST YOUR DATA",
+    cipher: (p) => cbCaesar(p, 3), hint: "Caesar liked the number three." },
+  { n: 5, type: "Atbash mirror", answer: "LIGHT IS A WAVE",
+    cipher: (p) => cbAtbash(p), hint: "The alphabet is a mirror: A trades with Z, B trades with Y." },
+  { n: 6, type: "Morse code", answer: "SEND SNACKS",
+    cipher: (p) => cbMorse(p), hint: "Dots and dashes. The table is on your decoder sheet." },
+  { n: 7, type: "First letters", answer: cbAcrosticAnswer,
+    cipher: () => CB_ACROSTIC, hint: "First letters first." },
+  { n: 8, type: "Grid code (Polybius)", answer: "CHECK THE GRID",
+    cipher: (p) => cbPolybius(p), hint: "Two digits per letter: row, then column. Grid on your decoder sheet." },
+  { n: 9, type: "Binary (5 bits)", answer: "BOOKBOT",
+    cipher: (p) => cbBinary5(p), hint: "Five bits per letter. Table on your decoder sheet." },
+  { n: 10, type: "Two codes, one message", answer: "WE ARE PY STEM",
+    cipher: () => `${cbMorse("WE ARE")}\n${cbA1z26("PY STEM")}`,
+    hint: "Two codes on one slip, and you already beat both today. Split up and combine." },
+].map((c) => ({ ...c, text: c.cipher(c.answer) }));
+
+const CB_CSS = `
+.dec{border:1.2pt solid var(--camp-ink);border-radius:6pt;padding:8pt 10pt;margin-bottom:10pt;break-inside:avoid;}
+.dec-k{font-family:var(--mono);font-weight:700;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:var(--camp-acc);margin-bottom:5pt;}
+.dec table{width:100%;border-collapse:collapse;}
+.dec td{font-family:var(--mono);font-size:8pt;padding:1.5pt 3pt;white-space:nowrap;}
+.dec td.l{font-weight:700;color:var(--camp-ink);}
+.dec p{font-size:9pt;line-height:1.45;margin:0 0 5pt;}
+.dec p b{color:var(--camp-ink);}
+.dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10pt;}
+.poly{border-collapse:collapse;margin-top:2pt;}
+.poly td,.poly th{border:1pt solid var(--rule2);width:.32in;height:.3in;text-align:center;font-family:var(--mono);font-size:9pt;}
+.poly th{background:var(--camp-tint);color:var(--camp-acc);font-weight:700;}
+`;
+
+function codeBreakDecoder() {
+  const chunkRows = (cells, perRow) => {
+    const rows = [];
+    for (let i = 0; i < cells.length; i += perRow) rows.push(`<tr>${cells.slice(i, i + perRow).join("")}</tr>`);
+    return rows.join("");
+  };
+  const a1zRows = chunkRows([...CB_A].map((c, i) => `<td class="l">${c}</td><td>${i + 1}</td>`), 13);
+  const morseCells = [...CB_A].map((c) => `<td class="l">${c}</td><td>${CB_MORSE[c]}</td>`);
+  const morseRows = [0, 1, 2, 3].map((q) => {
+    const cells = [];
+    for (let i = q; i < 26; i += 4) cells.push(morseCells[i]);
+    return `<tr>${cells.join("")}</tr>`;
+  }).join("");
+  const polyRows = [0, 1, 2, 3, 4].map((r) =>
+    `<tr><th>${r + 1}</th>${[0, 1, 2, 3, 4].map((c) => `<td>${CB_POLY[r * 5 + c] === "I" ? "I/J" : CB_POLY[r * 5 + c]}</td>`).join("")}</tr>`).join("");
+  const binRows = chunkRows(
+    [...CB_A].map((c) => `<td class="l">${c}</td><td>${(CB_A.indexOf(c) + 1).toString(2).padStart(5, "0")}</td>`), 9);
+  return `<div class="sheet"><style>${CB_CSS}</style>
+${head("PY-STEM 2026 &middot; PYB-05 Code Break Cipher Relay", "Team decoder sheet")}
+<p class="note">One per team. Part of the game is knowing which tool fits which code. A <b>/</b> separates words on a slip.</p>
+<div class="dec"><div class="dec-k">Ways a message hides</div>
+<p><b>Shifted alphabet (Caesar):</b> every letter slides the same number of steps; slide it back. <b>Mirror (Atbash):</b> A trades with Z, B with Y, C with X, and so on inward. <b>Backwards:</b> read the whole thing in reverse. <b>First letters:</b> take the first letter of each word. When a slip shows numbers, dots, or bits, use the tables below.</p>
+</div>
+<div class="dec"><div class="dec-k">Numbers to letters</div><table>${a1zRows}</table></div>
+<div class="dec-grid">
+<div class="dec"><div class="dec-k">Morse code</div><table>${morseRows}</table></div>
+<div class="dec"><div class="dec-k">Grid code: row digit, then column digit</div>
+<table class="poly"><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>${polyRows}</table></div>
+</div>
+<div class="dec"><div class="dec-k">Binary: five bits per letter</div><table>${binRows}</table></div>
+</div>`;
+}
+
+function codeBreakSlips() {
+  const pages = CB_CODES.map((code, idx) => {
+    const longestRun = Math.max(...code.text.split(/[ \n]+/).map((w) => w.length));
+    const small = code.text.length > 90 || longestRun > 30;
+    const slip = `<div class="slip">
+<div class="se">PY-STEM Code Break &middot; Code ${code.n} of 10</div>
+<div class="ct${small ? " small" : ""}">${cbEsc(code.text)}</div>
+<div class="hint">Hint: ${cbEsc(code.hint)}</div>
+</div>`;
+    return `<div${idx > 0 ? ' class="pagebreak"' : ""}>
+<p class="note" style="margin-bottom:5pt">Code ${code.n} &middot; cut into six slips, one per team &middot; keep face down until GO</p>
+<div class="slips">${slip.repeat(6)}</div>
+</div>`;
+  }).join("");
+  return `<div class="sheet"><style>
+.slips{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;height:9.1in;}
+.slip{border:1pt dashed var(--rule2);padding:11pt 13pt;display:flex;flex-direction:column;}
+.slip .se{font-family:var(--mono);font-weight:700;font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--camp-acc);}
+.slip .ct{flex:1;display:flex;align-items:center;font-family:var(--mono);font-weight:700;font-size:12pt;line-height:1.55;color:var(--camp-ink);white-space:pre-wrap;}
+.slip .ct.small{font-size:9.5pt;}
+.slip .hint{font-family:var(--serif);font-style:italic;font-size:8.5pt;color:var(--ink2);border-top:1pt solid var(--rule2);padding-top:5pt;}
+</style>
+${pages}</div>`;
+}
+
+function codeBreakKey() {
+  const rows = CB_CODES.map((c) => `<tr><td>${c.n}</td><td>${cbEsc(c.type)}</td><td class="ct">${cbEsc(c.text)}</td><td class="ans">${cbEsc(c.answer)}</td></tr>`).join("");
+  return `<div class="sheet"><style>${CARD_CSS}
+.bkey td.ct{font-family:var(--mono);font-size:7.5pt;color:var(--ink2);white-space:pre-wrap;word-break:break-word;}
+.bkey td.ans{font-family:var(--serif);font-weight:600;font-size:10.5pt;color:var(--camp-ink);width:1.8in;}
+</style>
+${head("PY-STEM 2026 &middot; PYB-05 Code Break Cipher Relay", "Instructor answer key")}
+<p class="note">Keep this page with the judge. Accept the exact phrase, spoken or written; spacing and small slips of the tongue do not matter. Code 7 counts as correct as one word or two: ${cbEsc(cbAcrosticAnswer)} or GO TEAMS.</p>
+<table class="bkey"><tr><th>#</th><th>Code type</th><th>What the slip says</th><th>Answer</th></tr>${rows}</table></div>`;
+}
+
 // ---------- staff run-sheets ----------
 const SCIENCE = {
   "PYS-01": "Move a magnet under the board to drag a steel token through the maze with no contact (remote actuation, like a magnetically steered capsule endoscope).",
@@ -499,6 +644,7 @@ const SCIENCE = {
   "PYB-02": "A domino chain models a nerve signal. Taped rigid blocks 'jump' like myelinated segments to cross gaps faster.",
   "PYB-03": "A movable pulley trades distance for force (mechanical advantage). Measure effort with a spring scale and compare to theory.",
   "PYB-04": "A check digit (mod-10) catches a mistyped barcode. Score correct catches against false alarms.",
+  "PYB-05": "Ten ciphers, easiest to hardest (numbers, reverse, Caesar, Atbash, Morse, acrostic, grid, binary, a two-code finale). The decoder sheet is fair game; picking the right tool fast IS the skill.",
 };
 const PREP = {
   "PYS-01": "Laminate the maze boards (this packet). Pre-test a paperclip and each washer through the lamination with the 6 mm driver; glue a few drivers into a bottle cap so they are non-mouthable. LOCK the 200 tiny 2x1 mm magnets away from kids.",
@@ -517,10 +663,11 @@ const PREP = {
   "PYB-02": "28 tiles is enough for this BACKUP if teams run sequentially. Tape paper down first so tiles do not slide; gaps < a tile's height.",
   "PYB-03": "One pulley kit = one team. Rotate it as a demo, OR buy the 8-set kit for 4 parallel teams. Keep the load heavy enough that the spring scale reads clearly.",
   "PYB-04": "Build the deck by changing exactly ONE digit per 'fake' (100% caught by mod-10); avoid differ-by-5 adjacent transpositions. Print a pre-computed answer key. Pin 12-digit UPC-A format.",
+  "PYB-05": "Print the decoder sheet x6 and the ten slip pages x1, single-sided; cut each slip page into six, stack face down by round. Judge table gets the STAFF ONLY answer key and a score board. Never hand-type a ciphertext; the builder computes every slip from the plaintext.",
 };
 function runSheets() {
   const data = JSON.parse(fs.readFileSync(path.join(here, "data", "pystem_runsheets.json"), "utf8"));
-  const order = ["PYS-01", "PYS-02", "PYS-03", "PYS-04", "PYS-05", "PYS-06", "PYS-07", "PYS-08", "PYS-09", "PYS-10", "PYS-11", "PYS-12", "PYB-01", "PYB-02", "PYB-03", "PYB-04"];
+  const order = ["PYS-01", "PYS-02", "PYS-03", "PYS-04", "PYS-05", "PYS-06", "PYS-07", "PYS-08", "PYS-09", "PYS-10", "PYS-11", "PYS-12", "PYB-01", "PYB-02", "PYB-03", "PYB-04", "PYB-05"];
   const cards = order.map((c, idx) => {
     const a = data[c]; if (!a) return "";
     const pts = (a.points || []).map((p) => `<li>${p}</li>`).join("");
@@ -594,7 +741,7 @@ ${blocks}</div>`;
 // Staff-only compilation of the four instructor answer keys. Stays out of
 // public/files and files.json so answers never reach the public site library.
 function answerKeys() {
-  return [balanceCards("key"), slinkyCards("key"), museumClueCards("key"), barcodeDeck("key")]
+  return [balanceCards("key"), slinkyCards("key"), museumClueCards("key"), barcodeDeck("key"), codeBreakKey()]
     .join(`<div style="break-before:page"></div>`);
 }
 
@@ -614,6 +761,8 @@ const SHEETS = [
   { slug: "PYS_10_Museum_Clue_Cards", body: museumClueCards },
   { slug: "PYS_12_Ramp_Client_Spec_Cards", body: rampClientCards },
   { slug: "PYB_04_Barcode_Card_Deck", body: barcodeDeck },
+  { slug: "PYB_05_Code_Break_Decoder_Sheet", body: codeBreakDecoder },
+  { slug: "PYB_05_Code_Break_Code_Slips", body: codeBreakSlips },
   { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets },
   { slug: "PY_STEM_Instructor_Answer_Keys", body: answerKeys },
 ];

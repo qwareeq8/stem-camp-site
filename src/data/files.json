@@ -957,6 +957,28 @@
     "kind": "guide"
   },
   {
+    "id": "PYB-05-handout",
+    "name": "Code Break Cipher Relay",
+    "desc": "Crack ten ciphers and race the answer to the judge",
+    "type": "pdf",
+    "path": "files/PYB_05_Code_Break_Cipher_Relay_Student_Handout.pdf",
+    "camp": "pystem",
+    "code": "PYB-05",
+    "category": "Activity",
+    "kind": "handout"
+  },
+  {
+    "id": "PYB-05-guide",
+    "name": "Code Break Cipher Relay",
+    "desc": "Crack ten ciphers and race the answer to the judge",
+    "type": "pdf",
+    "path": "files/PYB_05_Code_Break_Cipher_Relay_Instructor_Guide.pdf",
+    "camp": "pystem",
+    "code": "PYB-05",
+    "category": "Activity",
+    "kind": "guide"
+  },
+  {
     "id": "pys-print-maze",
     "name": "Magnet Maze Boards",
     "desc": "Four laminate-ready mazes for the PYS-01 magnetic capsule station.",
@@ -1118,6 +1140,28 @@
     "path": "files/PYB_04_Barcode_Card_Deck.pdf",
     "camp": "pystem",
     "code": "PYB-04",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-decoder",
+    "name": "Code Break Decoder Sheet",
+    "desc": "Every decoding table for the PYB-05 cipher relay; print one per team.",
+    "type": "pdf",
+    "path": "files/PYB_05_Code_Break_Decoder_Sheet.pdf",
+    "camp": "pystem",
+    "code": "PYB-05",
+    "category": "Printable",
+    "kind": "print"
+  },
+  {
+    "id": "pys-print-codeslips",
+    "name": "Code Break Code Slips",
+    "desc": "Ten cipher slips for PYB-05; print once and cut each page into six.",
+    "type": "pdf",
+    "path": "files/PYB_05_Code_Break_Code_Slips.pdf",
+    "camp": "pystem",
+    "code": "PYB-05",
     "category": "Printable",
     "kind": "print"
   }
