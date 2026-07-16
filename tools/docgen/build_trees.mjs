@@ -30,6 +30,7 @@ import {
   treeRingAppendix,
   stomataCountAppendix,
   clinometerTanAppendix,
+  urbanHeatRouteMapAppendix,
   floatOffDataAppendix,
 } from "./team_tools.mjs";
 
@@ -69,11 +70,12 @@ body { --camp-ink:#2a5736; --camp-acc:#b04a2f; --camp-tint:#F1F0EC; --ink:#222; 
 .pagebreak { break-before: page; }
 `;
 
-function docHtml(bodyHtml) {
+function docHtml(bodyHtml, landscape = false) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 ${FACES}
 ${themeCss}
 ${PALETTE}
+${landscape ? "@page { size: letter landscape; }" : ""}
 </style></head><body>${bodyHtml}</body></html>`;
 }
 
@@ -100,6 +102,7 @@ const SHEETS = [
   { slug: "TTT_10_Tree_Ring_Cards_and_Boards", body: wrap(treeRingAppendix) },
   { slug: "TTT_12_Stomata_Counting_Sheet", body: wrap(stomataCountAppendix) },
   { slug: "TTB_02_Paper_Clinometer_and_Tan_Table", body: wrap(clinometerTanAppendix) },
+  { slug: "TTB_03_Urban_Heat_Route_Map_and_Field_Log", body: wrap(urbanHeatRouteMapAppendix), landscape: true },
   { slug: "TTB_04_Floating_Disk_Data_Table", body: wrap(floatOffDataAppendix) },
   { slug: "From_Trees_to_Tech_Instructor_Answer_Keys", body: wrap(answerKeys) },
 ];
@@ -112,10 +115,10 @@ async function main() {
   const report = [];
   for (const sheet of SHEETS) {
     if (filter && !sheet.slug.toLowerCase().includes(filter.toLowerCase())) continue;
-    await page.setContent(docHtml(sheet.body()), { waitUntil: "load" });
+    await page.setContent(docHtml(sheet.body(), !!sheet.landscape), { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const outPath = path.join(outDir, `${sheet.slug}.pdf`);
-    await page.pdf({ path: outPath, format: "Letter", printBackground: true,
+    await page.pdf({ path: outPath, format: "Letter", printBackground: true, landscape: !!sheet.landscape,
       margin: { top: "0.55in", bottom: "0.55in", left: "0.65in", right: "0.65in" } });
     report.push(`${sheet.slug}.pdf  ${Math.round(fs.statSync(outPath).size / 1024)} KB`);
   }

@@ -157,7 +157,9 @@ ${routeCard()}
 // are kept clear of the ticks and rings and the launch-line rule so the sheet
 // reads cleanly when printed at 100 percent. Exposed as seedDerbyAppendix();
 // build_trees.mjs renders it as the standalone TTT-03 printable.
-export function dropLaneStrip() {
+export function dropLaneStrip(startCm = 0) {
+  const segmentLengthCm = 18;
+  const endCm = startCm + segmentLengthCm;
   const e = [];
   // The box runs to y=195.4, ~6 mm below the last tick (y=187), so the "18" label clears the bottom.
   e.push(`<rect x="0.6" y="0.6" width="148.8" height="194.8" fill="none" stroke="#2a5736" stroke-width="1.2" rx="2"/>`);
@@ -167,23 +169,28 @@ export function dropLaneStrip() {
     const y = 7 + mm, major = mm % 10 === 0, mid = mm % 10 === 5;
     e.push(`<line x1="34" y1="${y}" x2="${major ? 50 : mid ? 43 : 39}" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
   }
-  for (let k = 0; k <= 18; k++) {   // numbers centered on their cm tick line, sitting left of the spine
-    e.push(`<text x="29" y="${7 + k * 10}" text-anchor="end" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
+  for (let k = 0; k <= segmentLengthCm; k++) {   // numbers centered on their cm tick line, sitting left of the spine
+    e.push(`<text x="29" y="${7 + k * 10}" text-anchor="end" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${startCm + k}</text>`);
   }
-  // Inch edge (backup): spine at x=116, quarter-inch ticks 0..28 (major every inch, mid every half).
+  // Inch edge (backup): preserve cumulative distance across sequential tiles.
   e.push(`<line x1="116" y1="7" x2="116" y2="187" stroke="#000" stroke-width="1.3"/>`);
-  for (let q = 0; q <= 28; q++) {
-    const y = r2(7 + q * 6.35), major = q % 4 === 0, half = q % 4 === 2;
+  const firstQuarterInch = Math.ceil((startCm / 2.54) * 4);
+  const lastQuarterInch = Math.floor((endCm / 2.54) * 4);
+  for (let q = firstQuarterInch; q <= lastQuarterInch; q++) {
+    const y = r2(7 + ((q / 4) * 25.4) - (startCm * 10));
+    const major = q % 4 === 0, half = q % 4 === 2;
     e.push(`<line x1="${major ? 100 : half ? 107 : 111}" y1="${y}" x2="116" y2="${y}" stroke="#000" stroke-width="${major ? 1.3 : 0.7}"/>`);
+    if (major) {
+      e.push(`<text x="121" y="${y}" text-anchor="start" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${q / 4}</text>`);
+    }
   }
-  for (let k = 0; k <= 7; k++) {   // inch numbers centered on their tick line, sitting right of the spine
-    e.push(`<text x="121" y="${r2(7 + k * 25.4)}" text-anchor="start" dominant-baseline="central" font-family="JetBrains Mono, monospace" font-size="5.5" font-weight="700" fill="#000">${k}</text>`);
-  }
-  // Launch line at 0 and the cm / in orientation labels.
+  // Every tile has an exact alignment edge; only tile 1 is the launch line.
   e.push(`<line x1="30" y1="7" x2="120" y2="7" stroke="#000" stroke-width="2"/>`);
-  e.push(`<text x="75" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">LAUNCH LINE</text>`);
+  e.push(`<line x1="30" y1="187" x2="120" y2="187" stroke="#000" stroke-width="2"/>`);
+  e.push(`<text x="75" y="19" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">${startCm === 0 ? "LAUNCH LINE" : `ALIGN AT ${startCm} CM`}</text>`);
   e.push(`<text x="62" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">&larr; cm</text>`);
   e.push(`<text x="88" y="40" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="700" fill="#000">in &rarr;</text>`);
+  e.push(`<text x="75" y="193" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="4.5" font-weight="700" fill="#000">CONTINUE AT ${endCm} CM</text>`);
   return `<svg viewBox="0 0 150 196" width="150mm" height="196mm" preserveAspectRatio="xMidYMin meet" style="display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg">${e.join("")}</svg>`;
 }
 
@@ -214,11 +221,12 @@ export function seedDerbyAppendix() {
     ["Ring 3", "Close to the center."],
     ["Ring 4", "Bullseye, right on the dot."],
   ].map(([t, d]) => `<div><b>${t}</b><br>${d}</div>`).join("");
+  const lanePages = [0, 18, 36, 54, 72, 90].map((startCm, index) => `${index > 0 ? `<div style="page-break-before:always"></div>` : ""}
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-03 Seed Dispersal Derby</div><div class="sheet-title">Drop-lane strip &middot; ${startCm}&ndash;${startCm + 18} cm</div></div>
+<p class="sd-note">Print at <b>100%</b>. ${index === 0 ? "Put 0 at the launch line." : `Align this page's ${startCm} cm edge with the previous page.`} Tape the pages flat in number order; use a long tape for a lane beyond 108 cm.</p>
+<div class="sd-sheet">${dropLaneStrip(startCm)}</div>`).join("");
   return `<div class="seed-derby"><style>${css}</style>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-03 Seed Dispersal Derby</div><div class="sheet-title">Drop-lane distance strip</div></div>
-<p class="sd-note">Tape the strip flat down the lane with the <b>0</b> end at the launch line.</p>
-<div class="sd-sheet">${dropLaneStrip()}</div>
-
+${lanePages}
 <div style="page-break-before:always"></div>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-03 Seed Dispersal Derby</div><div class="sheet-title">Landing-zone target</div></div>
 <p class="sd-note">Lay the target flat where staff pick down the lane and line the crosshairs up with the lane center. A higher ring number is a better landing.</p>
@@ -568,7 +576,7 @@ ${claimEvidenceCard()}`;
 const PN_PLANTS = [
   { n: "Serviceberry", l: "Amelanchier canadensis", bloom: ["sp"], poll: "native bees, bumble bees, flies", note: "One of the first trees to bloom each April." },
   { n: "Golden Alexanders", l: "Zizia aurea", bloom: ["sp", "su"], poll: "native bees, flies, beetles, butterflies", note: "Tiny yellow flowers feed early short-tongued insects." },
-  { n: "Eastern Redbud", l: "Cercis canadensis", bloom: ["sp"], poll: "native bees, bumble bees, butterflies", note: "Pink flowers on bare branches; early spring nectar and pollen for mason and bumble bees." },
+  { n: "Eastern Redbud", l: "Cercis canadensis", bloom: ["sp"], poll: "native bees, bumble bees, butterflies, hummingbirds", note: "Pink flowers on bare branches; early spring nectar and pollen for bees and migrating hummingbirds." },
   { n: "Butterfly Weed", l: "Asclepias tuberosa", bloom: ["su"], poll: "butterflies, native bees, hummingbirds", note: "Orange milkweed and a monarch caterpillar host." },
   { n: "Wild Bergamot", l: "Monarda fistulosa", bloom: ["su"], poll: "bumble bees, butterflies, hummingbirds", note: "Lavender tubes that long-tongued visitors love." },
   { n: "Black-eyed Susan", l: "Rudbeckia hirta", bloom: ["su", "fa"], poll: "native bees, butterflies, flies", note: "Golden petals with a dark center; a summer classic." },
@@ -588,10 +596,10 @@ const PN_PLANTS = [
 ];
 
 const PN_POLLINATORS = [
-  { n: "Native Bees", active: ["sp", "su", "fa"], visits: "Open daisy, mint, and clustered flowers with easy pollen.", note: "Most are solitary and do not sting." },
+  { n: "Native Bees", active: ["sp", "su", "fa"], visits: "Open daisy, mint, and clustered flowers with easy pollen.", note: "Most are solitary and rarely sting." },
   { n: "Bumble Bees", active: ["sp", "su", "fa"], visits: "Tube and hooded flowers like bergamot, reached with long tongues.", note: "Queens wake first and need early spring blooms." },
   { n: "Butterflies and Monarchs", active: ["sp", "su", "fa"], visits: "Flat-topped clusters and big landing-pad flowers.", note: "Monarchs fuel on fall asters before migrating." },
-  { n: "Hummingbirds", active: ["su", "fa"], visits: "Red and pink tubular flowers full of nectar.", note: "Long beaks reach where bees cannot." },
+  { n: "Hummingbirds", active: ["sp", "su", "fa"], visits: "Red and pink tubular flowers full of nectar.", note: "Spring migrants follow early flowers; long beaks reach where bees cannot." },
   { n: "Hoverflies and Flies", active: ["sp", "su", "fa"], visits: "Shallow open flowers like mountain mint.", note: "Hoverflies copy bees but cannot sting." },
   { n: "Beetles", active: ["sp", "su", "fa"], visits: "Flat, sturdy flower clusters they can crawl across.", note: "Some of Earth's oldest pollinators." },
 ];
@@ -616,14 +624,18 @@ const PN_CSS = `
 .pnc .pn-tag { font-size: 7.5pt; color: var(--ink2); margin-top: 4pt; font-style: italic; }
 .pnc .pn-native { float: right; font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: .08em; color: var(--camp-ink); border: 1pt solid var(--camp-ink); border-radius: 3pt; padding: 0 3pt; }
 .pnc .pn-foil { float: right; font-family: var(--mono); font-size: 6pt; font-weight: 700; letter-spacing: .08em; color: var(--camp-acc); border: 1pt solid var(--camp-acc); border-radius: 3pt; padding: 0 3pt; }
+.pnc .pn-code { display: inline-block; font-family: var(--mono); font-size: 6.4pt; font-weight: 700; color: var(--camp-acc); margin: 2pt 0 1pt; }
 .pnc table.pn-tbl { width: 100%; border-collapse: collapse; margin-top: 4pt; }
 .pnc table.pn-tbl th { font-family: var(--mono); font-size: 7.5pt; letter-spacing: .05em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 4pt 6pt; text-align: left; width: 33.33%; }
-.pnc table.pn-tbl td { border: 1pt solid #000; height: 1.15in; vertical-align: top; padding: 3pt; }
+.pnc table.pn-tbl td { border: 1pt solid #000; height: .47in; vertical-align: top; padding: 3pt; font-family: var(--mono); font-size: 6.4pt; color: var(--ink2); }
 .pnc table.pn-chk { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-top: 4pt; }
 .pnc table.pn-chk th { font-family: var(--mono); font-size: 7pt; letter-spacing: .04em; text-transform: uppercase; color: var(--camp-ink); border-bottom: 1.4pt solid #000; padding: 3pt 5pt; text-align: center; }
 .pnc table.pn-chk th.lh { text-align: left; }
 .pnc table.pn-chk td { border-bottom: 1pt solid #000; height: .34in; padding: 3pt 5pt; text-align: center; }
 .pnc table.pn-chk td.lh { text-align: left; font-size: 8.5pt; }
+.pnc table.pn-chk td.active { font-family: var(--mono); font-size: 7pt; }
+.pnc table.pn-chk td.inactive { color: var(--ink2); }
+.pnc .pn-clump { border: 1pt solid var(--rule2); border-radius: 4pt; padding: 5pt 7pt; margin: 6pt 0; font-size: 8.5pt; }
 `;
 
 function pnChips(active) {
@@ -633,8 +645,9 @@ function pnChips(active) {
 
 // Plant cards: cut apart. Each shows bloom seasons, who visits, and a fact.
 export function plantCards() {
-  const cards = PN_PLANTS.map((p) => `<div class="pn-card${p.native === false ? " foil" : ""}">
+  const cards = PN_PLANTS.map((p, index) => `<div class="pn-card${p.native === false ? " foil" : ""}">
 ${p.native === false ? `<span class="pn-foil">${p.badge}</span>` : `<span class="pn-native">Native</span>`}<div class="pn-name">${p.n}</div><div class="pn-latin">${p.l}</div>
+<div class="pn-code">PL-${String(index + 1).padStart(2, "0")}</div>
 <div class="pn-row"><b>Blooms</b></div>${pnChips(p.bloom)}
 <div class="pn-row"><b>Visited by</b> ${p.poll}</div>
 <div class="pn-tag">${p.note}</div>
@@ -661,14 +674,19 @@ export function pollinatorCards() {
 
 // Bloom board: place plants by season, then check every pollinator has food.
 export function bloomBoard() {
-  const chkRows = PN_POLLINATORS.map((p) =>
-    `<tr><td class="lh">${p.n}</td><td></td><td></td><td></td></tr>`).join("");
+  const gridRows = Array.from({ length: 4 }, (_, rowIndex) =>
+    `<tr>${PN_SEASONS.map(([, season]) => `<td>${rowIndex + 1}. ${season} plant ID/name: ____________________</td>`).join("")}</tr>`).join("");
+  const chkRows = PN_POLLINATORS.map((p) => `<tr><td class="lh">${p.n}</td>${PN_SEASONS.map(([code]) =>
+    p.active.includes(code)
+      ? `<td class="active">Plant ID: __________</td>`
+      : `<td class="inactive">not active</td>`).join("")}</tr>`).join("");
   return `<div class="pnc"><style>${PN_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-07 Pollinator Network</div><div class="sheet-title">Grid board</div></div>
-<p class="pn-note">Place your plant cards in the season they bloom (a plant that blooms twice can sit in two columns). Keep something in every column, and clump the same plant together.</p>
-<table class="pn-tbl"><thead><tr><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody><tr><td></td><td></td><td></td></tr></tbody></table>
+<p class="pn-note">Use the cards as references. Write a plant ID or name in each cell; repeat it to show multiple plants. Only write it in seasons shown on its card. A multi-season plant may appear in each matching column.</p>
+<table class="pn-tbl"><thead><tr><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody>${gridRows}</tbody></table>
+<div class="pn-clump"><b>Clump evidence:</b> I placed the same native plant in 3 edge-sharing cells. Plant ID/name ____________________ &nbsp; Cells ____________________</div>
 <h3>Pollinator food check</h3>
-<p class="pn-note" style="margin-top:0">Tick a box only if a plant in that season feeds this pollinator. Every pollinator should have a tick in each season it is active.</p>
+<p class="pn-note" style="margin-top:0">For every active season, write the ID of a plant in your grid that feeds that pollinator. Every active-season cell needs evidence; “not active” cells need none.</p>
 <table class="pn-chk"><thead><tr><th class="lh">Pollinator</th><th>Spring</th><th>Summer</th><th>Fall</th></tr></thead><tbody>${chkRows}</tbody></table>
 </div>`;
 }
@@ -683,24 +701,61 @@ ${pollinatorCards()}
 ${bloomBoard()}`;
 }
 
-// TTT-08 Arboretum Eco-Quest print pack: a cut-apart clue-card set, a tree
-// dichotomous key keyed to the route, a schematic route map, and a cut-apart
+// TTT-08 Arboretum Eco-Quest print pack: a cut-apart clue-card set, an
+// adaptive field evidence key, a location schematic, and a cut-apart
 // evidence-token sheet. Exposed as arboretumQuestAppendix() (student sheets
-// only), rendered standalone by build_trees.mjs. The instructor answer key is
+// only), rendered standalone by build_trees.mjs. The instructor setup key is
 // deliberately NOT in the pack: arboretumQuestAnswerKey() feeds the staff-only
 // From_Trees_to_Tech_Instructor_Answer_Keys.pdf, which never reaches
 // public/files or files.json.
-// A concrete route through real Ambler Arboretum collection areas (Temple
-// University Ambler). Locations are from the arboretum text map; the tree at
-// each area and its deciding clue drive the dichotomous key below. Staff confirm
-// the exact tagged tree and post on the ground, since specimens move over time.
+// Candidate checkpoints use names, descriptions, and coordinates from Temple
+// University's 2026 Ambler Arboretum visitor map and Arboretum Text Map. The
+// official map does not establish current closures, surface conditions, or an
+// accessible connection between every point. Staff therefore approve and mark
+// the actual route on site before releasing teams.
 const AQ_ROUTE = [
-  { area: "Pinetum", loc: "south of the Learning Center, along Loop Drive", tree: "Eastern white pine", clue: "needles in soft bundles of five" },
-  { area: "Oak Canopy", loc: "southeast of the Research and Collaboration Building", tree: "Oak (Bender oak)", clue: "alternate leaf with rounded or pointed lobes; acorns" },
-  { area: "Beech Grove", loc: "west of Dixon Hall, across the bluestone Accessible Path", tree: "American beech", clue: "smooth gray bark and long, pointed buds" },
-  { area: "Native Formal Garden", loc: "southeast of Dixon Hall; the black gum allee", tree: "Black gum", clue: "alternate glossy leaves, dark blocky bark, brilliant red fall color" },
-  { area: "Trident maple", loc: "a Delaware Valley tree-of-record; staff mark its post", tree: "Trident maple", clue: "opposite leaves with three palm-like lobes" },
-  { area: "Katsura", loc: "a Delaware Valley tree-of-record; staff mark its post", tree: "Katsura", clue: "opposite heart-shaped leaves with a smooth edge" },
+  {
+    area: "Pinetum",
+    loc: "South of the Learning Center, along Loop Drive",
+    coordinates: "40.1646640, -75.1895180",
+    x: 520,
+    y: 260,
+  },
+  {
+    area: "Oak Canopy",
+    loc: "Southeast of the Ambler Research and Collaboration Building",
+    coordinates: "40.1657442, -75.1899040",
+    x: 470,
+    y: 135,
+  },
+  {
+    area: "Maple Canopy",
+    loc: "Between the Ambler Research and Collaboration Building and the Learning Center",
+    coordinates: "40.1661009, -75.1899147",
+    x: 470,
+    y: 65,
+  },
+  {
+    area: "Aesculus Grove",
+    loc: "North of Bright Hall and southwest of the Ambler Research and Collaboration Building",
+    coordinates: "40.1657401, -75.1908910",
+    x: 320,
+    y: 135,
+  },
+  {
+    area: "Columnar Copse",
+    loc: "South of Widener Hall",
+    coordinates: "40.1657996, -75.1918459",
+    x: 205,
+    y: 125,
+  },
+  {
+    area: "Beech Grove",
+    loc: "West of Dixon Hall, across the bluestone Accessible Path",
+    coordinates: "40.1655580, -75.1932590",
+    x: 70,
+    y: 155,
+  },
 ];
 const AQ_CHECKPOINTS = AQ_ROUTE.length;
 
@@ -711,61 +766,68 @@ export function questClueCards() {
 <div class="aq-card-h"><span class="aq-cp">Checkpoint ${n}</span><span class="aq-tok">token &#9711;</span></div>
 <div class="aq-fill"><b>${area}</b><br><span class="aq-loc">${loc}</span></div>
 <div class="aq-work">
-  <div>Identify the tagged tree here. Your ID: <span class="aq-line"></span></div>
-  <div class="aq-clue">Deciding clue (circle one): &nbsp; leaf &nbsp;&middot;&nbsp; bark &nbsp;&middot;&nbsp; branching &nbsp;&middot;&nbsp; seed</div>
+  <div>Staff tag or plant-label ID: <span class="aq-line"></span></div>
+  <div>Tree name from the approved route key or label: <span class="aq-line"></span></div>
+  <div class="aq-clue">Evidence-key path: <span class="aq-line"></span></div>
   <div>The specific feature you saw: <span class="aq-line"></span></div>
 </div></div>`;
   }).join("");
   return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Checkpoint clue cards</div></div>
-<p class="aq-note">Cut the cards apart. Each card names an arboretum area: walk there, identify the tagged tree with your dichotomous key, and record the one clue that decided it.</p>
+<p class="aq-note">Cut the cards apart. Follow only the staff-marked route to each named collection area. Match the numbered field tag, record the approved tree name, and use the evidence key to document the feature you observed. If a tag or label is missing, write <b>unverified</b> instead of guessing.</p>
 <div class="aq-grid">${cards}</div>`;
 }
 
 export function questKey() {
   const couplets = [
-    ["1a", "Leaves are needles in soft bundles (evergreen)", "Eastern white pine"],
-    ["1b", "Leaves are broad and flat", "go to 2"],
-    ["2a", "Leaves grow in opposite pairs", "go to 3"],
-    ["2b", "Leaves grow alternately (staggered)", "go to 4"],
-    ["3a", "Leaf is one blade with three palm-like lobes", "Trident maple"],
-    ["3b", "Leaf is a single blade, heart-shaped, edge smooth", "Katsura"],
-    ["4a", "Leaf edge is lobed; acorns on or under the tree", "Oak"],
-    ["4b", "Leaf edge is smooth or finely toothed", "go to 5"],
-    ["5a", "Bark smooth gray, buds long and pointed", "American beech"],
-    ["5b", "Leaf glossy, bark dark and blocky, red fall color", "Black gum"],
+    ["1a", "Foliage is needle-like or scale-like", "go to 2"],
+    ["1b", "Leaves are broad and flat", "go to 3"],
+    ["2a", "Needles occur in bundles or clusters", "record: bundled needles"],
+    ["2b", "Needles attach singly, or foliage is scale-like", "record: single needles / scales"],
+    ["3a", "Leaves attach in opposite pairs", "go to 4"],
+    ["3b", "Leaves attach alternately along the twig", "go to 5"],
+    ["4a", "Each leaf has one blade", "record: opposite + simple"],
+    ["4b", "Each leaf has multiple leaflets", "record: opposite + compound"],
+    ["5a", "Each leaf has one blade", "go to 6"],
+    ["5b", "Each leaf has multiple leaflets", "record: alternate + compound"],
+    ["6a", "Blade has lobes", "record: alternate + simple + lobed"],
+    ["6b", "Blade has no lobes", "record: alternate + simple + unlobed"],
   ];
   const rows = couplets.map(([k, test, res]) =>
     `<tr><td class="aq-k">${k}</td><td>${test}</td><td class="aq-r">${res}</td></tr>`).join("");
   return `<div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Tree dichotomous key</div></div>
-<p class="aq-note">Keyed to the six trees on this route. Start at step 1 and follow the choice that matches what you see; keep going until you land on a tree name.</p>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Adaptive field evidence key</div></div>
+<p class="aq-note">This adaptive evidence key records visible traits; it does not prove a species name. Start at step 1, record the path you follow, then match the numbered field tag to the staff-approved route key or visible plant label. Staff may substitute a host-verified species key.</p>
 <table class="aq-key"><thead><tr><th>Step</th><th>What to look for</th><th>Then</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 export function questRouteMap() {
-  const markers = AQ_ROUTE.map(({ area }, i) => {
-    const n = i + 1, x = 70 + (i % 3) * 190, y = 95 + Math.floor(i / 3) * 150;
+  const markers = AQ_ROUTE.map(({ area, x, y }, i) => {
+    const n = i + 1;
     return `<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#2a5736" stroke-width="2"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-family="Inter, sans-serif" font-size="15" font-weight="700" fill="#2a5736">${n}</text><text x="${x}" y="${y + 30}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9.5" font-weight="600" fill="#2a5736">${area}</text>`;
   }).join("");
-  const list = AQ_ROUTE.map(({ area, loc }, i) => `<li><b>${i + 1}. ${area}</b> &mdash; ${loc}</li>`).join("");
+  const list = AQ_ROUTE.map(({ area, loc, coordinates }, i) => `<li><b>${i + 1}. ${area}</b> &mdash; ${loc}<br><span class="aq-coord">Map check: ${coordinates}</span></li>`).join("");
   return `<div style="page-break-before:always"></div>
-<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Route map</div></div>
-<p class="aq-note">Six checkpoints through the Ambler Arboretum collection areas. Walk them in an order that avoids backtracking. The layout below is a schematic, not a to-scale path: a numbered post on the ground marks each checkpoint, and the list under the map tells you where each area is.</p>
-<svg viewBox="0 0 620 400" style="width:6.5in;display:block;margin:6pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
-<rect x="18" y="18" width="584" height="364" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
-<text x="34" y="40" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#2a5736">START / FINISH</text>
-<circle cx="40" cy="55" r="7" fill="#2a5736"/>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Adaptive route plan</div></div>
+<div class="aq-field-check"><b>FIELD VERIFICATION REQUIRED.</b> Before teams use this sheet, staff must prewalk the route with the Ambler host, confirm each numbered tag and plant label, mark the approved paths plus start/finish, and provide an alternate for any closed, uneven, or inaccessible segment. Temple notes that only portions of the gardens are accessible and some natural areas have uneven terrain.</div>
+<div class="aq-route-meta"><span>Camp base / start / finish: ______________________________</span><span>Approved checkpoint order: ______________________________</span><span>Closed or no-go areas: __________________________________</span><span>Accessible alternate(s): _________________________________</span></div>
+<p class="aq-note">The checkpoint positions below are a location schematic based on Temple's current map coordinates. <b>No walking paths are shown.</b> Use the staff-marked official visitor map and field markers for the actual route.</p>
+<svg viewBox="0 0 620 310" role="img" aria-label="Schematic positions of six Ambler Arboretum collection-area checkpoints; no walking paths shown" style="width:6.5in;display:block;margin:5pt auto;border:1.2pt solid var(--rule2);border-radius:4pt" xmlns="http://www.w3.org/2000/svg">
+<rect x="18" y="18" width="584" height="274" fill="none" stroke="#cfcabf" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="34" y="40" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2a5736">SCHEMATIC COLLECTION POSITIONS &middot; NO PATHS SHOWN</text>
+<path d="M578 58 L586 32 L594 58 L586 52 Z" fill="#2a5736"/><text x="586" y="26" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#2a5736">N</text>
 ${markers}
 </svg>
-<ol class="aq-routelist">${list}</ol>`;
+<ol class="aq-routelist">${list}</ol>
+<p class="aq-source">Location names, descriptions, and coordinates: Temple University Ambler, <b>2026 Ambler Arboretum Visitor Map</b> and <b>Arboretum Text Map</b> (ambler.temple.edu/arboretum-text-map). Coordinates are for staff cross-checking, not permission to leave the marked route. Stay on designated paths, remain with your team, do not climb trees, and do not pick plant material.</p>`;
 }
 
 export function questAnswerKey() {
-  const rows = AQ_ROUTE.map(({ area, tree, clue }, i) =>
-    `<tr><td class="aq-k">${i + 1}</td><td>${area}</td><td class="aq-r">${tree}</td><td>${clue}</td></tr>`).join("");
-  return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Instructor answer key (do not hand out)</div></div>
-<p class="aq-note">Keep this with the instructor. The expected tree at each checkpoint and the clue that decides it. If a tagged specimen has changed, update the checkpoint and the matching couplet in the key.</p>
-<table class="aq-key"><thead><tr><th>CP</th><th>Area</th><th>Expected tree</th><th>Deciding clue</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rows = AQ_ROUTE.map(({ area, loc }, i) =>
+    `<tr><td class="aq-k">${i + 1}</td><td>${area}<br><span class="aq-loc">${loc}</span></td><td></td><td></td><td></td></tr>`).join("");
+  return `<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-08 Arboretum Eco-Quest</div><div class="sheet-title">Instructor route setup and answer key (do not hand out)</div></div>
+<div class="aq-field-check"><b>COMPLETE ON SITE BEFORE RELEASE.</b> This is a candidate checkpoint set, not proof of a safe route or of a particular specimen. Prewalk with the Ambler host; place one numbered tag at the path edge in each approved area; copy the exact plant label or host-confirmed name below; record an accepted evidence-key path; and document an accessible alternate. Remove or replace any checkpoint that cannot be verified.</div>
+<table class="aq-key aq-staff-key"><thead><tr><th>CP</th><th>Official area</th><th>Numbered tag + exact tree name</th><th>Accepted key path / feature</th><th>Approach open + alternate</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="aq-source">Do not award tree-ID accuracy from a guessed species list. If the tag, label, route, or access condition cannot be confirmed that day, mark the checkpoint closed and use the documented alternate.</p>`;
 }
 
 export function questTokens() {
@@ -791,9 +853,14 @@ const AQ_CSS = `
 .aq-apx .aq-fill b { color: var(--camp-ink); }
 .aq-apx .aq-loc { font-size: 8pt; color: var(--ink2); }
 .aq-apx .aq-line { display: inline-block; min-width: 40%; border-bottom: 0.8pt solid var(--rule2); }
-.aq-apx ol.aq-routelist { margin: 8pt 0 0 16pt; font-size: 9pt; color: var(--ink); }
-.aq-apx ol.aq-routelist li { margin: 2pt 0; }
+.aq-apx .aq-field-check { border: 1.4pt solid var(--camp-acc); border-left-width: 5pt; background: #fff9eb; color: var(--ink); font-size: 8.4pt; line-height: 1.35; padding: 6pt 8pt; margin: 0 0 6pt; }
+.aq-apx .aq-field-check b { color: var(--camp-ink); }
+.aq-apx .aq-route-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4pt 12pt; font-family: var(--mono); font-size: 7.7pt; margin: 5pt 0 6pt; }
+.aq-apx ol.aq-routelist { columns: 2; column-gap: 22pt; margin: 5pt 0 0 16pt; font-size: 8.2pt; color: var(--ink); }
+.aq-apx ol.aq-routelist li { break-inside: avoid; margin: 0 0 4pt; }
 .aq-apx ol.aq-routelist b { color: var(--camp-ink); }
+.aq-apx .aq-coord { color: var(--ink2); font-family: var(--mono); font-size: 7.2pt; }
+.aq-apx .aq-source { color: var(--ink2); font-size: 7.4pt; line-height: 1.35; margin: 6pt 0 0; }
 .aq-apx .aq-work > div { font-size: 9pt; margin: 5pt 0; }
 .aq-apx .aq-clue { color: var(--camp-ink); font-weight: 600; }
 .aq-apx table.aq-key { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
@@ -801,6 +868,13 @@ const AQ_CSS = `
 .aq-apx table.aq-key td { border-bottom: 0.7pt solid var(--rule2); padding: 4pt 8pt; vertical-align: top; }
 .aq-apx table.aq-key td.aq-k { font-family: var(--mono); font-weight: 700; color: var(--camp-acc); width: 12%; }
 .aq-apx table.aq-key td.aq-r { font-family: var(--serif); color: var(--camp-ink); width: 26%; }
+.aq-apx table.aq-staff-key { font-size: 8.5pt; table-layout: fixed; }
+.aq-apx table.aq-staff-key td { height: 0.62in; }
+.aq-apx table.aq-staff-key th:nth-child(1) { width: 6%; }
+.aq-apx table.aq-staff-key th:nth-child(2) { width: 21%; }
+.aq-apx table.aq-staff-key th:nth-child(3) { width: 24%; }
+.aq-apx table.aq-staff-key th:nth-child(4) { width: 23%; }
+.aq-apx table.aq-staff-key th:nth-child(5) { width: 26%; }
 .aq-apx .aq-tokgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5pt; }
 .aq-apx .aq-tokcell { border: 1pt dashed var(--camp-ink); border-radius: 5pt; padding: 9pt 2pt; text-align: center; break-inside: avoid; }
 .aq-apx .aq-tokleaf { display: block; font-size: 15pt; }
@@ -865,7 +939,7 @@ export function resilienceGridAppendix() {
 <div class="rg-legend"><div class="rg-h">Feature legend &mdash; label each on the grid</div><ul>${legend}</ul></div>
 <div class="rg-grid"><svg viewBox="-1 -1 ${W + 2} ${H + 2}">${g}</svg></div>
 </div>
-<p class="rg-note" style="margin-top:6pt">Scored on biodiversity support, resilience features, realism, and how well you explain each choice &mdash; not on looks.</p>`;
+<p class="rg-note" style="margin-top:6pt">Scored on resilience features, biodiversity support, realism, explanation, and <b>build polish</b>: make the grid clear, complete, and readable. Decoration never outweighs ecological strategy.</p>`;
 }
 
 // TTT-12 Leaf Stomata Microscope Detective counting sheet: a field-of-view
@@ -958,6 +1032,67 @@ ${clinometerSvg()}
 <div class="cl-tans">${tanTable(tan.slice(0, half))}${tanTable(tan.slice(half))}</div>
 <p class="cl-eg">Example: eye height 1.5 m, distance 15 m, angle 40&deg; gives 1.5 + 15 &times; 0.84 = about 14.1 m.</p></div>
 </div>`;
+}
+
+// TTB-03 Urban Heat Shade Dash route map and field log. The source activity
+// requires a local campus map or route card, so this deliberately stays
+// location-neutral: the instructor marks the current safe boundary, start,
+// and finish before teams leave, while teams add their measured surfaces and
+// evidence-backed cool corridor. Exposed as urbanHeatRouteMapAppendix();
+// build_trees.mjs renders it as a standalone landscape printable.
+export function urbanHeatRouteMapAppendix() {
+  const gridLines = Array.from({ length: 17 }, (_, i) => {
+    const x = 24 + i * 29.5;
+    return `<line x1="${x}" y1="18" x2="${x}" y2="300"/>`;
+  }).concat(Array.from({ length: 11 }, (_, i) => {
+    const y = 18 + i * 28.2;
+    return `<line x1="24" y1="${y}" x2="496" y2="${y}"/>`;
+  })).join("");
+  const rows = Array.from({ length: 4 }, (_, i) => `<tr><td>${i + 1}</td><td></td><td></td><td></td><td></td></tr>`).join("");
+  const css = `
+.uh-apx .uh-note { color: var(--ink2); font-size: 8.5pt; margin: 0 0 5pt; }
+.uh-apx .uh-meta { display: flex; gap: 18pt; font-family: var(--mono); font-size: 8.5pt; margin: 4pt 0 7pt; }
+.uh-apx .uh-layout { display: grid; grid-template-columns: 1.62fr 1fr; gap: 12pt; align-items: start; }
+.uh-apx .uh-map { border: 1.2pt solid var(--camp-ink); border-radius: 6pt; padding: 6pt; }
+.uh-apx .uh-map svg { display: block; width: 100%; height: 3.75in; }
+.uh-apx .uh-legend { display: flex; flex-wrap: wrap; gap: 4pt 12pt; margin-top: 4pt; font-size: 7.8pt; color: var(--ink2); }
+.uh-apx .uh-legend b { color: var(--camp-ink); }
+.uh-apx .uh-side { display: flex; flex-direction: column; gap: 7pt; }
+.uh-apx .uh-box { border: 1pt solid var(--rule2); border-radius: 6pt; padding: 6pt 7pt; break-inside: avoid; }
+.uh-apx .uh-h { font-family: var(--mono); font-size: 7.5pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--camp-acc); margin-bottom: 4pt; }
+.uh-apx table.uh-t { width: 100%; border-collapse: collapse; font-size: 7.8pt; }
+.uh-apx table.uh-t th { background: var(--camp-ink); color: #fff; padding: 3pt 4pt; font-size: 6.8pt; line-height: 1.2; }
+.uh-apx table.uh-t td { border: .65pt solid var(--rule2); height: .29in; padding: 2pt 3pt; text-align: center; }
+.uh-apx table.uh-t td:first-child { font-family: var(--mono); font-weight: 700; color: var(--camp-ink); width: 7%; }
+.uh-apx .uh-line { border-bottom: .8pt solid var(--rule2); min-height: 15pt; margin-top: 2pt; font-size: 7.8pt; }
+.uh-apx .uh-safe { font-size: 8pt; border-left: 3pt solid var(--camp-acc); padding-left: 6pt; color: var(--ink2); }
+`;
+  return `<div class="uh-apx"><style>${css}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTB-03 Urban Heat Shade Dash</div><div class="sheet-title">Route map and field log</div></div>
+<p class="uh-note"><b>Before teams leave:</b> the instructor marks the safe walking boundary, start, finish, and any no-go areas on every copy. Teams then map matched sunny and shaded surfaces, draw the direct path with a dashed line, and draw their cooler route with a solid line.</p>
+<div class="uh-meta"><span>Team ____________________</span><span>Date/time ____________________</span><span>Sky: sunny / mixed / cloudy</span></div>
+<div class="uh-layout">
+<div class="uh-map"><div class="uh-h">Field map &mdash; label measurement stops 1 to 4</div>
+<svg viewBox="0 0 520 318" role="img" aria-label="Blank gridded field map">
+<rect x="24" y="18" width="472" height="282" rx="4" fill="#fff" stroke="#2a5736" stroke-width="1.5"/>
+<g stroke="#dedad1" stroke-width="0.8">${gridLines}</g>
+<path d="M472 55 L486 24 L500 55 L486 48 Z" fill="#2a5736"/><text x="486" y="16" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#2a5736">N</text>
+<text x="260" y="160" text-anchor="middle" font-family="Inter" font-size="12" fill="#9a958b">Sketch buildings, paths, trees, shade, and safe boundaries here</text>
+</svg>
+<div class="uh-legend"><span><b>S / E</b> instructor-marked start and finish</span><span><b>1&ndash;4</b> paired measurement stops</span><span><b>////</b> shade</span><span><b>△</b> tree</span><span><b>▭</b> building</span><span><b>- - -</b> direct path</span><span><b>&mdash;</b> cool corridor</span></div></div>
+<div class="uh-side">
+<div class="uh-box"><div class="uh-h">Matched surface temperatures</div>
+<table class="uh-t"><thead><tr><th>#</th><th>Same surface type</th><th>Sun &deg;F / &deg;C</th><th>Shade &deg;F / &deg;C</th><th>Gap</th></tr></thead><tbody>${rows}</tbody></table>
+<div class="uh-note" style="margin-top:4pt">At each stop, compare the same surface type from the same distance. Circle one unit and use it throughout.</div></div>
+<div class="uh-box"><div class="uh-h">Route evidence</div>
+<div class="uh-line">Hottest point on the direct path: ____________________</div>
+<div class="uh-line">Hottest point on our cool corridor: _________________</div>
+<div class="uh-line">Our route reduces peak surface temperature by: ______</div>
+<div class="uh-line">Distance or convenience tradeoff: __________________</div>
+<div class="uh-line">Evidence sentence: _________________________________</div>
+<div class="uh-line">__________________________________________________</div></div>
+<div class="uh-safe"><b>Field safety:</b> stay with your buddy, remain inside the marked boundary, walk, hydrate, and aim the IR thermometer at surfaces only &mdash; never at eyes.</div>
+</div></div></div>`;
 }
 
 // TTB-04 Photosynthesis Float-Off Playoffs data table: the minute-by-minute

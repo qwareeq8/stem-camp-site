@@ -94,7 +94,9 @@ export default function AwardsEditor() {
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
         These are the camp's daily and final awards. Give each one a name, an icon,
         and a short description, then add roster aliases or whole teams as recipients.
-        Use Count when the same person or team earns it more than once.
+        Use Count when the same person or team earns it more than once. At final
+        closeout, Save this tab, verify the public Achievements page, then use
+        Advanced to download achievements.json before logging out.
       </div>
 
       {awards.length === 0 && <EmptyRows>No awards yet. Add the first award to get started.</EmptyRows>}

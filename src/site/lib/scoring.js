@@ -1,9 +1,12 @@
-// Leaderboard math shared by Home, Teams, and Leaderboard. Per the competition
-// rules, the lowest quarter of a team's station scores is canceled: with n
+// Leaderboard math shared by Home, Teams, and Leaderboard. This preserves the
+// scoring override used by the 2026 live event: the lowest quarter of a team's
+// entered station scores is canceled. With n
 // cancelable scores on the books, the floor(n/4) lowest are dropped and only
 // the rest sum into the total, so a few rough activities do not sink a team.
-// With all 12 primary stations scored this is exactly the classic "best 9 of
-// 12". Canceled entries still appear in station lists, crossed out.
+// With exactly 12 primary stations scored this matches the reviewed kit's
+// "best 9 of 12" rule. The live itinerary also contained warmups, rematches,
+// backups, and post-kit additions, so the two policies are documented as
+// distinct provenance layers. Canceled entries still appear crossed out.
 //
 // The Friday Crank Championship (code CRANK) always counts: teams built their
 // machines all week, so it is never canceled and it does not add to the count
@@ -12,7 +15,7 @@ export const DROP_FRACTION = 1 / 4;
 export const ALWAYS_COUNTED_CODES = ["CRANK"];
 
 const isAlwaysCounted = (s) =>
-  ALWAYS_COUNTED_CODES.includes(String(s.code || "").toUpperCase());
+  ALWAYS_COUNTED_CODES.includes(String(s.code || "").trim().toUpperCase());
 
 // How many of a team's n cancelable scores are canceled.
 export function droppedCount(n) {
@@ -60,6 +63,30 @@ export function teamTotals(teams, scores) {
       };
     })
     .sort((a, b) => b.raw - a.raw || a.name.localeCompare(b.name));
+}
+
+// Standard competition ranking: ties share a place and the following place
+// skips the tied positions (for example 1, 1, 3, 4). Call after teamTotals(),
+// which already sorts rows by total.
+export function withCompetitionRanks(rows) {
+  let previousScore;
+  let previousRank = 0;
+  return rows.map((row, index) => {
+    const score = row.raw ?? row.total;
+    if (index === 0 || score !== previousScore) previousRank = index + 1;
+    previousScore = score;
+    return { ...row, rank: previousRank };
+  });
+}
+
+// The two camp sessions use different station sets, and PY-STEM includes the
+// 300-point CRANK event, so totals are never ranked across camps. Preserve each
+// camp's configured/team order while ranking its already-sorted totals.
+export function rankedTeamTotalsByCamp(teams, scores) {
+  const totals = teamTotals(teams, scores);
+  const campOrder = [...new Set(teams.map((team) => team.camp))];
+  return campOrder.flatMap((camp) =>
+    withCompetitionRanks(totals.filter((row) => row.camp === camp)));
 }
 
 export function maxTotal(rows) {

@@ -13,7 +13,7 @@ const T = {
   rule12:   "rgba(34,34,34,.12)",
   rule22:   "rgba(34,34,34,.22)",
   rule06:   "rgba(34,34,34,.06)",
-  warn:     "#C77A1F",        // amber: a fail never reads as the Cherry brand
+  warn:     "#8A5310",        // AA-safe amber for status text and diagram marks
   ok:       "#2E7D46",        // green
   // Camp identity PRESERVED unchanged:
   treesInk: "#2a5736",

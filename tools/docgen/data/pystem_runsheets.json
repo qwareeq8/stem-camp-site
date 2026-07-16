@@ -25,12 +25,12 @@
  "PYS-03": {
   "title": "Cardboard Automata Arcade",
   "points": [
-   "Run two low-temp mini glue guns at the staff station so ~4 teams are not idle in one queue; low-temp guns run ~75F cooler and stay staff-operated.",
-   "Pre-poke the cam center hole snug so the skewer grips, then add a glue bead; no-glue fallback is to clamp the cam between two EVA-foam (Foamie) bushings.",
+   "Run three to four low-temperature mini glue guns at one staff station so six teams do not stall in a single queue; every gun stays staff-operated.",
+   "Make the axle hole about 1 cm OFF CENTER so the circular cam produces follower lift. Start it with a staff-controlled push pin, widen it snugly with the skewer, then have staff add a low-temperature glue bead; a centered hole in a circular cam produces no lift.",
    "Cut cams from EVA foam (about 2.5in/6cm diameter) rather than corrugated cardboard for a cleaner profile; keep cardboard for the box frame and handle.",
    "If the follower lifts off and rattles, weight its top with a flat washer so gravity seats it on the cam.",
    "Add an end stop on each end of the drive skewer (washer, tape collar, or EVA bushing glued to the axle) so it does not walk out of its holes.",
-   "Start all holes with a nail/screw or skewer point and tape corner-triangle gussets to keep the box square so the axle does not bind."
+   "At the controlled staff station, start holes with a push pin, then widen with the skewer point; do not stage loose nails or screws. Tape corner-triangle gussets to keep the box square so the axle does not bind."
   ]
  },
  "PYS-04": {
@@ -38,10 +38,10 @@
   "points": [
    "Confirm the funnel set's contents on arrival. If it has no flexible tubing, the build cannot happen: buy aquarium airline tubing 3/16 in (4 mm ID / 6 mm OD), about 2 ft per team.",
    "Demo one sealed joint before kids start: insert the funnel spout into the tube end (or push the tube onto the stem) and wrap tape around the joint to make it airtight. The airtight seal is the single make-or-break factor.",
-   "Wipe the shared open tube end (earpiece) and funnel with a disinfectant wipe between users; where practical let each child hold the tube end to their own ear. 3 wipe canisters on hand cover ~4 teams.",
-   "Teach wrist (radial) pulse as the default; use only light neck pressure if needed. Never press the carotid hard. Measurement is by consent only.",
+   "Wipe the shared open tube end (earpiece) and funnel between every user; three wipe canisters are staged for the six-team cohort. Where practical, each child holds the tube end to their own ear.",
+   "Use the radial pulse at the wrist only; do not take a neck pulse. Measurement and light activity are optional, and recorder/timekeeper roles must be available.",
    "Identify any latex-sensitive child in advance; the balloon membrane is optional and nitrile glove or plastic wrap is the non-latex substitute (nitrile gloves on hand).",
-   "Protocol: short step/sprint, then count pulse immediately and at intervals until it recovers toward the resting rate."
+   "Protocol: follow every health-plan or staff restriction. After optional light stepping, count wrist pulse immediately and at intervals as it trends toward the starting rate. Stop immediately and tell an adult for dizziness, chest pain, unusual trouble breathing, or feeling unwell; this is not a fitness or medical test."
   ]
  },
  "PYS-05": {
@@ -55,10 +55,10 @@
  "PYS-06": {
   "title": "SONAR Slinky Showdown",
   "points": [
-   "Verify a roughly 6 m by 6 m clear floor in COE 102 (push desks back) for four ~3 m lanes; if tight, stagger teams or shorten stretches to ~2 m with round-trip bounce counting as a fallback.",
+   "Verify a clear floor in COE 102 and run the six teams in two waves across three measured ~3 m lanes. If tight, shorten every lane to a measured ~2 m and retain the round-trip timing method.",
    "Mark each station with two ~5 cm tape pieces and MEASURE the actual marked length with a meterstick rather than forcing exactly 3.00 m; speed is measured distance over measured time, so any consistent marked length works.",
    "Station card requires goggles on while the slinky is stretched (per IIHS); distribute goggles to all teams.",
-   "Use metal slinkies (faster, clearer pulse, less floor friction); keep spares on hand for tangles across ~4 teams.",
+   "Use six metal slinkies if available (faster, clearer pulse, less floor friction); otherwise rotate the two waves through the available lanes. Keep at least one spare for tangles.",
    "Stopwatch resolution is fine; the protocol is the round-trip-and-divide method, not single one-way timing."
   ]
  },
@@ -79,7 +79,7 @@
    "Author and print the four source-local element cards (wall-and-coin, backless-chair stand, toe-grab hop, shifted-load line walk) on on-hand 110 lb cardstock before camp; the original ropes-course cards must not be used.",
    "Set up stations: a clear wall length, one backless chair per station, a flat taped floor line (painter/masking tape), a small reach object (coin/candy) placed about 30 to 50 cm ahead for the wall-bend, and a 200 g hooked weight for the load walk.",
    "Spot the backless-chair stand; keep the floor clear of bags and chairs around every station.",
-   "Rotate 3 to 4 stations for 4 teams across the 80 minute block; keep at least one physical station live per rotation so the predict-then-test loop holds.",
+   "Rotate six teams through three duplicated challenge pairs across the 80-minute block; keep each team's predict-then-test sequence intact and never turn the flat taped line into a speed race.",
    "Score prediction accuracy and force-map quality, not speed; do not let the taped line become a race or a raised beam; do not introduce a raised 2x4 or balance board on the hard floor."
   ]
  },
@@ -90,7 +90,8 @@
    "Staff-run low-temp glue station only (no per-team guns). Use LOW-TEMP guns: high-temp warps the CD (JPL). Glue the cap's wide base flat over the CD's 15 mm center hole, then run a second bead around the whole junction and check for gaps after it cools.",
    "Remove each cap's tamper/tear ring so the base sits flush; cover or fully seat over the CD center hole so all air is routed through the valve. A leaky seal is the #1 failure mode.",
    "Build 1 to 2 staff demo units first so kids see a working seal and a controllable glide.",
-   "Collect ~12 to 15 recycled CDs/DVDs (4 team builds + 2 to 3 demos + ~6 spares for failed joints and redesigns). DVDs work identically (same 15 mm hole).",
+   "Collect ~14 to 16 recycled CDs/DVDs (6 team builds + 2 staff demos + at least 6 spares for failed joints and redesigns). DVDs work identically (same 15 mm hole).",
+   "Convert the evidence to the published rubric: glide points = round(30 x team best distance / field-best distance), capped at 30; target points = round(five-shot raw total / 6), capped at 25. If every glide distance is zero, every team gets zero glide points.",
    "Teach the pin-hole / small-opening airflow throttle as the redesign variable: start small, open up only if it will not lift."
   ]
  },
@@ -107,17 +108,17 @@
  "PYS-11": {
   "title": "BookBot Bin Logic Challenge",
   "points": [
-   "Run the tabletop/desk-grid version with a runner or pointer as the default (handout already says tabletop preferred); do NOT use full-body floor walking, which is the only mode with collision/fall risk.",
-   "If the floor-walking variant is chosen for engagement, give each team its own colored taped lane, stagger start times, and bake a one-way rule into the algorithm being defended.",
+   "Use one shared tabletop judging mat plus per-team planning copies. Mark DEPOT immediately left of A1; one legal move is an orthogonal step between adjacent bins or between DEPOT and A1. Every run starts and finishes at DEPOT.",
+   "Run one team at a time on the shared judging mat. Score route cost by legal-move count before time; record missed addresses or illegal jumps as an incomplete run. Do not use full-body floor walking.",
    "Demo one retrieval as a whole group before teams start, to surface the row/column addressing convention.",
    "Require a written baseline route and predicted order before the timed run, then a mandatory redesign round changing exactly ONE rule (e.g. nearest-bin-first vs row-by-row sweep) so the 'defend your rule' reflection is not skipped.",
-   "Print and laminate one color-coded bin set and order deck per team; clip each team's deck with a binder clip to prevent cards getting mixed or lost between teams."
+   "Print one planning mat and order card set per team, plus one laminated shared judging mat. Clip each team's cards separately so orders and address tags do not mix."
   ]
  },
  "PYS-12": {
   "title": "Accessibility Ramp Rescue Lab",
   "points": [
-   "Only one set of 8 x 200 g weights exists, shared across ~4 teams. Sequence teams through the load station one at a time as a rotation while others build and run the roll check; simultaneous load testing is impossible. This is a logistics constraint, not a shortage.",
+   "Only one set of 8 x 200 g weights exists, shared across six teams. Sequence teams through the load station one at a time while others build and run the roll check; simultaneous load testing is impossible. This is a logistics constraint, not a shortage.",
    "Load test protocol: bridge the ramp prototype between two desks and hang/apply weight at mid-span. Start with one 200 g weight and scale up. Do NOT load weights onto the toy cart.",
    "Roll check: hand out the pull-back cars UNWOUND (clutch disengaged, free-rolling) for the smoothness check only. Instruct kids NOT to wind the car or it self-propels and veers off the ramp. Add masking-tape side rails or a shallow foam-board channel to keep it tracking straight.",
    "Pre-brief teams that the bare foam-board baseline is EXPECTED to sag and that the redesign (clip or glue dowels / doubled craft sticks as ribs under the deck) is the intended loop, so a sagging baseline is success-in-progress, not a fail.",
@@ -133,7 +134,7 @@
    "Do NOT free-stand a sharpened pencil and balance the weight stack on it; it topples. Rest the stack on a flat-topped applicator over the target, or use a firm two-hand press to the same weight reference.",
    "Stack 3-5 craft-foam sheets per target so the point pierces without instantly bottoming out on the cardboard backing.",
    "Press straight down over the target only; no hands under the load. Goggles on hand. Foam only, no skin tests.",
-   "Optional only: a flattened puck of modeling clay gives a literal retained dent (one ~2 lb Crayola tub ~$8-10 shared across 4 teams), but the on-hand graph-paper reframe already makes the activity run with zero purchase.",
+   "Optional only: a flattened puck of modeling clay gives a literal retained dent (one ~2 lb tub shared across six teams), but the on-hand graph-paper reframe already makes the activity run with zero purchase.",
    "Tie the rubric to counted squares plus pierce/no-pierce rather than a qualitative dent impression."
   ]
  },
@@ -141,20 +142,20 @@
   "title": "Domino Neuron Relay",
   "points": [
    "Hinge each tile to the ruler with a small masking-tape tab (Exploratorium method) so tiles do not slide and resets are instant when rotating teams.",
-   "Run as a backup: 28 tiles support one ~16-tile track plus a taped myelin block; rotate the 4 teams through one or two shared tracks rather than splitting tiles 4 ways (~7 each is too few).",
+   "Run as a backup: 28 tiles support one ~16-tile track plus rigid comparison blocks; rotate all six teams through one shared track rather than splitting the tiles. Frame the blocks as a limited transmission analogy, not literal myelin or a synapse.",
    "Pre-cut index cards as spacers/bridges and as gap spacers so kids hit the under-tile-height spacing quickly.",
    "Stand the Queensell game tiles rivet-side consistent on the long edge; on a taped-down flat surface the center rivet is a non-issue.",
-   "Time baseline vs myelin-cluster track over the same ruler length with the owned stopwatches so the speed difference is measurable."
+   "Time the baseline versus the rigid-block comparison track over the same ruler length with the owned stopwatches so the speed difference is measurable."
   ]
  },
  "PYB-03": {
   "title": "Pulley Rescue Relay",
   "points": [
-   "Single-kit reality: only one classroom pulley kit is owned, so PYB-03 runs as one rotating demo across the ~4 teams, not 4 parallel rigs. The bracket is a table-clamp (mounts to a desk edge up to ~1.25 in); no ceiling hook or ring stand is needed in COE 102.",
+   "Single-kit reality: only one classroom pulley kit is owned, so PYB-03 runs as one rotating demo across six teams, not six parallel rigs. The bracket is a table-clamp (mounts to a desk edge up to ~1.25 in); no ceiling hook or ring stand is needed in COE 102.",
    "Load: hang the 200 g hooked weights to about three-quarters of the chosen scale's max (about 350 to 400 g on the 5N scale, or 600 to 700 g on the 10N scale) to seat the rope, avoid slip, and give a clear effort drop on the 2x setup.",
    "Scales: we own five scales (1N/5N/10N/20N/30N). Stagger the 5N and 10N across the baseline/fixed/movable steps as a rotation per TeachEngineering ('one per team if available'); no purchase needed.",
    "Friction framing for staff: the measured 2x effort reads MORE than half the baseline (actual MA below ideal MA, roughly 5 to 15% loss per pulley). Frame this gap as efficiency/friction, not an error; use the metal low-friction pulleys for the scored measurement, not homemade spools.",
-   "If PYB-03 is actually deployed for 4 parallel teams, buy the 8-set classroom pulley pack so each team rigs its own system; otherwise the single-kit rotating demo is an acceptable no-buy path."
+   "If PYB-03 is deployed for six parallel teams, provide six complete rated pulley rigs; otherwise the single-kit rotating demo is the documented no-buy path."
   ]
  },
  "PYB-04": {

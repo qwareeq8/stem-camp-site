@@ -1,6 +1,6 @@
 // Files: the camp document library. Every station has a student handout (for
 // campers) and an instructor guide (for facilitators); on top of that sit the
-// printable packets, score sheets, signage, and program-wide guides. With ~77
+// printable packets, score sheets, signage, and program-wide guides. With 108
 // documents the page leans on grouping and search rather than a wall of cards:
 // a camp filter narrows the set, a search box matches across names and codes,
 // and per-activity documents collapse into one compact card with a Handout and
@@ -40,14 +40,14 @@ const KIND_META = {
   guide: { label: "Guide", Icon: BookOpen },
 };
 
-// Size is measured live from the served file (see lib/fileSize), so meta takes
-// the already-resolved size string rather than reading a stored field.
+// Size normally comes from stamped byte metadata (see lib/fileSize); meta takes
+// the already-formatted size string.
 const meta = (f, size) => `${(f.type || "file").toUpperCase()}${size ? ` · ${size}` : ""}`;
 
 // A single-document card (program guides, packets, score sheets, signage).
 function DocCard({ file }) {
   const { Icon } = TYPE_META[file.type] || { Icon: FileType };
-  const size = useFileSize(file.path);
+  const size = useFileSize(file.path, file.bytes);
   const label = meta(file, size);
   return (
     <a className="doc-card" href={fileHref(file.path)} download
@@ -65,10 +65,10 @@ function DocCard({ file }) {
   );
 }
 
-// One download button for an activity document, measuring its size live.
+// One download button for an activity document, formatting its stamped size.
 function DocBtn({ name, file, kind }) {
   const { label, Icon } = KIND_META[kind];
-  const size = useFileSize(file.path);
+  const size = useFileSize(file.path, file.bytes);
   return (
     <Btn href={fileHref(file.path)} download variant="ghost" className="doc-dl"
          aria-label={`Download ${name} ${label.toLowerCase()} (${meta(file, size)})`}>

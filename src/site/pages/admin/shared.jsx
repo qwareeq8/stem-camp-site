@@ -8,15 +8,21 @@ import { DayPicker } from "@daypicker/react";
 import "@daypicker/react/style.css";
 import {
   getCollection,
+  getCollectionStatus,
   useCollection,
+  useCollectionStatus,
   commitCollection,
-  resetCollection,
+  retryCollection,
   isOverridden,
   isSupabaseConfigured,
 } from "../../lib/store.js";
+import {
+  isWritableHydrationStatus,
+  sameHydrationRevision,
+} from "../../lib/supabaseConcurrency.js";
 import { validateCollection } from "../../lib/schemas.js";
 import { Card, Badge, Btn, downloadJson } from "../../ui.jsx";
-import { Save, Trash2, Plus, Minus, ChevronUp, ChevronDown, CalendarDays } from "lucide-react";
+import { Save, Trash2, Plus, Minus, ChevronUp, ChevronDown, CalendarDays, RefreshCw } from "lucide-react";
 
 const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
 const DAY_LABEL = new Intl.DateTimeFormat("en-US", {
@@ -119,35 +125,74 @@ export function anyDirtyDraft() {
   return dirtyDrafts.size > 0;
 }
 
-// The per-collection editor state: a working draft plus save/reset/download
+// The per-collection editor state: a working draft plus save/retry/download
 // actions. Editors read ed.draft, write with ed.setDraft, and drop <SaveBar/> in.
 export function useEditor(name) {
   // Subscribe to the live store so a hydrate that lands after mount is seen.
   const live = useCollection(name);
-  const [draft, setDraft] = useState(() => clone(live));
+  const hydration = useCollectionStatus(name);
+  const [draft, setDraftState] = useState(() => clone(live));
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null); // { tone: "ok" | "warn", text }
   const [overridden, setOverridden] = useState(() => isOverridden(name));
+  const [stale, setStale] = useState(false);
   // The store value the draft was cloned from. When the store moves (hydrate,
   // raw-JSON save, bulk data op) a pristine draft is refreshed to match; a
   // dirty draft is never touched.
   const baseline = useRef(live);
+  // Keep the latest draft available to an async save. Form controls remain
+  // editable while the request is in flight; a response must never erase text
+  // entered after Save was clicked.
+  const draftRef = useRef(draft);
+  const operation = useRef(false);
+  // A persisted sample/starting-data overlay is a deliberate draft even when
+  // its JSON exactly matches the current baseline reference.
+  const baselineOverridden = useRef(isOverridden(name));
+  // The server revision that produced the baseline. This deliberately does not
+  // advance for a dirty draft: optimistic concurrency must check the version
+  // the editor actually loaded, not whatever version the store learned later.
+  const baseStatus = useRef(hydration);
+
+  function setDraft(next) {
+    const value = typeof next === "function" ? next(draftRef.current) : next;
+    draftRef.current = value;
+    setDraftState(value);
+  }
 
   const errors = useMemo(() => validateCollection(name, draft), [name, draft]);
   const configured = isSupabaseConfigured();
-  const dirty = useMemo(
-    () => JSON.stringify(draft) !== JSON.stringify(live),
-    [draft, live],
-  );
+  const dirty = JSON.stringify(draft) !== JSON.stringify(baseline.current);
+  const canSave = configured
+    && isWritableHydrationStatus(hydration)
+    && sameHydrationRevision(baseStatus.current, hydration)
+    && !stale;
 
   useEffect(() => {
-    if (live === baseline.current) return;
-    if (JSON.stringify(draft) === JSON.stringify(baseline.current)) {
+    const valueMoved = live !== baseline.current;
+    const statusMoved = hydration !== baseStatus.current;
+    if (!valueMoved && !statusMoved) return;
+    const pristine = JSON.stringify(draft) === JSON.stringify(baseline.current)
+      && !baselineOverridden.current;
+    if (pristine) {
+      baseline.current = live;
+      baseStatus.current = hydration;
+      baselineOverridden.current = isOverridden(name);
       setDraft(clone(live));
       setOverridden(isOverridden(name));
+      setStale(false);
+      return;
     }
-    baseline.current = live;
-  }, [name, live, draft]);
+    if (
+      isWritableHydrationStatus(hydration)
+      && (valueMoved || !sameHydrationRevision(baseStatus.current, hydration))
+    ) {
+      setStale(true);
+      setMessage({
+        tone: "warn",
+        text: "Live data changed while this draft was open. Reload the live data and review your changes before saving.",
+      });
+    }
+  }, [name, live, hydration, draft]);
 
   useEffect(() => {
     reportDirtyDraft(name, dirty);
@@ -155,6 +200,7 @@ export function useEditor(name) {
   }, [name, dirty]);
 
   async function save() {
+    if (operation.current) return;
     if (errors.length) {
       setMessage({ tone: "warn", text: `Fix ${errors.length} validation issue${errors.length === 1 ? "" : "s"} before saving.` });
       return;
@@ -163,25 +209,105 @@ export function useEditor(name) {
       setMessage({ tone: "warn", text: "Publishing is not connected. Ask the site maintainer to connect the admin backend before saving." });
       return;
     }
+    if (!isWritableHydrationStatus(hydration)) {
+      setMessage({
+        tone: "warn",
+        text: hydration.state === "loading" || hydration.state === "pending"
+          ? "Live data is still loading. Wait for it to finish before saving."
+          : "Live data did not load safely. Retry the live load before saving.",
+      });
+      return;
+    }
+    if (!canSave) {
+      setStale(true);
+      setMessage({
+        tone: "warn",
+        text: "A newer live revision is available. Reload it and review your changes before saving.",
+      });
+      return;
+    }
+    const submitted = clone(draftRef.current);
+    operation.current = true;
     setBusy(true);
     setMessage({ tone: "ok", text: `Saving ${name}...` });
     try {
-      await commitCollection(name, draft);
-      setDraft(clone(getCollection(name)));
+      await commitCollection(name, submitted, { baseStatus: baseStatus.current });
+      const fresh = getCollection(name);
+      const editedWhileSaving = JSON.stringify(draftRef.current) !== JSON.stringify(submitted);
+      baseline.current = fresh;
+      baseStatus.current = getCollectionStatus(name);
+      baselineOverridden.current = false;
+      if (!editedWhileSaving) setDraft(clone(fresh));
       setOverridden(isOverridden(name));
-      setMessage({ tone: "ok", text: `Saved ${name}. Visitors see it on their next page load.` });
+      setStale(false);
+      setMessage({
+        tone: "ok",
+        text: editedWhileSaving
+          ? `Saved ${name}. Changes made during the save remain in this unsaved draft.`
+          : `Saved ${name}. Visitors see it on their next page load.`,
+      });
     } catch (err) {
+      if (err.code === "COLLECTION_CONFLICT") setStale(true);
       setMessage({ tone: "warn", text: err.message });
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   }
 
-  function reset() {
-    resetCollection(name);
-    setDraft(clone(getCollection(name)));
+  async function retry() {
+    if (operation.current) return;
+    const draftAtStart = JSON.stringify(draftRef.current);
+    const wasPristine = draftAtStart === JSON.stringify(baseline.current)
+      && !baselineOverridden.current;
+    operation.current = true;
+    setBusy(true);
+    setMessage({ tone: "ok", text: `Reloading live ${name}...` });
+    try {
+      await retryCollection(name);
+      const freshStatus = getCollectionStatus(name);
+      const fresh = getCollection(name);
+      if (!isWritableHydrationStatus(freshStatus)) {
+        setMessage({
+          tone: "warn",
+          text: freshStatus.state === "invalid"
+            ? `Live ${name} data is invalid. Saving remains blocked.`
+            : `Could not load live ${name}. Saving remains blocked.`,
+        });
+        return;
+      }
+      const untouched = JSON.stringify(draftRef.current) === draftAtStart;
+      if (wasPristine && untouched) {
+        baseline.current = fresh;
+        baseStatus.current = freshStatus;
+        baselineOverridden.current = false;
+        setDraft(clone(fresh));
+        setOverridden(false);
+        setStale(false);
+        setMessage({ tone: "ok", text: freshStatus.state === "absent" ? `No published ${name} row exists yet. The first Save will create it.` : `Reloaded live ${name}.` });
+        return;
+      }
+      setStale(true);
+      setMessage({
+        tone: "warn",
+        text: `Reloaded live ${name}, but kept your draft unchanged. Use Reload live data to discard the draft before saving.`,
+      });
+    } finally {
+      operation.current = false;
+      setBusy(false);
+    }
+  }
+
+  function reloadLive() {
+    if (!isWritableHydrationStatus(hydration)) return;
+    const fresh = getCollection(name);
+    baseline.current = fresh;
+    baseStatus.current = getCollectionStatus(name);
+    baselineOverridden.current = false;
+    setDraft(clone(fresh));
     setOverridden(isOverridden(name));
-    setMessage({ tone: "ok", text: `Reset "${name}" to the bundled seed locally (not saved).` });
+    setStale(false);
+    setMessage({ tone: "ok", text: `Reloaded live ${name}. The previous draft was discarded.` });
   }
 
   function download() {
@@ -193,7 +319,25 @@ export function useEditor(name) {
     setMessage({ tone: "ok", text: `Downloaded ${name}.json. Commit it to src/data, or Save to publish.` });
   }
 
-  return { name, draft, setDraft, save, reset, download, busy, message, setMessage, errors, dirty, overridden, configured };
+  return {
+    name,
+    draft,
+    setDraft,
+    save,
+    retry,
+    reloadLive,
+    download,
+    busy,
+    message,
+    setMessage,
+    errors,
+    dirty,
+    overridden,
+    configured,
+    hydration,
+    stale,
+    canSave,
+  };
 }
 
 // ---- form field components (bound to a draft, controlled) ----
@@ -510,9 +654,29 @@ export function EmptyRows({ children }) {
 // The persistent action bar: Save / Reset / Download, the live-vs-overlay badge,
 // validation errors, and the status line. Every editor renders one of these.
 export function SaveBar({ ed }) {
-  const { errors, dirty, overridden, busy, message } = ed;
+  const { errors, dirty, overridden, busy, message, hydration, stale, configured, canSave } = ed;
+  const needsRetry = configured && ["pending", "failed", "invalid", "conflict"].includes(hydration.state);
+  const loadBlocked = configured && ["failed", "invalid", "conflict"].includes(hydration.state);
+
+  let badge = <Badge tone="ok">Saved</Badge>;
+  if (!configured || hydration.state === "seed-only") badge = <Badge tone="warn">Not connected</Badge>;
+  else if (hydration.state === "pending" || hydration.state === "loading") badge = <Badge tone="warn">Loading live data</Badge>;
+  else if (hydration.state === "failed") badge = <Badge tone="warn">Load failed</Badge>;
+  else if (hydration.state === "invalid") badge = <Badge tone="warn">Live data invalid</Badge>;
+  else if (hydration.state === "conflict") badge = <Badge tone="warn">Write conflict</Badge>;
+  else if (stale) badge = <Badge tone="warn">Newer live data</Badge>;
+  else if (dirty) badge = <Badge tone="warn">Unsaved changes</Badge>;
+  else if (overridden) badge = <Badge tone="warn">Preview only</Badge>;
+  else if (hydration.state === "absent") badge = <Badge tone="warn">Not published yet</Badge>;
+
   return (
     <>
+      {loadBlocked && (
+        <div className="adm-err" role="alert">
+          <strong>{hydration.state === "invalid" ? "Live data is invalid." : hydration.state === "conflict" ? "A newer live revision exists." : "Live data could not be loaded."}</strong>{" "}
+          Saving is blocked until Retry live data completes and the draft is reviewed.
+        </div>
+      )}
       {errors.length > 0 && (
         <div className="adm-err" role="alert">
           {errors.length} validation issue{errors.length === 1 ? "" : "s"}:
@@ -522,12 +686,22 @@ export function SaveBar({ ed }) {
           </ul>
         </div>
       )}
-      <div className="adm-bar">
-        <Btn variant="accent" onClick={ed.save} disabled={busy || errors.length > 0}>
+      <div className="adm-bar" aria-busy={busy || hydration.state === "loading" ? "true" : undefined}>
+        <Btn variant="accent" onClick={ed.save} disabled={busy || errors.length > 0 || !canSave}>
           <Save size={14} aria-hidden="true" /> {busy ? "Saving..." : "Save"}
         </Btn>
+        {needsRetry && (
+          <Btn variant="ghost" onClick={ed.retry} disabled={busy}>
+            <RefreshCw size={14} aria-hidden="true" /> Retry live data
+          </Btn>
+        )}
+        {stale && isWritableHydrationStatus(hydration) && (
+          <Btn variant="ghost" onClick={ed.reloadLive} disabled={busy}>
+            <RefreshCw size={14} aria-hidden="true" /> Reload live data
+          </Btn>
+        )}
         <span className="spacer" />
-        {dirty ? <Badge tone="warn">Unsaved changes</Badge> : overridden ? <Badge tone="warn">Preview only</Badge> : <Badge tone="ok">Saved</Badge>}
+        {badge}
       </div>
       {message && (
         <p
@@ -557,8 +731,9 @@ export function useRefData() {
   const codes = [];
   for (const day of schedule) {
     for (const b of day.blocks || []) {
-      if (b.code && !codes.find((c) => c.code === b.code)) {
-        codes.push({ code: b.code, title: b.title, camp: b.camp || day.camp });
+      const scoreCode = b.scoreCode || b.code;
+      if (scoreCode && !codes.find((c) => c.code === scoreCode)) {
+        codes.push({ code: scoreCode, resourceCode: b.code || scoreCode, title: b.title, camp: b.camp || day.camp });
       }
     }
   }

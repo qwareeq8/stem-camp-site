@@ -1,13 +1,14 @@
 // Dependency-free JSON-shape validation for the data collections. Each
 // collection is checked against a tiny hand-rolled schema before any write so a
 // malformed edit is rejected in the browser, before any network call, and never
-// reaches a commit. This intentionally adds no package: the checks are required
-// keys and primitive-type assertions, which is all the kilobyte-scale dataset
-// needs. Validation is shape-only; it does not enforce referential integrity
-// (for example that a member's teamId names an existing team), which stays the
-// admin's responsibility.
+// reaches a commit. This intentionally adds no package. In addition to required
+// keys and primitive types, the collection-level checks below enforce the small
+// set of invariants that can otherwise corrupt scoring or hide files in the
+// public library. Cross-collection deletion integrity is enforced separately at
+// the Admin write boundary, where the validated live collections are available
+// together.
 
-// A field spec is { type, required } where type is one of:
+// A field spec is { type, required, allowBlank? } where type is one of:
 // "string", "number", "boolean", "array", "object". An "array" field spec may
 // carry a nested item spec that validates each element as an object. An item
 // spec validates the elements of an array collection; a record spec validates
@@ -35,6 +36,14 @@ function checkFields(obj, fields, path, errors) {
       errors.push(`${path}.${key}: expected ${spec.type}, got ${actual}`);
       continue;
     }
+    if (spec.required && spec.type === "string" && !spec.allowBlank && obj[key].trim() === "") {
+      errors.push(`${path}.${key}: required text cannot be blank`);
+      continue;
+    }
+    if (spec.type === "number" && !Number.isFinite(obj[key])) {
+      errors.push(`${path}.${key}: expected a finite number`);
+      continue;
+    }
     if (spec.type === "array" && spec.item) {
       obj[key].forEach((el, i) => checkFields(el, spec.item, `${path}.${key}[${i}]`, errors));
     }
@@ -59,7 +68,7 @@ const SCHEMAS = {
     item: {
       id: { type: "string", required: true },
       name: { type: "string", required: true },
-      teamId: { type: "string", required: true },
+      teamId: { type: "string", required: true, allowBlank: true },
       role: { type: "string", required: false },
     },
   },
@@ -90,6 +99,7 @@ const SCHEMAS = {
     kind: "array",
     item: {
       day: { type: "string", required: true },
+      camp: { type: "string", required: true },
       date: { type: "string", required: false },
       theme: { type: "string", required: false },
       // Each block is one row on the public Schedule page; start/end/title are
@@ -102,6 +112,10 @@ const SCHEMAS = {
           end: { type: "string", required: true },
           title: { type: "string", required: true },
           code: { type: "string", required: false },
+          // A repeated activity can keep its resource code while using a
+          // distinct leaderboard key (for example PYS-02R for a rematch).
+          scoreCode: { type: "string", required: false },
+          note: { type: "string", required: false },
           camp: { type: "string", required: false },
           location: { type: "string", required: false },
         },
@@ -153,10 +167,14 @@ const SCHEMAS = {
       desc: { type: "string", required: false },
       // Optional grouping hints used by the public Files page: camp ("trees" |
       // "pystem" | "" for program-wide), the activity code a doc belongs to,
-      // and kind ("handout" | "guide" | "") for per-activity documents.
+      // and kind ("handout" | "guide" | "print" | "") for per-activity
+      // documents and station printables.
       camp: { type: "string", required: false },
       code: { type: "string", required: false },
       kind: { type: "string", required: false },
+      // Exact bytes are stamped from public/files at authoring time so the
+      // public page does not issue one HEAD request per document.
+      bytes: { type: "number", required: true },
     },
   },
   config: {
@@ -189,6 +207,126 @@ const SCHEMAS = {
   },
 };
 
+function duplicateErrors(items, keyFor, path, label) {
+  const seen = new Map();
+  const errors = [];
+  for (const [index, item] of items.entries()) {
+    const key = keyFor(item);
+    if (!key) continue;
+    if (seen.has(key)) {
+      errors.push(`${path}[${index}]: duplicate ${label} "${key}" (first used at ${path}[${seen.get(key)}])`);
+    } else {
+      seen.set(key, index);
+    }
+  }
+  return errors;
+}
+
+function semanticErrors(name, value) {
+  if (!Array.isArray(value)) {
+    if (name !== "config" || !value || typeof value !== "object") return [];
+    return duplicateErrors(value.camps || [], (camp) => String(camp.id || "").trim(), "config.camps", "camp id");
+  }
+
+  if (["teams", "members", "achievements", "prizes", "catalog", "files"].includes(name)) {
+    const errors = duplicateErrors(value, (item) => String(item.id || "").trim(), name, "id");
+    if (name === "members") {
+      for (const [index, member] of value.entries()) {
+        const unassigned = !String(member.teamId || "").trim();
+        const counselor = String(member.role || "").trim().toLowerCase() === "counselor";
+        if (unassigned && !counselor) {
+          errors.push(`members[${index}].teamId: only counselors may be unassigned`);
+        }
+      }
+      return errors;
+    }
+    if (name === "achievements") {
+      for (const [achievementIndex, achievement] of value.entries()) {
+        for (const [recipientIndex, recipient] of (achievement.earnedBy || []).entries()) {
+          const at = `achievements[${achievementIndex}].earnedBy[${recipientIndex}]`;
+          // Legacy award data stored a team/member id directly as a string.
+          // Current Admin writes an explicit { type, id, count } object.
+          if (typeof recipient === "string") {
+            if (!recipient.trim()) errors.push(`${at}: legacy recipient id cannot be blank`);
+            continue;
+          }
+          if (!recipient || typeof recipient !== "object" || Array.isArray(recipient)) {
+            errors.push(`${at}: expected a legacy id string or recipient object`);
+            continue;
+          }
+          if (!["team", "member"].includes(recipient.type)) {
+            errors.push(`${at}.type: expected "team" or "member"`);
+          }
+          if (typeof recipient.id !== "string" || !recipient.id.trim()) {
+            errors.push(`${at}.id: recipient id cannot be blank`);
+          }
+          if (
+            recipient.count !== undefined
+            && (!Number.isInteger(recipient.count) || recipient.count < 1)
+          ) {
+            errors.push(`${at}.count: expected a positive integer`);
+          }
+        }
+      }
+      return errors;
+    }
+    if (name !== "files") return errors;
+
+    errors.push(...duplicateErrors(value, (item) => String(item.path || "").trim(), name, "path"));
+    for (const [index, file] of value.entries()) {
+      const at = `files[${index}]`;
+      const filePath = String(file.path || "").trim();
+      if (filePath && (!filePath.startsWith("files/") || filePath.includes(".."))) {
+        errors.push(`${at}.path: must stay under public/files`);
+      }
+      if (file.bytes !== undefined && (!Number.isInteger(file.bytes) || file.bytes <= 0)) {
+        errors.push(`${at}.bytes: expected a positive integer`);
+      }
+      if (file.category === "Activity") {
+        if (!String(file.camp || "").trim()) errors.push(`${at}.camp: activity documents need a camp`);
+        if (!String(file.code || "").trim()) errors.push(`${at}.code: activity documents need a station code`);
+        if (!["handout", "guide"].includes(file.kind)) errors.push(`${at}.kind: activity documents must be a handout or guide`);
+      }
+      if (file.category === "Printable") {
+        if (file.camp && !String(file.code || "").trim()) errors.push(`${at}.code: camp printables need a station code`);
+        if (file.kind !== "print") errors.push(`${at}.kind: printables must use kind "print"`);
+      }
+    }
+    return errors;
+  }
+
+  if (name === "scores") {
+    const errors = duplicateErrors(
+      value,
+      (score) => `${String(score.teamId || "").trim()}::${String(score.code || "").trim().toUpperCase()}`,
+      "scores",
+      "team and station pair",
+    );
+    for (const [index, score] of value.entries()) {
+      if (!Number.isFinite(score.points)) continue;
+      const code = String(score.code || "").trim().toUpperCase();
+      const max = code === "CRANK" ? 300 : 100;
+      if (score.points < 0 || score.points > max) {
+        errors.push(`scores[${index}].points: ${code || "station"} must be between 0 and ${max}`);
+      }
+    }
+    return errors;
+  }
+
+  if (name === "schedule") {
+    const scored = [];
+    for (const day of value) {
+      for (const block of day.blocks || []) {
+        const code = String(block.scoreCode || block.code || "").trim().toUpperCase();
+        if (code) scored.push({ code });
+      }
+    }
+    return duplicateErrors(scored, (block) => block.code, "schedule scored blocks", "score code");
+  }
+
+  return [];
+}
+
 // Validate value for the named collection. Returns an array of human-readable
 // error strings; an empty array means valid. Unknown collection names are
 // accepted (return no errors) so adding a collection later does not hard-fail.
@@ -205,6 +343,7 @@ export function validateCollection(name, value) {
   } else {
     checkFields(value, schema.record, name, errors);
   }
+  if (errors.length === 0) errors.push(...semanticErrors(name, value));
   return errors;
 }
 

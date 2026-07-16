@@ -22,7 +22,10 @@ await build({
   format: "esm",
   jsx: "automatic",
   loader: { ".jsx": "jsx", ".js": "jsx", ".json": "json", ".css": "css" },
-  define: { "process.env.NODE_ENV": '"production"' },
+  define: {
+    "process.env.NODE_ENV": '"production"',
+    "import.meta.env.BASE_URL": '"./"',
+  },
   logLevel: "warning",
 });
 
@@ -50,8 +53,12 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 1000 }, device
 await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
 const page = await ctx.newPage();
 const errs = [];
+const headRequests = [];
 page.on("pageerror", (e) => errs.push("PAGEERROR " + e.message));
 page.on("console", (m) => { if (m.type() === "error") errs.push("CONSOLE " + m.text()); });
+page.on("request", (request) => {
+  if (request.method() === "HEAD") headRequests.push(request.url());
+});
 await page.goto(`http://localhost:${port}/`, { waitUntil: "load" });
 await page.waitForTimeout(1200);
 
@@ -68,8 +75,9 @@ crashes.forEach((c) => console.log("  - " + c));
 console.log(`pageerrors: ${pageErrs.length}`);
 pageErrs.forEach((e) => console.log("  - " + e));
 console.log(`console errors (non-font): ${errs.filter((e) => e.startsWith("CONSOLE") && !/fonts\./.test(e)).length}`);
+console.log(`HEAD requests: ${headRequests.length}`);
 errs.filter((e) => e.startsWith("CONSOLE")).forEach((e) => console.log("  · " + e.slice(0, 160)));
 
 await b.close();
 server.close();
-process.exit(pageErrs.length === 0 && crashes.length === 0 ? 0 : 1);
+process.exit(pageErrs.length === 0 && crashes.length === 0 && headRequests.length === 0 ? 0 : 1);

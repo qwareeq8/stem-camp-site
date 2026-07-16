@@ -39,7 +39,7 @@ export default function Schedule() {
     <Page
       eyebrow="Daily plan"
       title="Schedule"
-      sub="Two separate weeks at two campuses. Every activity is scored out of 100 (the Friday Crank Championship is worth up to 300 and always counts); each team's lowest quarter of scores is canceled and the rest count toward the leaderboard."
+      sub="The 2026 actual itinerary for two separate camp weeks. The live event used a documented scoring override: ordinary entries were scored out of 100, the Friday Crank Championship was worth up to 300 and always counted, and each team's lowest quarter of other entered scores was canceled."
       actions={
         <div className="row" role="group" aria-label="Filter by camp">
           {FILTERS.map((f) => (
@@ -99,6 +99,14 @@ export default function Schedule() {
                             its own muted location subtext instead of blending into it. */}
                         <div style={{ fontWeight: b.code ? 500 : 600, color: b.code ? "var(--ink)" : "var(--mute)" }}>{b.title}</div>
                         {b.location && <div className="muted" style={{ fontSize: 13 }}>{b.location}</div>}
+                        {(b.note || (b.scoreCode && b.scoreCode !== b.code)) && (
+                          <div className="mono muted" style={{ fontSize: 16, marginTop: 4 }}>
+                            {[
+                              b.note,
+                              b.scoreCode && b.scoreCode !== b.code ? `Leaderboard score key: ${b.scoreCode}` : "",
+                            ].filter(Boolean).join(" · ")}
+                          </div>
+                        )}
                         {b.code && docsByCode[b.code] && (
                           <div className="row block-docs" style={{ gap: 12, marginTop: 5 }}>
                             {docsByCode[b.code].handout && (

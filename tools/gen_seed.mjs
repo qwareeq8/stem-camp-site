@@ -1,9 +1,8 @@
 // Regenerate supabase/seed.sql from the bundled src/data/*.json collections.
-// Write one INSERT row per collection, with the whole collection as a JSONB blob.
-// Use an upsert on name so re-running is safe.
-// Run this command after editing any src/data file:
-//   node tools/gen_seed.mjs
-// Keep the optional Supabase seed in lockstep with the shipped bundled data.
+// Write one INSERT row per collection, with the whole collection as a JSONB
+// blob. Every collection uses ON CONFLICT DO NOTHING so re-running this
+// bootstrap cannot overwrite any live state. Routine production updates use
+// the narrower supabase/sync_*.sql files.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,23 +22,23 @@ function sqlString(value) {
   return "'" + JSON.stringify(value).replace(/'/g, "''") + "'";
 }
 
-const rows = COLLECTIONS.map((name) => {
+const data = Object.fromEntries(COLLECTIONS.map((name) => {
   const raw = fs.readFileSync(path.join(dataDir, `${name}.json`), "utf8");
   const value = JSON.parse(raw);
-  return `  ('${name}', ${sqlString(value)}::jsonb)`;
-});
+  return [name, value];
+}));
+
+const rows = COLLECTIONS.map((name) => `  ('${name}', ${sqlString(data[name])}::jsonb)`);
 
 const header = `-- Generate this file from src/data/*.json by running tools/gen_seed.mjs.
--- Run this file after supabase/schema.sql to pre-populate the collections table.
--- Re-run this file safely because it upserts rows by collection name.
--- Keep participant collections and the ticket store cleared for a new camp.
--- Seed the schedule, awards, prizes, files, and config from the public program scaffold.
+-- BOOTSTRAP ONLY: run after supabase/schema.sql when creating a new database.
+-- Existing rows are never overwritten. Routine live updates must use the
+-- scoped supabase/sync_*.sql scripts instead.
 
 insert into public.collections (name, data) values
 `;
 
-const sql = header + rows.join(",\n") +
-  "\non conflict (name) do update set data = excluded.data, updated_at = now();\n";
+const sql = header + rows.join(",\n") + "\non conflict (name) do nothing;\n";
 
 fs.writeFileSync(outFile, sql);
 process.stdout.write(`wrote ${outFile} (${COLLECTIONS.length} collections)\n`);

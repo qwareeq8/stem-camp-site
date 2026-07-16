@@ -119,11 +119,12 @@ export default function ScoresEditor() {
   return (
     <div>
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
-        Every activity is scored out of 100, except the Crank Championship: enter it as
-        code CRANK with the judges' card total doubled (up to 300). Enter each station score here at face
-        value; each team's lowest quarter of scores is canceled automatically and
+        This console preserves the 2026 live-event scoring override. Every ordinary entry is
+        scored out of 100; for CRANK, enter the judges&apos; card total doubled (up to 300).
+        Enter each station score at face value; each team&apos;s lowest quarter of non-CRANK scores is canceled automatically and
         shows crossed out on the leaderboard, so never pre-drop anything here. The
-        CRANK entry always counts; it is never part of the canceled quarter.
+        CRANK entry always counts. The original reviewed kit instead says best 9 of 12
+        primary stations, so do not use this editor to reconstruct that earlier policy.
       </div>
 
       {groups.length === 0 && (

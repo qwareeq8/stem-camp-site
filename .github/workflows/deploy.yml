@@ -32,6 +32,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run content:test
+      - run: npm run admin-store:test
+      - run: npm run deck:test
+      - run: npm run materials:test
       - run: npm run build
         env:
           # Inject the Supabase connection from repo Actions secrets and variables.

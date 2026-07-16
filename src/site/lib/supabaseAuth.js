@@ -5,10 +5,11 @@
 //
 // This module exposes the SAME surface as the old auth (login -> {ok, error},
 // logout, getToken, useAuth) so Nav.jsx and Admin.jsx change minimally. The
-// supabase-js SDK is loaded on demand: a public visitor with no persisted session
-// never imports it; only sign-in or restoring an existing session does.
+// supabase-js SDK is loaded on demand only for sign-in/write work. Sessions are
+// memory-only so a shared camp device cannot silently restore Admin after a
+// reload or reopened tab.
 import { useSyncExternalStore } from "react";
-import { getSupabase, hasPersistedSession, SB_STORAGE_KEY } from "./supabaseClient.js";
+import { getSupabase, SB_STORAGE_KEY } from "./supabaseClient.js";
 import { supabaseCfg } from "./supabaseStore.js";
 
 const listeners = new Set();
@@ -34,22 +35,6 @@ function watch(sb) {
     currentSession = session || null;
     emit();
   });
-}
-
-// Restore an existing admin session on load WITHOUT pulling supabase-js for
-// public visitors. Only runs when a session is persisted in this browser.
-async function bootstrap() {
-  try {
-    const sb = await ensureClient();
-    const { data } = await sb.auth.getSession();
-    currentSession = data.session || null;
-    watch(sb);
-    emit();
-  } catch { /* leave signed-out; sign-in still works on demand */ }
-}
-
-if (typeof window !== "undefined" && hasPersistedSession()) {
-  bootstrap();
 }
 
 function friendlyLoginError(error) {
