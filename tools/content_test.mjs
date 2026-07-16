@@ -21,6 +21,7 @@ import {
   resolveAchievementRecipients,
   teamReferenceSummary,
 } from "../src/site/lib/crossCollectionIntegrity.js";
+import { normalizeLegacyScores } from "../src/site/lib/liveDataCompatibility.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "..");
@@ -56,6 +57,77 @@ test("score validation enforces bounds and one row per team and score code", () 
   assert.match(errors, /duplicate team and station pair/);
   assert.match(errors, /between 0 and 100/);
   assert.match(errors, /between 0 and 300/);
+});
+
+test("legacy 2026 PYS-03 Crank results hydrate under the canonical score key", () => {
+  const ordinary = { teamId: "team-a", code: "PYS-01", points: 90 };
+  const legacyRows = [215, 232, 237, 261, 265, 274].map((points, index) => ({
+    teamId: `team-${index + 1}`,
+    code: index === 0 ? " PYS-03 " : "PYS-03",
+    points,
+  }));
+  const source = [ordinary, ...legacyRows];
+  const normalized = normalizeLegacyScores(source);
+
+  assert.equal(normalized.length, source.length);
+  assert.equal(normalized[0], ordinary, "unrelated score rows retain object identity");
+  assert.equal(normalized.filter((score) => score.code === "CRANK").length, 6);
+  assert.equal(
+    normalized.reduce((sum, score) => sum + score.points, 0),
+    source.reduce((sum, score) => sum + score.points, 0),
+    "normalization preserves every point",
+  );
+  assert.deepEqual(validateCollection("scores", normalized), []);
+  assert.equal(normalizeLegacyScores(normalized), normalized, "normalization is idempotent");
+
+  const { counted, dropped } = splitScores([
+    { code: "A", points: 10 },
+    { code: "B", points: 20 },
+    { code: "C", points: 30 },
+    { code: "D", points: 40 },
+    normalized[1],
+  ]);
+  assert.deepEqual(dropped.map((score) => score.code), ["A"]);
+  assert.ok(counted.includes(normalized[1]), "normalized Crank result always counts");
+});
+
+test("legacy score compatibility fails closed outside the known six-team batch", () => {
+  const isolated = [{ teamId: "team-a", code: "PYS-03", points: 101 }];
+  assert.equal(normalizeLegacyScores(isolated), isolated);
+  assert.match(validateCollection("scores", isolated).join("\n"), /between 0 and 100/);
+
+  const batch = [215, 232, 237, 261, 265, 274].map((points, index) => ({
+    teamId: `team-${index + 1}`,
+    code: "PYS-03",
+    points,
+  }));
+  const withCanonicalCrank = [
+    ...batch,
+    { teamId: "team-1", code: "CRANK", points: 215 },
+  ];
+  assert.equal(normalizeLegacyScores(withCanonicalCrank), withCanonicalCrank);
+  assert.match(validateCollection("scores", withCanonicalCrank).join("\n"), /between 0 and 100/);
+
+  const duplicateTeamBatch = batch.map((score, index) => (
+    index === 5 ? { ...score, teamId: "team-1" } : score
+  ));
+  assert.equal(normalizeLegacyScores(duplicateTeamBatch), duplicateTeamBatch);
+
+  const outOfRangeBatch = batch.map((score, index) => (
+    index === 5 ? { ...score, points: 301 } : score
+  ));
+  assert.equal(normalizeLegacyScores(outOfRangeBatch), outOfRangeBatch);
+
+  const differentSixTeamBatch = [101, 102, 103, 104, 105, 106].map((points, index) => ({
+    teamId: `team-${index + 1}`,
+    code: "PYS-03",
+    points,
+  }));
+  assert.equal(normalizeLegacyScores(differentSixTeamBatch), differentSixTeamBatch);
+  assert.match(
+    validateCollection("scores", differentSixTeamBatch).join("\n"),
+    /between 0 and 100/,
+  );
 });
 
 test("2026 live scoring cancels the lowest quarter and always counts CRANK", () => {
@@ -277,6 +349,24 @@ test("published file metadata matches the shipped library", () => {
     const absolute = path.join(repo, "public", file.path);
     assert.equal(fs.statSync(absolute).size, file.bytes, file.path);
   }
+  assert.match(
+    files.find((file) => file.id === "TTT-10-handout")?.desc || "",
+    /practice-card.*real climate reconstruction/i,
+  );
+  assert.match(
+    files.find((file) => file.id === "TTT-12-guide")?.desc || "",
+    /standardized density.*counts alone.*water use/i,
+  );
+  assert.equal(
+    files.some((file) => /Instructor_Answer_Keys/.test(file.path) || /answer.?keys/i.test(file.id)),
+    false,
+    "staff-only answer keys must not appear in public file metadata",
+  );
+  assert.equal(
+    fs.existsSync(path.join(publicDir, "From_Trees_to_Tech_Instructor_Answer_Keys.pdf")),
+    false,
+    "Trees staff-only answer key must not be published",
+  );
 });
 
 test("file validation blocks paths that have not resolved to a shipped file", () => {
@@ -306,6 +396,90 @@ test("deck manifest records all 66 component exports", () => {
     const indexManifest = manifest.modules.find((entry) => entry.file === file);
     assert.equal(indexManifest.imports.modules, importCount, file);
   }
+});
+
+test("known mismatched protected visuals stay disconnected from science slides", () => {
+  const demoIndex = readText("src/deck/components/demos/index.js");
+  const extraIndex = readText("src/deck/components/extras/index.js");
+  const demoRoutes = new Set(
+    [...demoIndex.matchAll(/^\s*([a-z][a-z0-9]*)\s*:\s*Demo\w+\s*,?$/gm)]
+      .map((match) => match[1]),
+  );
+  const extraRoutes = new Set(
+    [...extraIndex.matchAll(/^\s*"([^"]+)"\s*:\s*Extra\w+\s*,?$/gm)]
+      .map((match) => match[1]),
+  );
+  const science = [TREES_DECK, PY_DECK, TREESB_DECK, PYB_DECK]
+    .flat()
+    .flatMap((activity) => activity.science || []);
+
+  const disabledDemos = [
+    "mudwatt", "capillary", "oobleck", "samara", "lotus", "magnet", "pinhole", "bookbot",
+    "treering",
+  ];
+  for (const key of disabledDemos) {
+    assert.equal(demoRoutes.has(key), false, `${key} demo must remain unrouted`);
+    assert.equal(science.some((slide) => slide.demo === key), false, `${key} demo key returned to deck data`);
+  }
+
+  const disabledExtras = [
+    "Completing the circuit",
+    "Microclimate varies in meters",
+    "Evidence-based siting",
+    "Material and geometry",
+    "Evidence from the tour",
+    "Bilayer biomimicry",
+    "Observation as evidence",
+    "Sound transmission",
+    "Heart rate and recovery",
+    "Median and improvement",
+    "The aperture tradeoff",
+    "Mapping forces",
+    "Glide versus control",
+    "Routing and search",
+    "Criteria and constraints",
+    "Slope and runoff",
+    "Angles give height",
+    "Urban heat and shade",
+    "Data-backed routing",
+    "Controlled variables",
+    "Pressure vs force",
+    "Spreading stress",
+    "Signals travel in a chain",
+    "Gaps and insulation",
+    "Mechanical advantage",
+    "Force and direction",
+    "Check digits catch errors",
+    "Claim, evidence, reasoning",
+    "Stomata: pores for gas exchange",
+    "Sampling and counting",
+  ];
+  for (const title of disabledExtras) {
+    assert.ok(science.some((slide) => slide.t === title), `${title} corrected science text disappeared`);
+    assert.equal(extraRoutes.has(title), false, `${title} protected visual must remain unrouted`);
+  }
+
+  const treeRingSlide = science.find((slide) => slide.t === "Rings as proxy data");
+  assert.match(treeRingSlide?.b || "", /cross-date many trees/i);
+  assert.match(treeRingSlide?.b || "", /depends on species and site/i);
+  assert.match(treeRingSlide?.b || "", /authored practice-card code/i);
+  assert.doesNotMatch(treeRingSlide?.b || "", /Wide rings mean a good growing season/i);
+
+  const treeRingActivity = TREES_DECK.find((activity) => activity.code === "TTT-10");
+  assert.match(treeRingActivity?.sub || "", /stylized rings as proxy evidence/i);
+  assert.match(treeRingActivity?.mission || "", /authored ring-card code/i);
+  assert.match(treeRingActivity?.scoring || "", /practice-card code/i);
+  assert.match(treeRingActivity?.steps?.[0]?.b || "", /alternating light and dark fill only separates/i);
+  assert.match(treeRingActivity?.steps?.[2]?.b || "", /not as proof of a specific real event/i);
+  assert.equal(treeRingActivity?.compete?.[0], "Practice-code inferences: 40");
+
+  const stomataActivity = TREES_DECK.find((activity) => activity.code === "TTT-12");
+  assert.match(stomataActivity?.mission || "", /standardized field of view/i);
+  assert.match(stomataActivity?.science?.[0]?.b || "", /Counts alone cannot rank actual water use/i);
+  assert.match(stomataActivity?.scoring || "", /standardized density comparison/i);
+  assert.match(stomataActivity?.source || "", /PMC6414756/);
+  assert.match(stomataActivity?.source || "", /PMC11565199/);
+  assert.doesNotMatch(stomataActivity?.sub || "", /rank leaves by water strategy/i);
 });
 
 test("dangerous legacy regeneration commands are retired", () => {
@@ -343,6 +517,14 @@ test("corrected public documents contain current safety and materials guidance",
     "pdftotext",
     ["-f", String(page), "-l", String(page), path.join(repo, "public", "files", filename), "-"],
   ).toString().replace(/\s+/g, " ");
+  const pdfSection = (filename, startText, endText) => {
+    const text = pdfText(filename);
+    const start = text.indexOf(startText);
+    assert.ok(start >= 0, `${filename} is missing section start: ${startText}`);
+    const end = text.indexOf(endText, start + startText.length);
+    assert.ok(end > start, `${filename} is missing section end: ${endText}`);
+    return text.slice(start, end);
+  };
   const ttb04 = pdfText("TTB_04_Photosynthesis_Float_Off_Playoffs_Instructor_Guide.pdf");
   assert.doesNotMatch(ttb04, /MISSING from the buy list|borrow 4, or share/);
 
@@ -409,6 +591,7 @@ test("corrected public documents contain current safety and materials guidance",
     const text = pdfText(filename);
     assert.match(text, /DEPOT/i);
     assert.match(text, /Efficiency versus card optimum/i);
+    assert.doesNotMatch(text, /traffic jams|What made one route faster/i);
   }
   const pystemScores = pdfText("PY_STEM_Score_Sheets_and_Leaderboard.pdf");
   assert.match(pystemScores, /Legal complete route/i);
@@ -425,6 +608,205 @@ test("corrected public documents contain current safety and materials guidance",
   const pystemInstructorPacket = pdfText("PY_STEM_Instructor_Guide_Packet.pdf");
   assert.match(pystemInstructorPacket, /Dominoes: about 16 tiles for one shared backup track/i);
   assert.match(pystemInstructorPacket, /Rulers: shared at the backup track/i);
+
+  const staleStudentTemplate = /The ONE variable we are testing|Baseline result|After redesign|DEFEND YOUR DESIGN|What evidence made you change your design|ONE thing you would change/i;
+  const staleGuideTemplate = /controlling one variable|redesign improved|change one variable at a time|before any redesign|log a baseline|Phase 4 Build or solve|Phase 6 Redesign|Tier 2 \(building but not reasoning\)|changes exactly one variable|compare against baseline|PPE off|quantify their improvement|single change could improve|isolates a different variable|Stage only the activity-specific safety controls|Put out PPE/i;
+  const stalePacketGuide = /one variable at a time|before redesign|standard test for a baseline|Redesign one variable|compare to baseline/i;
+
+  const pystemStudentPacket = "PY_STEM_Student_Handout_Packet.pdf";
+  const pystemGuidePacket = "PY_STEM_Instructor_Guide_Packet.pdf";
+  const pystemActivities = [
+    {
+      code: "PYS-06",
+      nextCode: "PYS-07",
+      handout: "PYS_06_SONAR_Slinky_Showdown_Student_Handout.pdf",
+      guide: "PYS_06_SONAR_Slinky_Showdown_Instructor_Guide.pdf",
+      handoutPositive: /Measured lane length L.*DEFEND YOUR WAVE MODEL/is,
+      guidePositive: /Phase 6 Evidence defense.*total distance = 2 x L x N/is,
+      guideTemplatePositive: /Phase 4 Run fixed wave stations.*Tier 2 \(measuring but not reasoning\)/is,
+      packetPositive: /total distance = 2 × L × N/i,
+      guidePacketPositive: /Fixed protocol: predict each station first/i,
+    },
+    {
+      code: "PYS-08",
+      nextCode: "PYS-09",
+      handout: "PYS_08_Low_Ropes_Force_Map_Relay_Student_Handout.pdf",
+      guide: "PYS_08_Low_Ropes_Force_Map_Relay_Instructor_Guide.pdf",
+      handoutPositive: /four fixed challenges.*EXPLAIN YOUR FORCE MAP/is,
+      guidePositive: /four fixed challenge cards.*Phase 6 Evidence defense/is,
+      guideTemplatePositive: /Phase 4 Run fixed challenges.*Tier 2 \(completing challenges but not reasoning\)/is,
+      packetPositive: /next to a clear wall/i,
+      guidePacketPositive: /Rotate through the four fixed challenge cards/i,
+    },
+    {
+      code: "PYS-10",
+      nextCode: "PYS-11",
+      handout: "PYS_10_Spectra_Sleuth_Showdown_Student_Handout.pdf",
+      guide: "PYS_10_Spectra_Sleuth_Showdown_Instructor_Guide.pdf",
+      handoutPositive: /Proposed source match and visible evidence.*DEFEND YOUR MATCHES/is,
+      guidePositive: /observe, sketch, match, and justify.*Phase 6 Evidence check/is,
+      guideTemplatePositive: /Phase 4 Observe and match spectra.*Tier 2 \(matching but not reasoning\)/is,
+      packetPositive: /Sketch the spectra.*Match to clue cards/is,
+      guidePacketPositive: /observe, sketch, match, and justify/i,
+    },
+    {
+      code: "PYS-11",
+      nextCode: "PYS-12",
+      handout: "PYS_11_BookBot_Bin_Logic_Challenge_Student_Handout.pdf",
+      guide: "PYS_11_BookBot_Bin_Logic_Challenge_Instructor_Guide.pdf",
+      handoutPositive: /card minimum.*DEFEND YOUR ROUTE/is,
+      guidePositive: /Phase 6 Algorithm defense.*card minimum/is,
+      guideTemplatePositive: /Phase 4 Run the shared-mat route.*Tier 2 \(routing but not reasoning\)/is,
+      packetPositive: /DEPOT.*orthogonally adjacent/is,
+      guidePacketPositive: /Shared-mat rules.*card's verified optimum/is,
+    },
+    {
+      code: "PYB-04",
+      nextCode: "PYB-05",
+      handout: "PYB_04_Barcode_Checksum_Rescue_Student_Handout.pdf",
+      guide: "PYB_04_Barcode_Checksum_Rescue_Instructor_Guide.pdf",
+      handoutPositive: /12-digit UPC-A.*DEFEND YOUR VERDICT/is,
+      guidePositive: /verify and classify 12-digit UPC-A codes.*Phase 6 Verification audit/is,
+      guideTemplatePositive: /Phase 4 Verify UPC-A codes.*Tier 2 \(calculating but not reasoning\)/is,
+      packetPositive: /odd positions.*multiply.*by 3/i,
+      guidePacketPositive: /UPC-A rule: verify 12 digits from the left/i,
+    },
+  ];
+  for (const activity of pystemActivities) {
+    const handout = pdfText(activity.handout);
+    const guide = pdfText(activity.guide);
+    const studentPacketSection = pdfSection(
+      pystemStudentPacket,
+      `ACTIVITY ${activity.code}`,
+      `ACTIVITY ${activity.nextCode}`,
+    );
+    const guidePacketSection = pdfSection(
+      pystemGuidePacket,
+      `INSTRUCTOR · ${activity.code}`,
+      `INSTRUCTOR · ${activity.nextCode}`,
+    );
+    assert.match(handout, activity.handoutPositive);
+    assert.match(guide, activity.guidePositive);
+    assert.match(guide, activity.guideTemplatePositive);
+    assert.match(studentPacketSection, activity.packetPositive);
+    assert.match(guidePacketSection, activity.guidePacketPositive);
+    assert.match(handout, /HOW TO RUN IT/i);
+    assert.match(studentPacketSection, /RUN IT/i);
+    assert.doesNotMatch(handout, staleStudentTemplate);
+    assert.doesNotMatch(guide, staleGuideTemplate);
+    assert.doesNotMatch(studentPacketSection, staleStudentTemplate);
+    assert.doesNotMatch(guidePacketSection, stalePacketGuide);
+    assert.doesNotMatch(handout, /HOW TO BUILD AND RUN IT/i);
+    assert.doesNotMatch(studentPacketSection, /BUILD AND RUN IT/i);
+  }
+  const balanceHandout = pdfText("PYS_08_Low_Ropes_Force_Map_Relay_Student_Handout.pdf");
+  assert.doesNotMatch(balanceHandout, /every challenge.*back and heels touching/i);
+
+  const pystemSigns = pdfText("PY_STEM_Station_Signs.pdf");
+  const hovercraftHandout = pdfText("PYS_09_Hovercraft_Hockey_Hackathon_Student_Handout.pdf");
+  const hovercraftPacketSection = pdfSection(
+    pystemStudentPacket,
+    "ACTIVITY PYS-09",
+    "ACTIVITY PYS-10",
+  );
+  const hovercraftSignSection = pdfSection(
+    "PY_STEM_Station_Signs.pdf",
+    "PYS-09",
+    "PYS-10",
+  );
+  for (const text of [hovercraftHandout, hovercraftPacketSection, hovercraftSignSection]) {
+    assert.match(text, /Highest normalized glide and five-shot target scores/i);
+    assert.doesNotMatch(text, /Best glide plus control/i);
+  }
+  const signChecks = [
+    ["PYS-06", "PYS-07", /SEND PULSE.*TIME N TRIPS.*CALCULATE.*DEFEND/is],
+    ["PYS-08", "PYS-09", /TEST FIXED CARD.*MAP FORCES.*COMPARE.*SCORE/is],
+    ["PYS-10", "PYS-11", /OBSERVE.*SKETCH.*MATCH.*JUSTIFY/is],
+    ["PYS-11", "PYS-12", /PLAN.*RUN SHARED MAT.*COUNT MOVES.*CHECK OPTIMUM.*DEFEND/is],
+    ["PYB-04", "PYB-05", /LEARN RULE.*CALCULATE.*VERIFY.*AUDIT.*EXPLAIN/is],
+  ];
+  for (const [code, nextCode, expected] of signChecks) {
+    const start = pystemSigns.indexOf(code);
+    const end = pystemSigns.indexOf(nextCode, start + code.length);
+    assert.ok(start >= 0 && end > start, `missing ${code} station-sign section`);
+    const section = pystemSigns.slice(start, end);
+    assert.match(section, expected);
+    assert.doesNotMatch(section, /BUILD or SOLVE|REDESIGN/i);
+    if (code === "PYS-11") {
+      assert.match(section, /fewest legal moves, card[-\s]?normalized efficiency/i);
+      assert.doesNotMatch(section, /few traffic conflicts/i);
+    }
+  }
+
+  const treeRingHandout = pdfText("TTT_10_Tree_Ring_Climate_Detective_Tournament_Student_Handout.pdf");
+  const treeRingGuide = pdfText("TTT_10_Tree_Ring_Climate_Detective_Tournament_Instructor_Guide.pdf");
+  const treesStudentPacket = "From_Trees_to_Tech_Student_Handout_Packet.pdf";
+  const treesGuidePacket = "From_Trees_to_Tech_Instructor_Guide_Packet.pdf";
+  const treeRingStudentPacket = pdfSection(treesStudentPacket, "ACTIVITY TTT-10", "ACTIVITY TTT-11");
+  const treeRingGuidePacket = pdfSection(treesGuidePacket, "INSTRUCTOR · TTT-10", "INSTRUCTOR · TTT-11");
+  const treeRingPrintable = pdfText("TTT_10_Tree_Ring_Cards_and_Boards.pdf");
+  for (const text of [treeRingHandout, treeRingGuide, treeRingStudentPacket, treeRingGuidePacket, treeRingPrintable]) {
+    assert.match(text, /authored|practice-card|practice code/i);
+    assert.doesNotMatch(text, /Wide rings mean a good growing season|Wide equals a favorable year|reconstruct the climate events|Most accurate climate-event inferences|rings that prove it|Which single ring or run of rings most changes your climate story/i);
+  }
+  assert.match(treeRingHandout, /HOW TO RUN IT/i);
+  assert.match(treeRingStudentPacket, /RUN IT/i);
+  assert.doesNotMatch(treeRingHandout, /HOW TO BUILD AND RUN IT/i);
+  assert.doesNotMatch(treeRingStudentPacket, /BUILD AND RUN IT/i);
+  assert.match(treeRingHandout, /gray and white shading only separates adjacent years/i);
+  assert.match(treeRingGuide, /cross-date many trees.*local records/is);
+  assert.match(treeRingGuide, /Which authored annual band or pattern most changes your model history under the card code/i);
+  assert.match(treeRingGuide, /Tier 2 \(applying the card code but not reasoning\)/i);
+  assert.doesNotMatch(treeRingGuide, /Tier 2 \(building but not reasoning\)/i);
+  assert.match(treeRingPrintable, /gray and white only separates adjacent years/i);
+  assert.match(treeRingPrintable, /real climate claims require cross-dated samples and local calibration/i);
+
+  const stomataHandout = pdfText("TTT_12_Leaf_Stomata_Microscope_Detective_Student_Handout.pdf");
+  const stomataGuide = pdfText("TTT_12_Leaf_Stomata_Microscope_Detective_Instructor_Guide.pdf");
+  const stomataStudentPacket = pdfSection(treesStudentPacket, "ACTIVITY TTT-12", "ACTIVITY TTB-01");
+  const stomataGuidePacket = pdfSection(treesGuidePacket, "INSTRUCTOR · TTT-12", "INSTRUCTOR · TTB-01");
+  const stomataPrintable = pdfText("TTT_12_Stomata_Counting_Sheet.pdf");
+  for (const text of [stomataHandout, stomataGuide, stomataStudentPacket, stomataGuidePacket, stomataPrintable]) {
+    assert.match(text, /counts alone cannot rank actual water use/i);
+    assert.doesNotMatch(text, /water-saving to water-spending|rank leaves by water strategy|detective ranking|Ranking evidence|more stomata generally means more water lost/i);
+  }
+  assert.match(stomataHandout, /HOW TO RUN IT/i);
+  assert.match(stomataStudentPacket, /RUN IT/i);
+  assert.doesNotMatch(stomataHandout, /HOW TO BUILD AND RUN IT/i);
+  assert.doesNotMatch(stomataStudentPacket, /BUILD AND RUN IT/i);
+  assert.match(stomataHandout, /mean.*range/is);
+  assert.match(stomataGuide, /surface, preparation, magnification, field area.*mean and range/is);
+  assert.match(stomataGuide, /PMC6414756/);
+  assert.match(stomataGuidePacket, /PMC11565199/);
+  assert.match(stomataPrintable, /Mean.*Range/is);
+  assert.match(stomataGuide, /Tier 2 \(counting but not reasoning\)/i);
+  assert.doesNotMatch(stomataGuide, /Tier 2 \(building but not reasoning\)/i);
+  assert.doesNotMatch(stomataGuide, staleGuideTemplate);
+  assert.doesNotMatch(stomataGuidePacket, stalePacketGuide);
+
+  const treesScores = pdfText("From_Trees_to_Tech_Score_Sheets_and_Leaderboard.pdf");
+  assert.match(treesScores, /Practice-code inferences/i);
+  for (const text of [stomataHandout, stomataGuide, stomataStudentPacket, stomataGuidePacket, treesScores]) {
+    assert.match(text, /Standardized counting accuracy\s+30/i);
+    assert.match(text, /Cautious evidence-backed hypothesis\s+25/i);
+    assert.match(text, /Mean-and-range data table\s+10/i);
+    assert.doesNotMatch(text, /Ranking evidence|Team data table/i);
+  }
+  assert.doesNotMatch(treesScores, /Correct inferences/i);
+  const treesSigns = pdfText("From_Trees_to_Tech_Station_Signs.pdf");
+  assert.match(pdfSection("From_Trees_to_Tech_Station_Signs.pdf", "TTT-10", "TTT-11"), /APPLY CARD CODE.*CITE BANDS.*CHECK LIMITS/is);
+  assert.match(pdfSection("From_Trees_to_Tech_Station_Signs.pdf", "TTT-12", "TTB-01"), /COUNT 3\+ FIELDS.*MEAN \+ RANGE.*HYPOTHESIZE/is);
+  assert.match(treesSigns, /Most accurate use of the practice-card code/i);
+
+  const masterGuide = pdfText("2026_STEM_Camps_Master_Curriculum_and_Operations_Guide.pdf");
+  assert.match(masterGuide, /activity-specific sequences/i);
+  assert.match(masterGuide, /a baseline exists only where the activity names one/i);
+  assert.match(masterGuide, /Highest normalized glide and five-shot target scores/i);
+  assert.match(masterGuide, /fewest legal moves, card[-\s]?normalized efficiency/i);
+  assert.match(masterGuide, /Practice-code|practice-card code/i);
+  assert.match(masterGuide, /mean, range, and an evidence[-\s]?limited hypothesis/i);
+  assert.match(masterGuide, /each 100-point rubric uses the activity's named performance/i);
+  assert.doesNotMatch(masterGuide, /built on one engineering-design loop|Every activity moves teams through the same cycle|record a baseline result|Redesign: teams change one variable|100-point rubric rewards design, data quality, teamwork, and explanation/i);
 
   const pollinatorKit = pdfText("TTT_07_Pollinator_Cards_and_Bloom_Board.pdf");
   assert.match(pollinatorKit, /migrating hummingbirds/i);
@@ -490,6 +872,11 @@ test("generated SQL is exact, scoped, and non-overwriting at bootstrap", () => {
     assert.match(sync, /on conflict \(name\) do update set data = excluded\.data;/i);
     assert.deepEqual([...sync.matchAll(/values \('([^']+)'/g)].map((match) => match[1]), [name]);
   }
+
+  const retiredCrankEntry = readText("supabase/enter_crank_scores.sql");
+  assert.match(retiredCrankEntry, /RETIRED: DO NOT RUN/i);
+  assert.match(retiredCrankEntry, /raise exception 'RETIRED:/i);
+  assert.doesNotMatch(retiredCrankEntry, /update\s+public\.collections/i);
 });
 
 test("Supabase SQL enforces least privilege and a single allowlisted admin", () => {

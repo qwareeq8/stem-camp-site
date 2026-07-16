@@ -441,17 +441,43 @@ ${tourClueSheet()}`;
 // ---- TTT-10 Tree Ring Climate Detective: print-and-cut game pieces -------------
 // Ring cards (cross-sections to read), a recording board, and claim-evidence
 // cards. The cards are student-facing: each shows a pattern and a card letter,
-// never the answer. The answer key lives in the camp-prep facilitation notes.
-// One ring per year, read pith (center) to bark; wide = a favorable year, narrow
-// = a stress year, a scar = a fire the tree survived. A ring is a proxy, not a
-// thermometer. Verified against NOAA Climate.gov, UCAR SciEd, and LTRR Arizona.
+// never the answer. The staff-only key describes an authored practice code, not
+// a real-tree attribution. Real dendrochronology cross-dates many trees and
+// calibrates ring measurements against local records; relationships depend on
+// species and site.
 export const RING_CARDS = [
-  { id: "A", title: "Steady seasons", widths: [2, 2, 2, 2, 2, 2, 2, 2] },
-  { id: "B", title: "The dry spell", widths: [2, 3, 2, 1, 1, 1, 1, 3, 2] },
-  { id: "C", title: "Fire and back", widths: [2, 3, 2, 2, 1, 1, 2, 3], scar: 4 },
-  { id: "D", title: "Crowded, then free", widths: [1, 1, 1, 1, 1, 3, 3, 3] },
-  { id: "E", title: "Good years fading", widths: [3, 3, 3, 2, 2, 1, 1, 1] },
-  { id: "F", title: "Read the whole story", widths: [3, 2, 1, 1, 2, 3, 1, 2], scar: 6 },
+  {
+    id: "A",
+    widths: [2, 2, 2, 2, 2, 2, 2, 2],
+    model: "Steady model conditions: eight similar-width annual bands.",
+  },
+  {
+    id: "B",
+    widths: [2, 3, 2, 1, 1, 1, 1, 3, 2],
+    model: "Model stress run followed by recovery: four narrow bands, then a wide band.",
+  },
+  {
+    id: "C",
+    widths: [2, 3, 2, 2, 1, 1, 2, 3],
+    scar: 4,
+    model: "Model disturbance and recovery: a black-marked band, a narrow run, then wider bands.",
+  },
+  {
+    id: "D",
+    widths: [1, 1, 1, 1, 1, 3, 3, 3],
+    model: "Model release or recovery: five narrow bands followed by three wide bands.",
+  },
+  {
+    id: "E",
+    widths: [3, 3, 3, 2, 2, 1, 1, 1],
+    model: "Model increasing stress: a sequence that shifts from wide to narrow bands.",
+  },
+  {
+    id: "F",
+    widths: [3, 2, 1, 1, 2, 3, 1, 2],
+    scar: 6,
+    model: "Mixed model history: changing widths plus one black-marked disturbance band.",
+  },
 ];
 
 const TR_CSS = `
@@ -526,18 +552,30 @@ ${ringCookie(c.widths, c.scar ?? -1)}
 </div>`).join("");
   return `<div class="trc"><style>${TR_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Ring cards</div></div>
-<p class="tr-note">Each card is one tree's life. Read from the center (pith) out to the bark, one ring per year. Wide ring = a favorable year, narrow = a stress year (drought, cold, or crowding), a scar = a fire the tree lived through. A ring is a proxy, not a thermometer.</p>
+<p class="tr-note">These six stylized cards use an authored practice code: relatively wide = model-favorable, relatively narrow = model-stress, and a black mark = model-disturbance. Read annual bands from pith to bark. Each annual ring contains earlywood and latewood; alternating gray and white only separates adjacent years. This code is not a universal rule for real trees.</p>
 <div class="tr-cards">${cards}</div></div>`;
 }
 
-// Recording board: where teams log what they read and the rings that prove it.
+// Staff-only key: authored model answers and the limits of the practice code.
+export function treeRingAnswerKey() {
+  const rows = RING_CARDS.map(
+    (card) => `<tr><td style="font-family:var(--mono);font-weight:700">Card ${card.id}</td><td>${card.model}</td></tr>`,
+  ).join("");
+  return `<div class="trc"><style>${TR_CSS}</style>
+<div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Instructor practice-card key</div></div>
+<p class="tr-note"><b>Staff only.</b> These are authored answers for a simplified card code, not climate attributions from real samples. Real dendrochronology cross-dates many trees and calibrates measured ring series against local weather; relationships vary by species and site. Each annual ring contains earlywood and latewood. Gray and white fill only separates years.</p>
+<table class="tr-tbl"><thead><tr><th style="width:14%">Card</th><th>Authored model reading under the practice code</th></tr></thead><tbody>${rows}</tbody></table>
+</div>`;
+}
+
+// Recording board: where teams log observations and supporting annual bands.
 export function ringAnswerBoard() {
   const rows = RING_CARDS.map((c) =>
     `<tr><td style="font-family:var(--mono);font-weight:700">Card ${c.id}</td><td></td><td></td><td></td></tr>`).join("");
   return `<div class="trc"><style>${TR_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Answer board</div></div>
-<p class="tr-note">For each card, write what you see, the climate event you infer, and the exact rings that prove it. Read from the center out.</p>
-<table class="tr-tbl"><thead><tr><th style="width:12%">Card</th><th style="width:30%">What you see (wide / narrow / scar)</th><th style="width:30%">Event you infer</th><th>The rings that prove it</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="tr-note">For each stylized card, record what you see, the model event assigned under the authored code, and the exact annual bands that support it. Read from the center out. A card cannot reconstruct real climate.</p>
+<table class="tr-tbl"><thead><tr><th style="width:12%">Card</th><th style="width:30%">Observed width / mark pattern</th><th style="width:30%">Model event under card code</th><th>Annual bands that support it</th></tr></thead><tbody>${rows}</tbody></table>
 </div>`;
 }
 
@@ -545,16 +583,16 @@ export function ringAnswerBoard() {
 export function claimEvidenceCard() {
   const card = `<div class="ce-card">
 <div class="ce-h">Claim, evidence, reasoning</div>
-<div class="ce-row"><b>Card:</b> _____ &nbsp; <b>Our claim (the event):</b></div>
+<div class="ce-row"><b>Card:</b> _____ &nbsp; <b>Model event under the card code:</b></div>
 <div class="ce-line"></div>
-<div class="ce-row"><b>Evidence (which rings):</b></div>
+<div class="ce-row"><b>Evidence (which annual bands):</b></div>
 <div class="ce-line"></div>
-<div class="ce-row"><b>Reasoning (why those rings show it):</b></div>
+<div class="ce-row"><b>Reasoning (how the bands support the model assignment):</b></div>
 <div class="ce-line"></div>
 </div>`;
   return `<div class="trc"><style>${TR_CSS}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-10 Tree Ring Climate Detective</div><div class="sheet-title">Claim-evidence cards</div></div>
-<p class="tr-note">Use one card for each climate event you claim. Name the event, point to the exact rings, and explain why those rings prove it.</p>
+<p class="tr-note">Use one card for each model event assigned under the authored practice code. Point to exact annual bands and explain how they support the model. Real climate claims require cross-dated samples and local calibration.</p>
 <div class="ce-cards">${card}${card}${card}${card}</div></div>`;
 }
 
@@ -943,8 +981,8 @@ export function resilienceGridAppendix() {
 }
 
 // TTT-12 Leaf Stomata Microscope Detective counting sheet: a field-of-view
-// counting reference and a per-leaf tally table so every team counts the same
-// way (every stoma fully inside the field, at least three fields per leaf).
+// counting reference and a per-leaf tally table so every team uses the same
+// surface, preparation, magnification, field area, and counting rule.
 // Exposed as stomataCountAppendix(); build_trees.mjs renders it as the
 // standalone TTT-12 printable.
 export function stomataCountAppendix() {
@@ -960,7 +998,7 @@ ${[40, 70, 100, 130, 160].map((v) => `<line x1="${v}" y1="8" x2="${v}" y2="192"/
 <text x="100" y="118" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#5A564F">the circle</text>
 </svg>`;
   const rows = [1, 2, 3, 4].map((n) =>
-    `<tr><td class="sc-leaf">Leaf ${n}<div class="sc-name">name/type: ____________</div></td><td></td><td></td><td></td><td class="sc-avg"></td></tr>`).join("");
+    `<tr><td class="sc-leaf">Leaf ${n}<div class="sc-name">name/type: ____________</div></td><td></td><td></td><td></td><td class="sc-summary"></td><td class="sc-summary"></td></tr>`).join("");
   const css = `
 .sc-apx .sc-note { color: var(--ink2); font-size: 9pt; margin: 0 0 6pt; }
 .sc-apx .sc-cols { display: flex; gap: 16pt; align-items: flex-start; }
@@ -971,21 +1009,21 @@ ${[40, 70, 100, 130, 160].map((v) => `<line x1="${v}" y1="8" x2="${v}" y2="192"/
 .sc-apx table.sc-t { flex: 1; border-collapse: collapse; width: 100%; font-size: 9.5pt; }
 .sc-apx table.sc-t th { background: var(--camp-ink); color: #fff; padding: 4pt 6pt; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; }
 .sc-apx table.sc-t td { border: 0.7pt solid var(--rule2); height: 0.42in; padding: 3pt 6pt; }
-.sc-apx table.sc-t td.sc-leaf { font-size: 9pt; color: var(--camp-ink); width: 28%; }
+.sc-apx table.sc-t td.sc-leaf { font-size: 9pt; color: var(--camp-ink); width: 24%; }
 .sc-apx table.sc-t td.sc-name { font-size: 7.5pt; color: var(--ink2); font-weight: 400; }
-.sc-apx table.sc-t td.sc-avg { background: var(--camp-tint); }
+.sc-apx table.sc-t td.sc-summary { background: var(--camp-tint); }
 .sc-apx .sc-rank { font-size: 9.5pt; margin-top: 8pt; }
 `;
   return `<div class="sc-apx"><style>${css}</style>
 <div class="sheet-head"><div class="sheet-eyebrow">From Trees to Tech 2026 &middot; TTT-12 Leaf Stomata Microscope Detective</div><div class="sheet-title">Stomata counting sheet</div></div>
-<p class="sc-note">Everyone counts the same way, then ranks the leaves by how they manage water.</p>
+<p class="sc-note">Compare stomatal density with one standardized method. Counts alone cannot rank actual water use.</p>
 <div class="sc-cols">
 <div class="sc-conv"><div class="sc-h">Counting convention</div>
 <div style="text-align:center;margin:4pt 0">${fov}</div>
-<ul><li>Count every stoma <b>fully inside</b> the field of view.</li><li>Do at least <b>three fields</b> per leaf.</li><li>Average the three counts for that leaf.</li></ul></div>
-<table class="sc-t"><thead><tr><th>Leaf</th><th>Field 1</th><th>Field 2</th><th>Field 3</th><th>Average</th></tr></thead><tbody>${rows}</tbody></table>
+<ul><li>Keep leaf surface, preparation, magnification, and field area the same.</li><li>Count every stoma <b>fully inside</b> the field.</li><li>Count at least <b>three fields</b> per leaf.</li><li>Report the <b>mean and range</b>.</li></ul></div>
+<table class="sc-t"><thead><tr><th>Leaf</th><th>Field 1</th><th>Field 2</th><th>Field 3</th><th>Mean</th><th>Range</th></tr></thead><tbody>${rows}</tbody></table>
 </div>
-<div class="sc-rank">Our ranking, water-saving to water-spending (use the averages; more stomata generally means more water lost): <br>_______________________________________________________________________________</div>`;
+<div class="sc-rank"><b>Density comparison and cautious hypothesis:</b> _______________________________________________<br>Counts alone cannot rank water use. What aperture, pore-size, gas-exchange, species, or condition evidence would you need? ________________________________</div>`;
 }
 
 // TTB-02 Tree Height Triangulation Shootout paper clinometer and tan table. The

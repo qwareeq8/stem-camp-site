@@ -2,7 +2,7 @@
 
 Working copy: `/data/projects/stem-camp-site-publish`
 
-Last reviewed: July 15, 2026
+Last reviewed: July 16, 2026
 
 This file describes the current publish repository. The older June 10 handoff
 was superseded by more than 100 later commits and is not valid implementation
@@ -66,6 +66,10 @@ Expired dates no longer appear as "Up next" on Home.
   published snapshots instead of silently replacing them with starting data.
 - Allowed an empty roster team only for counselors, matching the form's
   supported unassigned-counselor state, and normalized whitespace around CRANK.
+- Restored the six historical 2026 Crank results at read time by narrowly
+  translating the complete legacy `PYS-03` batch to `CRANK` before validation;
+  all 54 live score rows, point values, team totals, and the live revision stay
+  unchanged, and malformed or partial batches still fail closed.
 - Made Admin authentication memory-only, restored the lock on reload/tab close,
   warned before leaving a dirty draft, and documented the award closeout order.
 
@@ -79,9 +83,13 @@ Expired dates no longer appear as "Up next" on Home.
 - Replaced the malformed camp-selector tab semantics with an `aria-pressed`
   button group and hid the timer's decorative SVG from assistive technology.
 - Updated custom-domain canonical, Open Graph, Twitter, and social-card assets.
-- Unrouted scientifically or operationally inaccurate protected visuals for
-  triangulation, pulleys, recovery, slinky timing, pinholes, hovercrafts,
-  BookBot routing, and the neuron analogy; accurate text remains in place.
+- Unrouted scientifically or operationally inaccurate protected visuals rather
+  than displaying a misleading model. The disabled set now covers 9 Demos and
+  30 Extras, including field-data simulations, ramp constraints, EVA pressure,
+  UPC-A checksums, triangulation, pulleys, recovery, pinholes, tree-ring
+  coloration, stomatal water-use inference, hovercrafts, BookBot routing, and
+  the neuron analogy; corrected slide text remains in place and a content
+  regression test preserves the routing decision.
 - Aligned PYS-01 magnet handling and Trees tick-check guidance with current
   safety sources; removed unused PYS-02 test weights.
 - Retired the destructive deck split command and updated the manifest to 66
@@ -141,7 +149,10 @@ Expired dates no longer appear as "Up next" on Home.
   boundary guard. Ordinary routes preload no deck chunk; the five deck chunks
   load only after the interactive deck route is opened.
 - CI now runs content, Admin-store, deck, and build gates before deployment.
-- CI now also runs the focused repo-native materials checks.
+- CI now also runs the focused repo-native materials checks and a portable
+  all-108 published-PDF corruption, text, metadata, and orientation gate with
+  `poppler-utils` installed explicitly. Full source-IR fidelity remains a local
+  release gate because the reviewed IR is intentionally not committed.
 - Added deterministic content checks for schema/data invariants, score rules,
   schedule keys, document mappings, file bytes, deck count, custom-domain
   metadata, the corrected safety/science language, and the field printables.
@@ -164,7 +175,7 @@ node tools/build_audit.mjs && node tools/montage.mjs
 
 Expected:
 
-- Content tests: 23 passed.
+- Content tests: 26 passed.
 - Admin store tests: 9 passed.
 - Focused materials checks: passed.
 - Deck smoke: 66 components, 0 failures.
@@ -216,7 +227,8 @@ limit the affected data.
   theoretical race.
 - The pre-existing untracked `tools/undefined/` directory contains duplicate
   generated bundles and is not part of this implementation.
-- Live database contents were not read, so live scores and podium outcomes were
-  not asserted or changed.
+- Public live collections were read without mutation to diagnose the missing
+  leaderboard. The scores row still contains 54 entries; the compatibility fix
+  changes no database value, score, team total, rank order, or revision.
 - The repository is configured for `campnotebook.org`, but external DNS/TLS
   reachability could not be independently confirmed from this workstation.

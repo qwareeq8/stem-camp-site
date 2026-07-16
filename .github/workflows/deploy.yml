@@ -32,10 +32,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install PDF validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes poppler-utils
       - run: npm run content:test
       - run: npm run admin-store:test
       - run: npm run deck:test
       - run: npm run materials:test
+      # The reviewed source IR is intentionally workstation-only. CI still
+      # opens and validates every shipped PDF without relying on that IR.
+      - run: node tools/docgen/check_pdfs.mjs --portable
       - run: npm run build
         env:
           # Inject the Supabase connection from repo Actions secrets and variables.

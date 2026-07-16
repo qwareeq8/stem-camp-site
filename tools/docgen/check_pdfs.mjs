@@ -8,6 +8,7 @@
 //   node tools/docgen/check_pdfs.mjs             # all shipped documents
 //   node tools/docgen/check_pdfs.mjs TTT-01      # only matching slugs
 //   node tools/docgen/check_pdfs.mjs --built     # check tools/out instead
+//   node tools/docgen/check_pdfs.mjs --portable  # no source IR; safe in CI
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -119,6 +120,7 @@ function pageSize(pdfPath) {
 function main() {
   const args = process.argv.slice(2);
   const built = args.includes("--built");
+  const portable = args.includes("--portable");
   const filter = args.find((arg) => !arg.startsWith("--"));
   const pdfDir = built ? PDF_DIR : PUBLIC_PDF_DIR;
   let failures = 0;
@@ -134,11 +136,14 @@ function main() {
     }
     const pages = pdfPages(pdfPath, "layout");
     const readingPages = pdfPages(pdfPath, "reading");
-    if (doc.isStatic) {
+    if (doc.isStatic || portable) {
       checked++;
       if (!pages.length || !readingPages.join("").trim()) {
         failures++;
-        process.stdout.write(`FAIL ${doc.out}\n   - static printable has no extractable page text\n`);
+        process.stdout.write(`FAIL ${doc.out}\n   - PDF has no extractable page text\n`);
+      } else if (portable && !pageSize(pdfPath)) {
+        failures++;
+        process.stdout.write(`FAIL ${doc.out}\n   - PDF page metadata is unreadable\n`);
       } else if (doc.landscape) {
         const size = pageSize(pdfPath);
         if (!size || size.width <= size.height) {
@@ -223,7 +228,9 @@ function main() {
       if (problems.length > 8) process.stdout.write(`   ... ${problems.length - 8} more\n`);
     }
   }
-  process.stdout.write(`checked ${checked} ${built ? "built" : "shipped"} documents, ${failures} with findings\n`);
+  const scope = built ? "built" : "shipped";
+  const mode = portable ? " with portable checks" : "";
+  process.stdout.write(`checked ${checked} ${scope} documents${mode}, ${failures} with findings\n`);
   process.exit(failures ? 1 : 0);
 }
 

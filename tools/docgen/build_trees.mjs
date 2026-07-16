@@ -28,6 +28,7 @@ import {
   arboretumQuestAnswerKey,
   resilienceGridAppendix,
   treeRingAppendix,
+  treeRingAnswerKey,
   stomataCountAppendix,
   clinometerTanAppendix,
   urbanHeatRouteMapAppendix,
@@ -81,13 +82,13 @@ ${landscape ? "@page { size: letter landscape; }" : ""}
 
 const wrap = (fn) => () => `<div class="sheet">${fn()}</div>`;
 
-// Staff-only compilation of the Trees instructor answer keys (currently the
-// TTT-08 Eco-Quest key; the TTT-10 ring-card key lives operator-side in the
-// camp-prep facilitation notes and is deliberately not duplicated here).
-// Stays out of public/files and files.json so answers never reach the public
-// site library, mirroring PY_STEM_Instructor_Answer_Keys.
+// Staff-only compilation of the Trees instructor answer keys. The TTT-10 key
+// documents the authored practice-card model and its real-evidence limits.
+// This file stays out of public/files and files.json.
 function answerKeys() {
-  return [arboretumQuestAnswerKey()].join(`<div style="break-before:page"></div>`);
+  return [arboretumQuestAnswerKey(), treeRingAnswerKey()].join(
+    `<div style="break-before:page"></div>`,
+  );
 }
 
 const SHEETS = [

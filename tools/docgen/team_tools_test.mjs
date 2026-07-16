@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   bloomBoard,
+  claimEvidenceCard,
   dropLaneStrip,
   plantCards,
   pollinatorCards,
@@ -12,6 +13,10 @@ import {
   questKey,
   questRouteMap,
   resilienceGridAppendix,
+  ringAnswerBoard,
+  stomataCountAppendix,
+  treeRingAnswerKey,
+  treeRingCards,
 } from "./team_tools.mjs";
 
 const routeMap = questRouteMap();
@@ -66,5 +71,30 @@ assert.match(pollinatorDeck, /Hummingbirds[\s\S]*Spring[\s\S]*Summer[\s\S]*Fall/
 const resilienceGrid = resilienceGridAppendix();
 assert.match(resilienceGrid, /build polish/i);
 assert.doesNotMatch(resilienceGrid, /not on looks/i);
+
+const ringStudentMaterials = `${treeRingCards()}\n${ringAnswerBoard()}\n${claimEvidenceCard()}`;
+const ringStaffKey = treeRingAnswerKey();
+assert.match(ringStudentMaterials, /authored practice code/i);
+assert.match(ringStudentMaterials, /alternating gray and white only separates adjacent years/i);
+assert.match(ringStudentMaterials, /real climate claims require cross-dated samples and local calibration/i);
+assert.match(ringStudentMaterials, /Model event under the card code/i);
+assert.match(ringStudentMaterials, /Evidence \(which annual bands\)/i);
+assert.match(ringStudentMaterials, /bands support the model assignment/i);
+assert.doesNotMatch(
+  ringStudentMaterials,
+  /Each card is one tree's life|Wide ring = a favorable year|rings that prove it|climate event you infer/i,
+);
+assert.match(ringStaffKey, /Staff only/i);
+assert.match(ringStaffKey, /cross-dates many trees/i);
+assert.match(ringStaffKey, /relationships vary by species and site/i);
+for (const card of ["A", "B", "C", "D", "E", "F"]) {
+  assert.match(ringStaffKey, new RegExp(`Card ${card}`));
+}
+
+const stomataSheet = stomataCountAppendix();
+assert.match(stomataSheet, /surface, preparation, magnification, and field area/i);
+assert.match(stomataSheet, /<th>Mean<\/th><th>Range<\/th>/i);
+assert.match(stomataSheet, /Counts alone cannot rank actual water use/i);
+assert.doesNotMatch(stomataSheet, /water-saving to water-spending|more stomata generally/i);
 
 console.log("Team-tools content checks passed");

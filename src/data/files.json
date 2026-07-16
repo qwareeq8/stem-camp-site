@@ -9,7 +9,7 @@
     "code": "",
     "category": "Program",
     "kind": "",
-    "bytes": 41051
+    "bytes": 41621
   },
   {
     "id": "doc-rewards",
@@ -57,7 +57,7 @@
     "code": "",
     "category": "Packet",
     "kind": "",
-    "bytes": 165248
+    "bytes": 166980
   },
   {
     "id": "pk-trees-guide",
@@ -69,7 +69,7 @@
     "code": "",
     "category": "Packet",
     "kind": "",
-    "bytes": 128458
+    "bytes": 129566
   },
   {
     "id": "pk-trees-scores",
@@ -81,7 +81,7 @@
     "code": "",
     "category": "Scoring",
     "kind": "",
-    "bytes": 39307
+    "bytes": 39621
   },
   {
     "id": "pk-trees-signs",
@@ -93,7 +93,7 @@
     "code": "",
     "category": "Signage",
     "kind": "",
-    "bytes": 89148
+    "bytes": 90192
   },
   {
     "id": "pk-pystem-handout",
@@ -105,7 +105,7 @@
     "code": "",
     "category": "Packet",
     "kind": "",
-    "bytes": 170769
+    "bytes": 171172
   },
   {
     "id": "pk-pystem-guide",
@@ -117,7 +117,7 @@
     "code": "",
     "category": "Packet",
     "kind": "",
-    "bytes": 131398
+    "bytes": 134867
   },
   {
     "id": "pk-pystem-scores",
@@ -141,7 +141,7 @@
     "code": "",
     "category": "Signage",
     "kind": "",
-    "bytes": 92752
+    "bytes": 93300
   },
   {
     "id": "TTT-01-handout",
@@ -362,26 +362,26 @@
   {
     "id": "TTT-10-handout",
     "name": "Tree Ring Climate Detective",
-    "desc": "Read rings to reconstruct past climate",
+    "desc": "Use stylized practice-card rings as proxy evidence and state the limits of real climate reconstruction",
     "type": "pdf",
     "path": "files/TTT_10_Tree_Ring_Climate_Detective_Tournament_Student_Handout.pdf",
     "camp": "trees",
     "code": "TTT-10",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 38819
+    "bytes": 39476
   },
   {
     "id": "TTT-10-guide",
     "name": "Tree Ring Climate Detective",
-    "desc": "Read rings to reconstruct past climate",
+    "desc": "Guide practice-card interpretation with cross-dating, calibration, species, and site limitations",
     "type": "pdf",
     "path": "files/TTT_10_Tree_Ring_Climate_Detective_Tournament_Instructor_Guide.pdf",
     "camp": "trees",
     "code": "TTT-10",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 49501
+    "bytes": 49920
   },
   {
     "id": "TTT-11-handout",
@@ -410,26 +410,26 @@
   {
     "id": "TTT-12-handout",
     "name": "Leaf Stomata Microscope Detective",
-    "desc": "Count stomata and rank leaves by water strategy",
+    "desc": "Compare standardized stomatal density with mean, range, and a cautious hypothesis",
     "type": "pdf",
     "path": "files/TTT_12_Leaf_Stomata_Microscope_Detective_Student_Handout.pdf",
     "camp": "trees",
     "code": "TTT-12",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 40780
+    "bytes": 40900
   },
   {
     "id": "TTT-12-guide",
     "name": "Leaf Stomata Microscope Detective",
-    "desc": "Count stomata and rank leaves by water strategy",
+    "desc": "Guide standardized density sampling without treating counts alone as actual water use",
     "type": "pdf",
     "path": "files/TTT_12_Leaf_Stomata_Microscope_Detective_Instructor_Guide.pdf",
     "camp": "trees",
     "code": "TTT-12",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 52066
+    "bytes": 52870
   },
   {
     "id": "PYS-01-handout",
@@ -561,7 +561,7 @@
     "code": "PYS-06",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 39007
+    "bytes": 39244
   },
   {
     "id": "PYS-06-guide",
@@ -573,7 +573,7 @@
     "code": "PYS-06",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 50028
+    "bytes": 50163
   },
   {
     "id": "PYS-07-handout",
@@ -609,7 +609,7 @@
     "code": "PYS-08",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 39774
+    "bytes": 39533
   },
   {
     "id": "PYS-08-guide",
@@ -621,7 +621,7 @@
     "code": "PYS-08",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 49679
+    "bytes": 50137
   },
   {
     "id": "PYS-09-handout",
@@ -633,7 +633,7 @@
     "code": "PYS-09",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 39179
+    "bytes": 39287
   },
   {
     "id": "PYS-09-guide",
@@ -657,7 +657,7 @@
     "code": "PYS-10",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 37186
+    "bytes": 36613
   },
   {
     "id": "PYS-10-guide",
@@ -669,7 +669,7 @@
     "code": "PYS-10",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 48358
+    "bytes": 48734
   },
   {
     "id": "PYS-11-handout",
@@ -681,7 +681,7 @@
     "code": "PYS-11",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 38485
+    "bytes": 38772
   },
   {
     "id": "PYS-11-guide",
@@ -693,7 +693,7 @@
     "code": "PYS-11",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 49416
+    "bytes": 48786
   },
   {
     "id": "PYS-12-handout",
@@ -914,26 +914,26 @@
   {
     "id": "ttt-print-treerings",
     "name": "Tree Ring Cards and Boards",
-    "desc": "Ring reading cards and boards for TTT-10.",
+    "desc": "Authored practice-code ring cards and evidence boards for TTT-10.",
     "type": "pdf",
     "path": "files/TTT_10_Tree_Ring_Cards_and_Boards.pdf",
     "camp": "trees",
     "code": "TTT-10",
     "category": "Printable",
     "kind": "print",
-    "bytes": 147078
+    "bytes": 152636
   },
   {
     "id": "ttt-print-stomata",
     "name": "Stomata Counting Sheet",
-    "desc": "Microscope field counting sheet for TTT-12.",
+    "desc": "Standardized stomatal-density count sheet with mean and range for TTT-12.",
     "type": "pdf",
     "path": "files/TTT_12_Stomata_Counting_Sheet.pdf",
     "camp": "trees",
     "code": "TTT-12",
     "category": "Printable",
     "kind": "print",
-    "bytes": 21578
+    "bytes": 22955
   },
   {
     "id": "ttb-print-clinometer",
@@ -1053,7 +1053,7 @@
     "code": "PYB-04",
     "category": "Activity",
     "kind": "handout",
-    "bytes": 37403
+    "bytes": 38867
   },
   {
     "id": "PYB-04-guide",
@@ -1065,7 +1065,7 @@
     "code": "PYB-04",
     "category": "Activity",
     "kind": "guide",
-    "bytes": 48418
+    "bytes": 49320
   },
   {
     "id": "PYB-05-handout",

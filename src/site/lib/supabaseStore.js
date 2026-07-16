@@ -49,6 +49,7 @@ import {
   writeCollectionIfCurrent,
 } from "./supabaseConcurrency.js";
 import { removedTeamReferenceSummaries } from "./crossCollectionIntegrity.js";
+import { normalizeLiveCollection } from "./liveDataCompatibility.js";
 
 const SEEDS = { teams, members, scores, tickets, catalog, schedule, achievements, prizes, files, config };
 const COLLECTIONS = Object.keys(SEEDS);
@@ -277,7 +278,7 @@ export async function hydrateCollection(name, { replaceOverlay = false } = {}) {
       else publish(name, SEEDS[name], absent);
       return SEEDS[name];
     }
-    const data = rows[0].data;
+    const data = normalizeLiveCollection(name, rows[0].data);
     const updatedAt = rows[0].updated_at;
     if (data == null || typeof updatedAt !== "string" || !updatedAt) {
       console.warn(`hydrate ${name}: row is missing data or updated_at; keeping public fallback`);

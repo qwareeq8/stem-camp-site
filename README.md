@@ -35,12 +35,15 @@ node tools/a11y_audit.mjs
 node tools/build_audit.mjs && node tools/montage.mjs
 ```
 
-Expected results are 23 content tests, 9 admin-store tests, focused material
+Expected results are 26 content tests, 9 admin-store tests, focused material
 checks passing, 66 deck components with 0 failures, 108 shipped PDFs with 0
 findings, 11 admin editors with 0 crashes, 18 accessibility routes with 0 hard
 failures, and 66 montage cells with 0 render errors. Montage still reports six
 known SVG warnings from protected animated demos; they are tracked soft
-findings. `npm audit` should report 0 vulnerabilities.
+findings. The deck smoke output intentionally reports 22 routed Extras and 5
+routed Demos: the remaining protected components stay exported for review but
+are disconnected where their model conflicts with the corrected activity.
+`npm audit` should report 0 vulnerabilities.
 
 ## Truth and provenance
 
@@ -131,7 +134,11 @@ node tools/docgen/check_pdfs.mjs TTB-04-guide
 
 `check_pdfs.mjs` checks `public/files` by default, including basic validation of
 static printables. Pass `--built` only when intentionally checking the ignored
-build directory.
+build directory. The default release check uses the reviewed local IR for full
+text fidelity, orphan-heading, and kept-table checks. Pass `--portable` only on
+a machine without that IR; portable mode still opens all 108 PDFs and checks
+that their text and page metadata are readable, but it does not claim source
+fidelity.
 
 Do not run a wholesale `extract_all.mjs` until the reviewed IR edits have been
 moved into durable source or correction layers. The current archive and IR are
@@ -214,10 +221,14 @@ awards. Database SQL is deliberately not executed by repository tooling.
 ## Deployment
 
 `.github/workflows/deploy.yml` runs the content, Admin data-store, deck,
-materials, and production-build gates before packaging `dist/` for GitHub
-Pages. Vite uses a relative base and the app uses `HashRouter`, so routes work
-under both the custom domain and a project subpath. `public/CNAME` contains
-`campnotebook.org`.
+materials, portable all-108 published-PDF, and production-build gates before
+packaging `dist/` for GitHub Pages. The workflow installs `poppler-utils`
+explicitly, so PDF corruption, extractable-text, page-metadata, and required
+landscape checks cannot be skipped on a clean runner. The stronger source-IR
+fidelity audit remains a local release gate because the reviewed IR and source
+archive are intentionally not committed. Vite uses a relative base and the app
+uses `HashRouter`, so routes work under both the custom domain and a project
+subpath. `public/CNAME` contains `campnotebook.org`.
 Repository configuration is verified; external DNS/TLS reachability was not
 independently confirmed from this workstation.
 

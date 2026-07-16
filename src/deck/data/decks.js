@@ -643,19 +643,19 @@ const TREES_DECK = [{
 }, {
   "code": "TTT-10",
   "t": "Tree Ring Climate Detective",
-  "sub": "Read rings to reconstruct past climate",
+  "sub": "Practice reading stylized rings as proxy evidence",
   "cat": "data",
   "icon": "🪵",
   "buildMin": 80,
-  "mission": "Read the rings to reconstruct the climate events a tree lived through.",
+  "mission": "Use an authored ring-card code to build and defend a model history, then explain what real evidence would require.",
   "science": [{
     "t": "Rings as proxy data",
-    "demo": "treering",
-    "b": "A tree adds one ring per year. Wide rings mean a good growing season; narrow rings mean stress like drought, cold, or crowding. Because the tree cannot record numbers, the rings are a proxy: an indirect record of past climate."
+    "demo": null,
+    "b": "Each annual ring contains light earlywood and dark latewood; color alone is not a good-year or stress label. Real climate studies cross-date many trees and calibrate width or density against local weather because interpretation depends on species and site. This station uses an authored practice-card code."
   }, {
     "t": "Claim, evidence, reasoning",
     "demo": null,
-    "b": "You infer events from ring patterns, then justify each call with the specific rings that support it. Scars, sudden narrowing, and runs of wide rings are your clues. Strong inferences cite the evidence."
+    "b": "Apply the practice-card code consistently, cite the exact pattern, and state the model's limit. A pattern can support the card's intended event, but one stylized sample cannot prove which factor affected a real tree."
   }],
   "materials": [{
     "n": "Printed ring cards",
@@ -674,25 +674,25 @@ const TREES_DECK = [{
     "q": "per team"
   }],
   "steps": [{
-    "t": "Learn the ring code",
-    "b": "Wide equals a favorable year, narrow a stress year (drought, cold, or crowding), scar a fire the tree survived. A ring is a proxy, not a thermometer."
+    "t": "Learn the practice code",
+    "b": "Real annual rings contain both earlywood and latewood. On these stylized cards, alternating light and dark fill only separates adjacent authored years; use the printed practice code, not the fill color."
   }, {
-    "t": "Read the sequence",
-    "b": "Work along the rings from center to bark, noting each pattern and the year it maps to."
+    "t": "Read the stylized sequence",
+    "b": "Work along the practice card from center to bark, noting each pattern and its position in the sequence."
   }, {
-    "t": "Infer the events",
-    "b": "Match patterns to likely events: drought, fire, a crowded stand, a recovery."
+    "t": "Make a model inference",
+    "b": "Match patterns only as the practice code defines them. Treat a black mark only as the authored code's model disturbance, not as proof of a specific real event."
   }, {
     "t": "Cite your evidence",
     "b": "For each inference, point to the exact rings that justify it on a claim-evidence card."
   }, {
-    "t": "Synthesize the story",
-    "b": "Combine your inferences into one short climate history for the tree."
+    "t": "State the limitation",
+    "b": "Combine the card-code inferences into one short model history, then name what a real study would need before making the same claim."
   }],
-  "compete": ["Correct inferences: 40", "Evidence justification: 20", "Speed: 20", "Final synthesis: 20"],
-  "scoring": "Most accurate climate-event inferences with claim-evidence-reasoning wins.",
-  "debrief": ["Which pattern was easiest to misread?", "How is a tree ring like and unlike a thermometer?", "What other natural records store past climate?"],
-  "source": "NOAA Tree Rings; NOAA Climate.gov; UCAR Center for Science Education",
+  "compete": ["Practice-code inferences: 40", "Evidence justification: 20", "Speed: 20", "Final synthesis: 20"],
+  "scoring": "Most accurate use of the practice-card code, supported with claim-evidence-reasoning, wins.",
+  "debrief": ["Which card pattern was easiest to misread?", "Why does a real study need cross-dated trees and weather records?", "What can one stylized card support, and what can it not prove?"],
+  "source": "NOAA NCEI tree-ring climate methods; NOAA Ocean Service earlywood and latewood; USGS tree-ring science",
   "camp": "trees"
 }, {
   "code": "TTT-11",
@@ -760,19 +760,19 @@ const TREES_DECK = [{
 }, {
   "code": "TTT-12",
   "t": "Leaf Stomata Microscope Detective",
-  "sub": "Count stomata and rank leaves by water strategy",
+  "sub": "Standardize stomatal counts and make a cautious hypothesis",
   "cat": "field",
   "icon": "🔬",
   "buildMin": 80,
-  "mission": "Count the breathing pores and rank leaves by how they manage water.",
+  "mission": "Count stomata under a standardized field of view, compare density across samples, and explain what the counts cannot establish about water use.",
   "science": [{
     "t": "Stomata: pores for gas exchange",
     "demo": null,
-    "b": "Leaves breathe through tiny pores called stomata. They open to take in carbon dioxide and let oxygen out, but open stomata also lose water. The number and spacing of stomata reflect how a plant balances feeding itself against drying out."
+    "b": "Stomata are adjustable pores that admit carbon dioxide while water vapor escapes. Density affects possible gas exchange, but water loss also depends on aperture, pore size, leaf area, species, and growing conditions. Counts alone cannot rank actual water use."
   }, {
     "t": "Sampling and counting",
     "demo": null,
-    "b": "You make a safe leaf peel or use prepared slides, count stomata in several fields of view, and average. Comparing counts across leaves lets you rank them by water strategy with real data."
+    "b": "Use the same leaf surface, magnification, field area, preparation, and counting rule for every sample. Several fields give a more reliable density estimate. Compare the averages and spread, then make a cautious hypothesis that names the evidence still needed."
   }],
   "materials": [{
     "n": "Leaf samples",
@@ -797,22 +797,22 @@ const TREES_DECK = [{
     "t": "Make a safe peel",
     "b": "Paint clear polish on the leaf underside, let it dry, and lift the print with clear tape. Or use a prepared slide."
   }, {
-    "t": "Focus the field",
-    "b": "Place the peel under the microscope and focus until the stomata are sharp."
+    "t": "Standardize the field",
+    "b": "Use the same leaf surface, magnification, field area, preparation, and counting rule for every sample."
   }, {
     "t": "Count several fields",
-    "b": "Count stomata in three or more fields of view and average to reduce error."
+    "b": "Count stomata in three or more fields of view. Record the mean and range so variation stays visible."
   }, {
-    "t": "Compare leaves",
-    "b": "Repeat for different leaves and build a team data table of counts per field."
+    "t": "Compare density estimates",
+    "b": "Repeat for different leaves and compare counts per standardized field without claiming that density alone measures whole-leaf water use."
   }, {
-    "t": "Rank by water strategy",
-    "b": "Use your counts to rank leaves from water-saving to water-spending, citing the data."
+    "t": "Make a cautious hypothesis",
+    "b": "Use the density comparison to propose a testable hypothesis, then name additional evidence such as aperture, pore size, gas exchange, species, and growing conditions."
   }],
-  "compete": ["Slide or peel quality: 25", "Counting accuracy: 30", "Ranking evidence: 25", "Team data table: 10", "Cleanup and care: 10"],
-  "scoring": "Most accurate detective ranking with clean data and strong evidence wins.",
-  "debrief": ["Why count several fields instead of one?", "What does a high stomata count suggest about a leaf's habitat?", "Where might error sneak into your count?"],
-  "source": "Leaf stomata microscopy adaptations; Science Buddies plant biology",
+  "compete": ["Slide or peel quality: 25", "Standardized counting accuracy: 30", "Cautious evidence-backed hypothesis: 25", "Mean-and-range data table: 10", "Cleanup and care: 10"],
+  "scoring": "Most reliable standardized density comparison and strongest evidence-limited explanation wins.",
+  "debrief": ["Why count several standardized fields instead of one?", "Why can density alone not rank whole-leaf water use?", "What additional measurement would test your hypothesis?"],
+  "source": "Bertolino, Caine, and Gray 2019 (PMCID PMC6414756); Lunn et al. 2024 (PMCID PMC11565199); USDA Forest Service hardwood physiology; Science Buddies leaf microscopy",
   "camp": "trees"
 }];
 const PY_DECK = [{

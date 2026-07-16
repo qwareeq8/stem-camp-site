@@ -234,7 +234,7 @@
       "imports": {
         "react": 0,
         "lucide": 0,
-        "modules": 6
+        "modules": 5
       }
     },
     {
@@ -836,7 +836,7 @@
       "imports": {
         "react": 0,
         "lucide": 0,
-        "modules": 33
+        "modules": 22
       }
     },
     {
