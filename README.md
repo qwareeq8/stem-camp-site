@@ -35,12 +35,12 @@ node tools/a11y_audit.mjs
 node tools/build_audit.mjs && node tools/montage.mjs
 ```
 
-Expected results are 26 content tests, 9 admin-store tests, focused material
+Expected results are 27 content tests, 9 admin-store tests, focused material
 checks passing, 66 deck components with 0 failures, 108 shipped PDFs with 0
 findings, 11 admin editors with 0 crashes, 18 accessibility routes with 0 hard
 failures, and 66 montage cells with 0 render errors. Montage still reports six
 known SVG warnings from protected animated demos; they are tracked soft
-findings. The deck smoke output intentionally reports 22 routed Extras and 5
+findings. The deck smoke output intentionally reports 25 routed Extras and 6
 routed Demos: the remaining protected components stay exported for review but
 are disconnected where their model conflicts with the corrected activity.
 `npm audit` should report 0 vulnerabilities.

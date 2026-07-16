@@ -415,7 +415,6 @@ test("known mismatched protected visuals stay disconnected from science slides",
 
   const disabledDemos = [
     "mudwatt", "capillary", "oobleck", "samara", "lotus", "magnet", "pinhole", "bookbot",
-    "treering",
   ];
   for (const key of disabledDemos) {
     assert.equal(demoRoutes.has(key), false, `${key} demo must remain unrouted`);
@@ -436,8 +435,6 @@ test("known mismatched protected visuals stay disconnected from science slides",
     "The aperture tradeoff",
     "Mapping forces",
     "Glide versus control",
-    "Routing and search",
-    "Criteria and constraints",
     "Slope and runoff",
     "Angles give height",
     "Urban heat and shade",
@@ -452,7 +449,6 @@ test("known mismatched protected visuals stay disconnected from science slides",
     "Check digits catch errors",
     "Claim, evidence, reasoning",
     "Stomata: pores for gas exchange",
-    "Sampling and counting",
   ];
   for (const title of disabledExtras) {
     assert.ok(science.some((slide) => slide.t === title), `${title} corrected science text disappeared`);
@@ -480,6 +476,122 @@ test("known mismatched protected visuals stay disconnected from science slides",
   assert.match(stomataActivity?.source || "", /PMC6414756/);
   assert.match(stomataActivity?.source || "", /PMC11565199/);
   assert.doesNotMatch(stomataActivity?.sub || "", /rank leaves by water strategy/i);
+});
+
+test("restored deck visuals encode the current public activity models", () => {
+  const demoIndex = readText("src/deck/components/demos/index.js");
+  const extraIndex = readText("src/deck/components/extras/index.js");
+  assert.match(demoIndex, /^\s*treering:\s*DemoTreering,?$/m);
+  assert.match(extraIndex, /^\s*"Sampling and counting":\s*ExtraSampling,?$/m);
+  assert.match(extraIndex, /^\s*"Routing and search":\s*ExtraSearch,?$/m);
+  assert.match(extraIndex, /^\s*"Criteria and constraints":\s*ExtraDecision,?$/m);
+
+  const treeRingActivity = TREES_DECK.find((activity) => activity.code === "TTT-10");
+  assert.equal(treeRingActivity?.science?.[0]?.demo, "treering");
+
+  const treeRingSource = readText("src/deck/components/demos/DemoTreering.jsx");
+  assert.match(treeRingSource, /widths:\s*\[2, 3, 2, 2, 1, 1, 2, 3\],\s*mark:\s*4/);
+  assert.match(treeRingSource, /widths:\s*\[3, 2, 1, 1, 2, 3, 1, 2\],\s*mark:\s*6/);
+  assert.match(treeRingSource, /model-favorable/);
+  assert.match(treeRingSource, /model-stress/);
+  assert.match(treeRingSource, /model-disturbance/);
+  assert.match(treeRingSource, /cross-date/i);
+  assert.match(treeRingSource, /local weather/i);
+  assert.match(treeRingSource, /species and site/i);
+  assert.doesNotMatch(treeRingSource, /wet warm year|fire scar|const y0\s*=|const drought\s*=/i);
+
+  const samplingSource = readText("src/deck/components/extras/ExtraSampling.jsx");
+  assert.match(samplingSource, /counts:\s*\[18, 22, 16, 20, 19, 23\]/);
+  assert.match(samplingSource, /counts:\s*\[11, 14, 13, 12, 16, 10\]/);
+  assert.match(samplingSource, /same leaf surface/i);
+  assert.match(samplingSource, /mean and range/i);
+  assert.match(samplingSource, /at\s+least\s+three\s+fields/i);
+  assert.match(samplingSource, /counts alone cannot rank actual water use/i);
+  assert.doesNotMatch(samplingSource, /whole-leaf truth|percent error|Ttrue|estimate the whole leaf/i);
+
+  const routeSource = readText("src/deck/components/extras/ExtraSearch.jsx");
+  assert.match(routeSource, /const ROW_LABELS\s*=\s*\["A", "B", "C", "D"\]/);
+  assert.match(routeSource, /const COLUMN_LABELS\s*=\s*\[1, 2, 3, 4, 5, 6\]/);
+  assert.match(routeSource, /PRACTICE_REQUEST\s*=\s*Object\.freeze\(\["A6", "C2", "D5"\]\)/);
+  assert.match(routeSource, /visitOrder:\s*Object\.freeze\(\["C2", "D5", "A6"\]\)/);
+  assert.match(routeSource, /hasIllegalMove/);
+  assert.match(routeSource, /DEPOT is immediately left/i);
+  assert.match(routeSource, /one orthogonal edge per move/i);
+  assert.doesNotMatch(routeSource, /nearest-neighbor|diagonal moves|smart route/i);
+
+  const address = (value) => ({
+    row: value.charCodeAt(0) - 65,
+    column: Number(value.slice(1)) - 1,
+  });
+  const practiceMoveCount = (order) => {
+    const cells = order.map(address);
+    const depotDistance = (cell) => 1 + cell.row + cell.column;
+    return depotDistance(cells[0])
+      + cells.slice(1).reduce((sum, cell, index) => (
+        sum
+        + Math.abs(cell.row - cells[index].row)
+        + Math.abs(cell.column - cells[index].column)
+      ), 0)
+      + depotDistance(cells.at(-1));
+  };
+  assert.equal(practiceMoveCount(["A6", "C2", "D5"]), 24);
+  assert.equal(practiceMoveCount(["C2", "D5", "A6"]), 18);
+
+  const decisionSource = readText("src/deck/components/extras/ExtraDecision.jsx");
+  const clientPattern = /id:\s*"([A-D])",\s*name:\s*"([^"]+)",\s*riseCm:\s*(\d+),\s*runPerRise:\s*(\d+),\s*weightPieces:\s*(\d+),\s*foldPanels:\s*(\d+),\s*maxPanelCm:\s*(\d+)/g;
+  const clients = [...decisionSource.matchAll(clientPattern)].map((match) => ({
+    id: match[1],
+    name: match[2],
+    riseCm: Number(match[3]),
+    runPerRise: Number(match[4]),
+    weightPieces: Number(match[5]),
+    foldPanels: Number(match[6]),
+    maxPanelCm: Number(match[7]),
+  }));
+  assert.deepEqual(clients, [
+    { id: "A", name: "Community school", riseCm: 5, runPerRise: 12, weightPieces: 1, foldPanels: 2, maxPanelCm: 31 },
+    { id: "B", name: "Public library", riseCm: 4, runPerRise: 14, weightPieces: 2, foldPanels: 2, maxPanelCm: 29 },
+    { id: "C", name: "Health clinic", riseCm: 6, runPerRise: 12, weightPieces: 3, foldPanels: 3, maxPanelCm: 25 },
+    { id: "D", name: "Science museum", riseCm: 4, runPerRise: 16, weightPieces: 4, foldPanels: 2, maxPanelCm: 33 },
+  ]);
+  assert.deepEqual(
+    clients.map((client) => {
+      const runCm = client.riseCm * client.runPerRise;
+      const exactDeckCm = Math.hypot(runCm, client.riseCm);
+      const cutDeckCm = Math.ceil(exactDeckCm);
+      return [runCm, exactDeckCm.toFixed(1), cutDeckCm, (cutDeckCm / client.foldPanels).toFixed(1)];
+    }),
+    [
+      [60, "60.2", 61, "30.5"],
+      [56, "56.1", 57, "28.5"],
+      [72, "72.2", 73, "24.3"],
+      [64, "64.1", 65, "32.5"],
+    ],
+  );
+  assert.match(decisionSource, /unwound car/i);
+  assert.match(decisionSource, /mid-span/i);
+  assert.match(decisionSource, /cannot\s+predict\s+prototype\s+strength/i);
+  assert.doesNotMatch(decisionSource, /loadLb|quadratic|250\s*lb|35\s*lb|capacity formula/i);
+
+  const rampSource = readText("src/deck/components/demos/DemoRamp.jsx");
+  assert.match(rampSource, /unwound, unweighted cart/i);
+  assert.match(rampSource, /not an accessibility-compliance verdict/i);
+  assert.doesNotMatch(rampSource, /loadLb|\blbf\b|push force|mech\. advantage/i);
+
+  for (const source of [treeRingSource, samplingSource, routeSource, decisionSource, rampSource]) {
+    assert.match(source, /prefers-reduced-motion/);
+    assert.match(source, /role="img"/);
+  }
+  const presentationSource = readText("src/deck/Presentation.jsx");
+  assert.match(presentationSource, /button, input, select, textarea/);
+  assert.match(presentationSource, /role=\"slider\"/);
+
+  const rampActivity = PY_DECK.find((activity) => activity.code === "PYS-12");
+  assert.match(rampActivity?.mission || "", /portable tabletop ramp/i);
+  assert.match(rampActivity?.science?.[0]?.b || "", /not a compliance review/i);
+  assert.match(rampActivity?.science?.[1]?.b || "", /unwound cart/i);
+  assert.match(rampActivity?.science?.[1]?.b || "", /hanging at mid-span/i);
+  assert.match(rampActivity?.source || "", /U\.S\. Access Board/);
 });
 
 test("dangerous legacy regeneration commands are retired", () => {

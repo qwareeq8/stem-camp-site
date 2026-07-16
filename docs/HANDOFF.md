@@ -84,12 +84,15 @@ Expired dates no longer appear as "Up next" on Home.
   button group and hid the timer's decorative SVG from assistive technology.
 - Updated custom-domain canonical, Open Graph, Twitter, and social-card assets.
 - Unrouted scientifically or operationally inaccurate protected visuals rather
-  than displaying a misleading model. The disabled set now covers 9 Demos and
-  30 Extras, including field-data simulations, ramp constraints, EVA pressure,
+  than displaying a misleading model. The disabled set now covers 8 Demos and
+  27 Extras, including field-data simulations, EVA pressure,
   UPC-A checksums, triangulation, pulleys, recovery, pinholes, tree-ring
-  coloration, stomatal water-use inference, hovercrafts, BookBot routing, and
-  the neuron analogy; corrected slide text remains in place and a content
-  regression test preserves the routing decision.
+  claim overreach, stomatal water-use inference, hovercrafts, and the neuron
+  analogy; corrected slide text remains in place and a content regression test
+  preserves the routing decision.
+- Rebuilt and restored four source-aligned visuals for authored tree-ring
+  evidence, standardized stomata sampling, legal BookBot tabletop routing, and
+  the public ramp client-card criteria.
 - Aligned PYS-01 magnet handling and Trees tick-check guidance with current
   safety sources; removed unused PYS-02 test weights.
 - Retired the destructive deck split command and updated the manifest to 66

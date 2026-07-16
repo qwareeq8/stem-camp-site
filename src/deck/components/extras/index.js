@@ -5,6 +5,7 @@ import { ExtraCenterMass } from "./ExtraCenterMass.jsx";
 import { ExtraCipherRule } from "./ExtraCipherRule.jsx";
 import { ExtraClump } from "./ExtraClump.jsx";
 import { ExtraDetect } from "./ExtraDetect.jsx";
+import { ExtraDecision } from "./ExtraDecision.jsx";
 import { ExtraEncode } from "./ExtraEncode.jsx";
 import { ExtraFoodWeb } from "./ExtraFoodWeb.jsx";
 import { ExtraGreenhouse } from "./ExtraGreenhouse.jsx";
@@ -18,6 +19,8 @@ import { ExtraReliability } from "./ExtraReliability.jsx";
 import { ExtraResilience } from "./ExtraResilience.jsx";
 import { ExtraRootsAnchor } from "./ExtraRootsAnchor.jsx";
 import { ExtraRoughCoat } from "./ExtraRoughCoat.jsx";
+import { ExtraSampling } from "./ExtraSampling.jsx";
+import { ExtraSearch } from "./ExtraSearch.jsx";
 import { ExtraSonarRange } from "./ExtraSonarRange.jsx";
 import { ExtraSpectraFingerprint } from "./ExtraSpectraFingerprint.jsx";
 import { ExtraStrengthWeight } from "./ExtraStrengthWeight.jsx";
@@ -50,10 +53,10 @@ const EXTRAS = {
   // corrected slide requires cross-dated, site-calibrated evidence and keeps
   // uncertainty explicit.
   "Roughness plus coating": ExtraRoughCoat,
-  // The protected stomata visual invents an aperture-to-water-loss equation,
-  // while the sampling visual invents a whole-leaf total and promises monotonic
-  // improvement. The corrected activity compares standardized density samples
-  // and states that counts alone cannot rank actual water use.
+  // The protected stomata visual invents an aperture-to-water-loss equation.
+  // This sampling model instead compares standardized fields and keeps the
+  // density-only evidence limit visible.
+  "Sampling and counting": ExtraSampling,
   "Path planning": ExtraPathPlan,
   "Material efficiency": ExtraStrengthWeight,
   "Reliability": ExtraReliability,
@@ -73,11 +76,8 @@ const EXTRAS = {
   // that the cited hovercraft activity does not establish. Keep the measured
   // field-best normalization and target rules in text and print.
   "Spectra as fingerprints": ExtraSpectraFingerprint,
-  // The protected route visual uses only A-C, puts the dock outside the
-  // corrected grid, and draws diagonal moves. Keep the exact A1/depot,
-  // orthogonal-only judging rules in the slide text and printable mat.
-  // The ramp decision visual invents client constraints and a load formula
-  // that do not match the 1:12 model, roll check, and 200 g sag test.
+  "Routing and search": ExtraSearch,
+  "Criteria and constraints": ExtraDecision,
   "Roots anchor soil": ExtraRootsAnchor,
   // The runoff visual is qualitative and cannot support the measured claim.
   // The original triangulation animation omitted observer eye height. The

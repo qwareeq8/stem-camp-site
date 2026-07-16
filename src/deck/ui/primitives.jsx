@@ -1,9 +1,9 @@
 // Low-level UI primitives shared by every deck component (buttons, sliders, frames, readouts).
 import { T, f } from "../theme.js";
 
-function Btn({ children, onClick, color = T.ink, active, disabled, small, icon: Icon, style: sx, title }) {
+function Btn({ children, onClick, color = T.ink, active, disabled, small, icon: Icon, style: sx, title, ...buttonProps }) {
   return (
-    <button onClick={onClick} disabled={disabled} title={title} className="focusable"
+    <button {...buttonProps} type="button" onClick={onClick} disabled={disabled} title={title} className="focusable"
       style={{
         display: "inline-flex", alignItems: "center", gap: 7,
         padding: small ? "6px 12px" : "9px 15px",
@@ -32,7 +32,7 @@ function Slider({ val, set, min, max, step = 1, color = T.ink, label, suffix }) 
       </span>
       <input type="range" min={min} max={max} step={step} value={val}
         onChange={(e) => set(+e.target.value)}
-        style={{ accentColor: color }} />
+        style={{ accentColor: color, minHeight: 24, cursor: "pointer" }} />
     </label>
   );
 }

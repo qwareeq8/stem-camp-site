@@ -125,6 +125,13 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
       // never swallow page scroll or interfere with the rest of the site.
       if (!node.contains(document.activeElement)) return;
       if (navOpen) { if (e.key === "Escape") setNavOpen(false); return; }
+      // Let focused controls handle their own activation and adjustment. In
+      // particular, Space activates buttons and ArrowLeft/ArrowRight adjust
+      // range inputs used by the interactive evidence models.
+      const interactive = e.target instanceof Element && e.target.closest(
+        'button, input, select, textarea, a[href], [contenteditable="true"], [role="button"], [role="slider"]',
+      );
+      if (interactive && (e.key === " " || e.key === "ArrowLeft" || e.key === "ArrowRight")) return;
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
         setPage((p) => Math.min(p + 1, total - 1));

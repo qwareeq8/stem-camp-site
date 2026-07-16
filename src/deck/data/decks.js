@@ -650,7 +650,7 @@ const TREES_DECK = [{
   "mission": "Use an authored ring-card code to build and defend a model history, then explain what real evidence would require.",
   "science": [{
     "t": "Rings as proxy data",
-    "demo": null,
+    "demo": "treering",
     "b": "Each annual ring contains light earlywood and dark latewood; color alone is not a good-year or stress label. Real climate studies cross-date many trees and calibrate width or density against local weather because interpretation depends on species and site. This station uses an authored practice-card code."
   }, {
     "t": "Claim, evidence, reasoning",
@@ -1498,19 +1498,19 @@ const PY_DECK = [{
 }, {
   "code": "PYS-12",
   "t": "Accessibility Ramp Rescue Lab",
-  "sub": "A portable ramp that meets real constraints",
+  "sub": "A portable scale ramp tested against one client card",
   "cat": "design",
   "icon": "♿",
   "buildMin": 80,
-  "mission": "Design a portable ramp that works for a real user constraint.",
+  "mission": "Design a portable tabletop ramp that meets the selected client card, then separate calculated checks from observed test evidence.",
   "science": [{
     "t": "Slope, load, and universal design",
     "demo": "ramp",
-    "b": "A ramp trades steepness for length: a gentler slope is easier and safer to use but needs more room. Accessibility standards cap how steep a ramp can be. Universal design means building for real users and real constraints from the start, not as an afterthought."
+    "b": "A ramp trades steepness for length: a gentler running slope needs more horizontal room. For ramp runs governed by the ADA Standards, 1:12 is the maximum running slope, while a complete accessible design also has width, landing, surface, handrail, and edge requirements. This station is a scale-model investigation, not a compliance review."
   }, {
     "t": "Criteria and constraints",
     "demo": null,
-    "b": "Your client gives criteria: a maximum slope, a load to carry, and a portability limit. You build a scale ramp for a toy wheelchair or weighted cart that meets all of them, then defend the tradeoffs."
+    "b": "Each client card specifies a rise, maximum slope, midpoint hanging-load test, and folded-panel limit. Calculate the horizontal run, deck cut, board fit, and folded size. Then make two separate observations: an unwound cart rolling straight with no weights aboard, and the ramp bridged between supports with the required 200 g pieces hanging at mid-span."
   }],
   "materials": [{
     "n": "Foam board",
@@ -1539,10 +1539,10 @@ const PY_DECK = [{
   }],
   "steps": [{
     "t": "Read the client criteria",
-    "b": "Note the maximum slope, the required load, and the portability limit."
+    "b": "Select one public client card and note its rise, maximum slope, number of 200 g test pieces, panel count, and folded-panel limit."
   }, {
     "t": "Sketch to meet the slope",
-    "b": "Work out the ramp length that keeps the slope within the limit for the given height."
+    "b": "Calculate the minimum horizontal run, then use the rise and run to plan a whole-centimeter deck cut that fits the foam board."
   }, {
     "t": "Build the scale ramp",
     "b": "Construct a sturdy ramp from foam board and supports that folds or carries easily."
@@ -1554,9 +1554,9 @@ const PY_DECK = [{
     "b": "Explain how your design meets slope, load, and portability together."
   }],
   "compete": ["Load held: 30", "Slope meets target: 30", "Portability: 20", "Client criteria explanation: 20"],
-  "scoring": "Best safe ramp meeting slope, load, portability, and client criteria wins.",
+  "scoring": "Best scale model meeting its calculated geometry and portability checks, with documented cart-roll and mid-span-load observations, wins.",
   "debrief": ["Why does a gentler slope need more length?", "Which criterion was hardest to meet?", "Why design for accessibility from the start?"],
-  "source": "TeachEngineering Wheelchair Ramp Design",
+  "source": "U.S. Access Board ADA Ramp Guide; TeachEngineering Wheelchair Ramp Design; STEM Camp PYS-12 client cards",
   "camp": "pystem"
 }];
 const TREESB_DECK = [{
