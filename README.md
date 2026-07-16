@@ -1,260 +1,232 @@
 # STEM Camp Field Notebook
 
-A static, GitHub Pages site for the two summer STEM camps, From Trees to Tech
-and PY-STEM. The project has two parts.
+The STEM Camp Field Notebook is the public website, interactive station deck,
+document library, historical 2026 schedule and leaderboard, and authenticated
+authoring console for From Trees to Tech and PY-STEM.
 
-1. **The interactive deck** (`src/deck/`) is the camp's 64-component slide deck.
-   It was modularized from a single file of roughly 700 KB into focused ES
-   modules with no behavior change, and it is the centerpiece of the site at the
-   `/deck` route.
-2. **The site** (`src/site/`) is a field-notebook web app. It wraps the deck
-   with a schedule, a leaderboard, teams, achievements, prizes, tickets, a
-   ticket store, and a document library, and it adds a form-based,
-   Supabase-authenticated admin console for authoring all of it. Data lives in a
-   Supabase (Postgres) table that the app reads at runtime, with the bundled JSON
-   as an offline fallback so the public site always renders without a credential.
-   The site ships with the sample participants cleared (empty teams, roster,
-   scores, and tickets) so a real camp starts from a blank notebook, while the
-   real schedule, the award and prize definitions, and the document library ship
-   populated as a starting point. The `DeckPage` and `Admin` routes are
-   lazy-loaded, so the initial bundle stays small and the deck loads only on
-   `/deck`, split into several cacheable chunks.
-
-The `/deck` route is a viewport-locked pane: the deck pins below the navigation
-bar, its slides scroll inside the deck card under the deck's own header, and that
-route shows no footer.
+The deployment is configured for the custom domain `campnotebook.org`. The React/Vite
+application is static, while public data is hydrated at runtime from Supabase.
+Bundled JSON remains a read-only fallback so public pages still render during an
+outage. The interactive deck has 66 independently smoke-tested Demo/Extra
+components, and the library currently ships 108 PDFs.
 
 ## Quick start
 
+The project targets Node 24.
+
 ```bash
 npm install
-npm run dev        # Start the local development server.
-npm run build      # Build the production site into dist/.
-npm run preview    # Serve the built dist/ locally.
+npm run dev
+npm run build
+npm run preview
 ```
 
-The project targets Node 24, which is the version the deploy workflow uses.
+Run the fast verification suite before publishing:
+
+```bash
+npm run content:test
+npm run admin-store:test
+npm run deck:test
+npm run materials:test
+npm run build
+node tools/docgen/check_pdfs.mjs
+node tools/admin_preview.mjs
+node tools/a11y_audit.mjs
+node tools/build_audit.mjs && node tools/montage.mjs
+```
+
+Expected results are 23 content tests, 9 admin-store tests, focused material
+checks passing, 66 deck components with 0 failures, 108 shipped PDFs with 0
+findings, 11 admin editors with 0 crashes, 18 accessibility routes with 0 hard
+failures, and 66 montage cells with 0 render errors. Montage still reports six
+known SVG warnings from protected animated demos; they are tracked soft
+findings. `npm audit` should report 0 vulnerabilities.
+
+## Truth and provenance
+
+The repository contains three related but distinct content layers. Do not call
+them one canonical snapshot.
+
+1. The original reviewed May 2026 curriculum kit in the read-only source
+   archive.
+2. Post-review source-document corrections and repo-native printable updates.
+3. The 2026 live-event record, including schedule changes, PYS-00 Card Tower,
+   the PYS-02R rematch score key, CRANK, and PYB-05.
+
+The reviewed kit says each primary activity is worth 100 points and the best 9
+of 12 primary scores count. The historical website preserves the later live
+override: ordinary entered scores are worth up to 100, the lowest quarter of
+non-CRANK entries is canceled, and CRANK is worth up to 300 and always counts.
+`public/files/2026_Live_Scoring_Addendum.pdf` documents the difference. Tickets
+are a site addition and never affect standings.
+
+The source archive is read-only. Never edit it from this repository. The current
+ignored document IR also contains reviewed manual corrections that a wholesale
+extraction would erase.
 
 ## Project structure
 
+```text
+src/deck/                 Interactive deck shell, data, demos, and visuals
+src/site/                 Public routes, admin console, styles, and data layer
+src/data/                 Bundled fallback collections
+public/files/             108 published PDFs
+supabase/                 Schema, safe bootstrap, allowlist hardening, scoped sync
+tools/docgen/             Source-backed and repo-native document pipeline
+tools/content_test.mjs    Cross-layer data and published-file assertions
+reference/Deck.mono.jsx   Frozen pre-theme provenance artifact
+docs/HANDOFF.md           Current implementation and operations handoff
 ```
-src/
-  deck/                 modularized interactive deck
-    theme.js            palette, camp identity, font helpers
-    icons.jsx           lucide imports, icon maps, IconChip
-    ui/                 hooks.js, primitives.jsx
-    data/decks.js       the four activity arrays and CATMAP
-    components/         one file per Demo*/Extra*, plus shared.jsx and the
-                        EXTRAS/DEMOS routing maps
-    Presentation.jsx, Home.jsx, App.jsx
-    index.js            public surface (default App plus all named exports)
-  site/                 the website
-    App.jsx             router (HashRouter routes)
-    Nav.jsx, Footer.jsx
-    ui.jsx              shared primitives (Page, Card, Badge, Btn, ...)
-    styles.css          field-notebook stylesheet
-    lib/                supabaseStore.js (Supabase-backed data layer) and store.js
-                        re-export, supabaseAuth.js (email and password gate) and
-                        auth.js re-export, supabaseClient.js (lazy SDK),
-                        schemas.js (write validation), scoring.js
-    pages/              Home, DeckPage, Schedule, Leaderboard, Teams,
-                        Achievements, Store, Files, Admin (lazy), NotFound
-      admin/            form editors (one per collection), shared.jsx contract,
-                        and RawJsonEditor (the Advanced fallback)
-    lib/sampleData.js   the demo data set the "Load sample data" button restores
-  data/                 JSON seeds: config, teams, members, scores, tickets,
-                        catalog, schedule, achievements, prizes, files (teams,
-                        members, scores, tickets, and catalog ship empty; the
-                        rest ship populated)
-supabase/               schema.sql (table and RLS), seed.sql (generated, optional)
-public/files/           the 106 downloadable program PDFs (all generated by tools/docgen)
-tools/                  build and verification scripts (deck tests, screenshots,
-                        content import, seed generation)
-  docgen/               document print pipeline: extract (DOCX, XLSX, CSV) to a
-                        JSON IR, render site-themed print HTML, print PDFs with
-                        Chromium, check pagination and fidelity, publish
-reference/Deck.mono.jsx the pre-theme monolith (provenance baseline; deck:diff differs)
-```
+
+`reference/Deck.mono.jsx` is provenance only. `tools/split_deck.cjs` is retired
+and intentionally refuses to run because regenerating from the frozen monolith
+would delete later deck work. `npm run deck:diff` compares against that historic
+snapshot and is not a current equivalence gate. `tools/gen_files.mjs` is also
+retired because it cannot reproduce the current document catalog.
 
 ## Document library
 
-The site publishes the full set of camp documents so campers and facilitators can
-download them. The `public/files/` directory holds 106 PDFs, of which 77 are
-generated documents: a student handout and an instructor guide for each of the
-24 graded stations across both camps and each of the nine backup activities,
-each camp's packet, score sheets, and signage, the master curriculum and
-operations guide, the printable reward and competition kit, and the staff setup
-and safety checklist. The site serves no spreadsheet downloads.
+The 108 published PDFs consist of 77 source-backed documents and 31 repo-native
+printables/addenda. Every one of the 33 activity codes has one student handout
+and one instructor guide. The remaining documents include camp packets, source
+score sheets, signage, operations material, station game pieces, field logs,
+the corrected ramp cards, the TTB-03 heat-route field map, and the live scoring
+addendum. Instructor answer keys stay outside `public/files`.
+`tools/docgen/build_pystem.mjs` mirrors the PY-STEM staff run sheets and
+instructor answer-key compilation into the ignored `camp-prep/print/` operator
+pack whenever those staff documents are generated.
 
-Alongside the generated documents, the library carries the station printables
-for both camps (maze boards, challenge and reference cards, data logs, scoring
-targets, client-spec cards, clinometers, and game boards). They have no source
-document and are drawn directly by `tools/docgen/build_pystem.mjs` and
-`tools/docgen/build_trees.mjs`. Printables are the only shipped form of every
-game piece: instructor guides and packets embed none of them, and the printables
-themselves carry no print-shop directions. The instructor answer keys build into
-staff-only PDFs (`PY_STEM_Instructor_Answer_Keys.pdf` and
-`From_Trees_to_Tech_Instructor_Answer_Keys.pdf`) that stay in the build
-directory and are never published to the site. The Files page groups the
-printables in a per-camp "Station printables" section.
-
-The Files page lets a visitor filter by camp and search by title, and it pairs
-each activity's handout and guide on one card. The Schedule adds a quick link to
-the handout and guide beside each graded block.
-
-Every PDF is generated by the print pipeline in `tools/docgen/`, which renders
-the documents in the site's own field-notebook theme (Fraunces, Inter, JetBrains
-Mono, the camp inks and accents) with controlled pagination: headings stay with
-their content, short tables never split across pages, and long tables repeat
-their header row. To refresh the library after the source documents change:
+The Files page formats byte sizes from metadata stamped from the shipped files;
+it does not issue a HEAD request for every card. After adding or rebuilding a
+published file, run:
 
 ```bash
-node tools/docgen/fetch_fonts.mjs    # once per machine: download the three font families
-node tools/docgen/extract_all.mjs    # source documents -> JSON IR (needs the archive)
-node tools/docgen/render.mjs         # JSON IR -> themed print HTML
-node tools/docgen/build_pdfs.mjs     # HTML -> PDF via headless Chromium
-node tools/docgen/build_pystem.mjs   # PY-STEM station printables (direct to PDF)
-node tools/docgen/build_trees.mjs    # Trees station printables (direct to PDF)
-node tools/docgen/check_pdfs.mjs     # fidelity and pagination gates (expect 0 findings)
-node tools/docgen/publish.mjs        # copy into public/files/, restamp files.json, regen seed.sql
+node tools/stamp_file_sizes.mjs
+node tools/gen_sync.mjs
+node tools/gen_seed.mjs
 ```
 
-The extract step reads the consolidated source archive on the authoring
-workstation (see `tools/docgen/manifest.mjs`); the other steps run from the
-repo alone. `tools/gen_files.mjs`, which previously vendored the DOCX-derived
-PDFs from the archive, is superseded by this pipeline. Publishing the site
-makes every instructor guide publicly downloadable, which is intended.
+`tools/gen_seed.mjs` updates the bootstrap artifact only. The generated
+`supabase/seed.sql` uses `ON CONFLICT DO NOTHING` for every collection and
+cannot overwrite existing rows.
 
-## The deck modularization
+### Safe targeted PDF work
 
-The deck was split with `tools/split_deck.cjs`, which slices each top-level
-declaration **verbatim** and generates only the import and export headers, so no
-component body is ever reauthored. Two scripts verify equivalence.
+Repo-native station printables are generated by
+`tools/docgen/build_pystem.mjs`, `tools/docgen/build_trees.mjs`, and
+`tools/docgen/build_addenda.mjs`. Source-backed corrections are applied through
+the versioned `tools/docgen/corrections.mjs` layer. A single corrected
+source-backed document can be rendered and published without replacing the
+library:
 
 ```bash
-npm run deck:test   # Render all 64 deck components server-side.
-npm run deck:diff   # Compare the modular deck to the provenance monolith.
+node tools/docgen/render.mjs TTB-04-guide
+node tools/docgen/build_pdfs.mjs TTB-04-guide
+node tools/docgen/publish_one.mjs TTB-04-guide
+node tools/stamp_file_sizes.mjs
+node tools/gen_sync.mjs
+node tools/gen_seed.mjs
+node tools/docgen/check_pdfs.mjs TTB-04-guide
 ```
 
-`deck:test` is the equivalence gate. It must report 64 components and 0 failures.
-`deck:diff` may report differences against `reference/Deck.mono.jsx` because the
-current deck uses updated theme tokens. Treat the monolith as provenance, not as
-a current byte-for-byte identity target.
+`check_pdfs.mjs` checks `public/files` by default, including basic validation of
+static printables. Pass `--built` only when intentionally checking the ignored
+build directory.
 
-## Data layer and admin
+Do not run a wholesale `extract_all.mjs` until the reviewed IR edits have been
+moved into durable source or correction layers. The current archive and IR are
+not interchangeable. Full `publish.mjs` is guarded and now preflights and stages
+the complete already-built catalog before replacing anything in `public/files`,
+but targeted generation remains the normal correction workflow.
 
-All site data is JSON, stored as whole-collection blobs. The backend is
-**Supabase** (Postgres, PostgREST, Auth, and Row Level Security). Each collection
-is one row in a `collections(name text primary key, data jsonb, updated_at)`
-table, which mirrors the bundled `src/data/*.json` model exactly, so schema
-validation is unchanged. See `supabase/schema.sql`.
+## Data layer and Admin
 
-**Authoring console (forms).** The admin console (`/admin`) is a tabbed set of
-form editors, one per collection (Setup, Teams, Roster, Scores, Schedule, Awards,
-Tickets, Catalog, Prizes, Files), plus an "Advanced (JSON)" tab that keeps a raw
-editor as a fallback. The editors share one small contract
-(`src/site/pages/admin/shared.jsx`), and they all go through the same
-validate-then-`commitCollection` path. The Schedule editor edits each day and its
-timed blocks; a block with no station code is a field visit, a lunch, or another
-custom event. The roster uses **aliases**, never real names. A "Load sample data"
-button fills the site from `src/site/lib/sampleData.js` as a local-only preview
-that is never written to Supabase, and "Reset all to seed" clears it.
+Supabase stores one JSONB row per collection in
+`collections(name, data, updated_at)`. Public reads are intentional. Store only
+public-safe team names, aliases, scores, schedule data, award results, and
+download metadata. Never enter real camper names, contacts, medical details,
+private notes, or other sensitive information.
 
-**Tickets.** Tickets are a per-team reward currency, a camp-facing layer that is
-not part of the source kit. The `tickets` collection is a ledger of
-`{ teamId, amount, reason, ts }` entries: a positive amount grants tickets and a
-negative amount redeems them, and a team's balance is the running sum. Balances
-show on Teams, the Leaderboard, and the ticket Store, and the admin grants and
-deducts them on the Tickets tab. The `catalog` collection is the ticket store of
-redeemable rewards priced in tickets, shown publicly at `/store`. Redeeming a
-reward on the Tickets tab appends a negative ledger entry and records the alias of
-whoever picked it up.
+Admin uses explicit per-collection hydration states. A configured collection
+cannot be saved while it is loading or after a failed or invalid fetch. Public
+pages can still use the bundled fallback, but Admin must retry and confirm live
+state. Drafts capture the server revision, and writes use `updated_at` for
+optimistic concurrency. A stale whole-collection draft is rejected instead of
+overwriting a newer save. Confirmed-absent rows use a protected first insert.
+The Admin login is memory-only: a reload or closed tab locks the console again,
+and a dirty draft triggers a browser-leave warning. The Advanced action to clear
+browser previews reveals the last validated published snapshots, or bundled
+starting data for collections that have no loaded published row.
 
-**Read path (public, no credential).** On load the site fetches each collection
-from PostgREST with the publishable anon key, using a plain `fetch` so the
-`@supabase/supabase-js` SDK stays out of the initial bundle, through
-`src/site/lib/supabaseStore.js`. If the fetch fails, Supabase is unconfigured, or
-no row exists yet, the site falls back to the compiled-in `src/data/*.json` seed,
-so it always renders without a credential. Saved changes appear to visitors on
-their next load, with no CDN lag and no redeploy.
+Schema validation rejects blank required values, non-finite numbers, duplicate
+team/station score pairs, ordinary scores outside 0 to 100, CRANK outside 0 to
+300, duplicate schedule score keys, unsafe file paths, and malformed file
+grouping metadata. Every file row must also have a positive byte count: a newly
+typed path is checked with HEAD and cannot be saved unless the deployed file
+resolves. The Files editor supports current Printable/print values and preserves
+unknown legacy select values visibly.
 
-**Write path (admin, session required).** Saving in the admin console upserts the
-edited JSON to the table through `supabase-js`, which loads on demand, using the
-signed-in admin's session. The JSON is validated against a small per-collection
-schema (`src/site/lib/schemas.js`) before any network call. Row Level Security
-enforces the gate: anyone may read, and only an authenticated admin may write.
-**Download JSON** remains as a no-auth fallback.
+Team deletion is blocked when roster, score, ticket, or award-recipient rows
+still refer to that team. The same fail-closed check runs at the central write
+boundary, so raw JSON and bulk-preview saves cannot bypass the form guard.
+Malformed award-recipient objects are rejected, and unresolved legacy recipient
+IDs remain visible on the public Achievements page instead of disappearing.
+Schedule blocks inherit their day camp unless explicitly overridden; changing a
+day clears only legacy child values that duplicated the old day camp.
 
-**Config and secrets.** The project URL and publishable anon key come from
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (see `.env.example`), with an
-optional non-secret `supabase` block in `src/data/config.json` as a
-local-development fallback. Both values are baked into the build. The anon key is
-designed to be public and is safe to expose, because RLS does the enforcing.
-Empty or unset values mean seed-only: the site still renders and admin sign-in is
-disabled. No service-role key ever reaches the browser.
+The admin console is authenticated. Download JSON is an authenticated recovery
+tool, not a public fallback. Export before a high-risk manual database change.
+At award closeout, finish score entry first, verify each camp leaderboard and
+the CRANK total, assign earned awards, export JSON, and only then publish the
+final award state.
 
-**Admin auth (Supabase email and password).** The admin signs in with the single
-Supabase Auth account created for the camp. Supabase issues a JWT that the browser
-holds, and RLS uses it to allow writes. Reading the public bundle grants no write,
-because only a holder of valid admin credentials gets a write-capable session.
-Create the one account and disable open sign-ups, or restrict writes by email as
-shown in `supabase/schema.sql`. The SDK loads only on demand, during sign-in, an
-existing-session restore, or a save, so public visitors never download it.
+## Supabase setup and scoped updates
 
-**Public-read caveat (important).** The table's read policy makes **every
-collection publicly readable**, which is intended for a public leaderboard and
-schedule. Authentication guards writes only. Store only data that is safe to be
-public, such as team names, scores, the schedule, and public achievements. Do
-**not** put personal data, contact details, private notes, or anything sensitive
-about minors into the database.
+For a new database:
 
-## Testing and verification
+1. Run `supabase/schema.sql`.
+2. Create the one Supabase Auth admin user.
+3. Replace `ADMIN_EMAIL@example.com` in `supabase/harden_admin.sql`, then run it.
+4. Disable open email sign-ups in Supabase.
+5. Optionally run `supabase/seed.sql` once to insert missing bootstrap rows.
+6. Configure `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and optionally
+   `VITE_SUPABASE_TABLE=collections` in the GitHub Actions environment.
 
-The project verifies itself with build-time gates rather than a unit-test suite.
-Run all of them before publishing, and expect each to stay green.
+For an existing database, do not use the bootstrap as a content-sync command.
+First refresh the data-preserving schema objects and lock the allowlist to the
+one intended admin; then use only the collection-specific scripts that match
+the intended content changes:
 
-```bash
-npm run build                                          # Build dist/.
-npm run deck:test                                      # Expect 64 components, 0 failures.
-node tools/build_audit.mjs && node tools/montage.mjs   # Expect 64 cells, 0 render errors.
-SAMPLE=1 node tools/shoot.mjs / /schedule /files /leaderboard /teams /store /achievements /admin /deck
-MOBILE=1 SAMPLE=1 node tools/shoot.mjs / /schedule /files /leaderboard /teams /store /achievements /admin /deck
+1. Run `supabase/schema.sql` (safe to rerun; it does not replace collection data).
+2. Replace `ADMIN_EMAIL@example.com` in `supabase/harden_admin.sql`, review it,
+   and run it. It removes every other allowlist row.
+3. Run the three scoped sync scripts below.
+
+```text
+supabase/sync_files.sql      document library metadata
+supabase/sync_schedule.sql   historical schedule and operational score codes
+supabase/sync_prizes.sql     live scoring provenance and prize criteria
 ```
 
-Both screenshot runs must report nine of nine routes with `pageerrors=0`. The one
-console error per route is the expected Supabase-not-configured fallback. The
-montage prints six SVG console warnings (a negative `<rect>` height and a NaN
-transform) that come from the deck demos; they are known soft findings, not
-regressions. `SAMPLE=1` injects demo data into the screenshots, and `MOBILE=1`
-renders at the 390 px viewport.
+These scripts do not touch teams, members, scores, tickets, catalog, or earned
+awards. Database SQL is deliberately not executed by repository tooling.
 
-## Deploy to GitHub Pages
+## Deployment
 
-The GitHub Actions workflow at `.github/workflows/deploy.yml` handles deployment.
+`.github/workflows/deploy.yml` runs the content, Admin data-store, deck,
+materials, and production-build gates before packaging `dist/` for GitHub
+Pages. Vite uses a relative base and the app uses `HashRouter`, so routes work
+under both the custom domain and a project subpath. `public/CNAME` contains
+`campnotebook.org`.
+Repository configuration is verified; external DNS/TLS reachability was not
+independently confirmed from this workstation.
 
-1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the Supabase SQL editor.
-3. Run `supabase/seed.sql` to pre-populate the schedule, awards, prizes, files,
-   and config. Re-run it whenever the documents change so the live site shows the
-   full 77-file library.
-4. Create one Supabase Auth admin account.
-5. Disable open email sign-ups in Supabase.
-6. Add the GitHub Actions secrets `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-7. Add the optional GitHub Actions variable `VITE_SUPABASE_TABLE=collections`.
-8. Set the GitHub Pages source to **GitHub Actions**.
-9. Push `main`, or run the `Deploy site to GitHub Pages` workflow manually.
-
-Without the Actions secrets, the deployed site still renders from bundled seed
-data, but admin sign-in is disabled. `vite.config.js` sets `base: "./"` and the
-app uses `HashRouter`, so deep links work under any project subpath with no server
-rewrites.
+The Supabase URL and anon key are publishable client configuration, not service
+credentials; Row Level Security is the enforcement boundary. The schema uses a
+stable Auth user-id allowlist, so a second authenticated account cannot write
+collections merely because it can sign in.
 
 ## License
 
-This repository is private. The `package.json` sets `"private": true`, and the
-project ships no open-source license, so all rights are reserved by the camp
-organizers. Add a `LICENSE` file before sharing the code if you intend to grant
-reuse rights. The documents under `public/files/` are camp course materials,
-published so that campers and facilitators can download them.
-</content>
-</invoke>
+This repository is private and has no open-source license. The code and camp
+materials remain all rights reserved unless the owner adds an explicit license.

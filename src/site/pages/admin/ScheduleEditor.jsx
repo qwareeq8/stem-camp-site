@@ -4,7 +4,8 @@
 // days list; block-level edits rebuild the inner blocks array and write it back
 // with updateAt(days, i, { blocks: nextBlocks }), so a draft never aliases the
 // store. A block with a station code is a scored activity; a block with no code
-// is a field visit, lunch, or custom event.
+// is a field visit, lunch, or custom event. scoreCode is optional and only
+// needed when a repeated activity must have a distinct leaderboard entry.
 import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { Btn } from "../../ui.jsx";
 import {
@@ -12,6 +13,7 @@ import {
   TextField, TimeField, DatePickerField, SelectField, makeId, updateAt, removeAt, moveAt,
   dayLabelFromDate, dateFromDayLabel,
 } from "./shared.jsx";
+import { changeScheduleDayCamp, newScheduleBlock } from "./scheduleEditorLogic.js";
 
 export default function ScheduleEditor() {
   const ed = useEditor("schedule");
@@ -41,9 +43,7 @@ export default function ScheduleEditor() {
   }
   function addBlock(i) {
     const blocks = days[i].blocks || [];
-    // Carry the parent day's camp onto the block so a scored block keeps the
-    // right camp tone everywhere a consumer reads the block-level camp.
-    setDay(i, { blocks: [...blocks, { id: makeId("blk"), start: "", end: "", title: "", location: "", code: "", camp: days[i].camp }] });
+    setDay(i, { blocks: [...blocks, newScheduleBlock(makeId)] });
   }
   function removeBlock(i, j) {
     setDay(i, { blocks: removeAt(days[i].blocks || [], j) });
@@ -80,7 +80,12 @@ export default function ScheduleEditor() {
               onChange={(v) => setDayDate(i, v)}
               startDate={campById(d.camp)?.startDate}
             />
-            <SelectField label="Camp" value={d.camp} onChange={(v) => setDay(i, { camp: v })} options={campOptions} />
+            <SelectField
+              label="Camp"
+              value={d.camp}
+              onChange={(v) => ed.setDraft(updateAt(days, i, changeScheduleDayCamp(d, v)))}
+              options={campOptions}
+            />
             <TextField label="Theme" value={d.theme} onChange={(v) => setDay(i, { theme: v })} placeholder="Orientation and bioenergy" />
 
             <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
@@ -94,26 +99,34 @@ export default function ScheduleEditor() {
                     className="adm-grid"
                     style={{
                       gridTemplateColumns:
-                        "108px 108px minmax(160px, 2fr) minmax(126px, 1.2fr) minmax(124px, 1fr) minmax(98px, 0.8fr) 104px",
+                        "108px 108px minmax(160px, 2fr) minmax(126px, 1.2fr) minmax(124px, 1fr) minmax(98px, 0.8fr) minmax(98px, 0.8fr) 104px",
                     }}
                   >
-                  <TimeField label="Start" value={b.start} onChange={(v) => setBlock(i, j, { start: v })} />
-                  <TimeField label="End" value={b.end} onChange={(v) => setBlock(i, j, { end: v })} />
-                  <TextField label="Title" value={b.title} onChange={(v) => setBlock(i, j, { title: v })} placeholder="Seed Dispersal Derby" />
-                  <TextField label="Location" value={b.location} onChange={(v) => setBlock(i, j, { location: v })} placeholder="Field North" />
-                  <SelectField
-                    label="Camp"
-                    value={b.camp || ""}
-                    onChange={(v) => setBlock(i, j, { camp: v })}
-                    options={blockCampOptions}
-                  />
-                  <TextField
-                    label="Station code"
-                    value={b.code}
-                    onChange={(v) => setBlock(i, j, { code: v.trim() })}
-                    placeholder="TTT-03"
-                    mono
-                  />
+                    <TimeField label="Start" value={b.start} onChange={(v) => setBlock(i, j, { start: v })} />
+                    <TimeField label="End" value={b.end} onChange={(v) => setBlock(i, j, { end: v })} />
+                    <TextField label="Title" value={b.title} onChange={(v) => setBlock(i, j, { title: v })} placeholder="Seed Dispersal Derby" />
+                    <TextField label="Location" value={b.location} onChange={(v) => setBlock(i, j, { location: v })} placeholder="Field North" />
+                    <SelectField
+                      label="Camp"
+                      value={b.camp || ""}
+                      onChange={(v) => setBlock(i, j, { camp: v })}
+                      options={blockCampOptions}
+                    />
+                    <TextField
+                      label="Station code"
+                      value={b.code}
+                      onChange={(v) => setBlock(i, j, { code: v.trim() })}
+                      placeholder="TTT-03"
+                      mono
+                    />
+                    <TextField
+                      label="Score code"
+                      value={b.scoreCode || ""}
+                      onChange={(v) => setBlock(i, j, { scoreCode: v.trim() })}
+                      placeholder="Same as station"
+                      hint="Only use for a separately scored rematch."
+                      mono
+                    />
                     <div className="schedule-block-actions" aria-label="Block actions">
                       {j > 0 && (
                         <Btn variant="ghost" className="icon" onClick={() => moveBlock(i, j, -1)} aria-label="Move block up">
@@ -129,6 +142,14 @@ export default function ScheduleEditor() {
                         <Trash2 size={14} aria-hidden="true" />
                       </Btn>
                     </div>
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <TextField
+                      label="Public note"
+                      value={b.note || ""}
+                      onChange={(v) => setBlock(i, j, { note: v })}
+                      placeholder="2026 live addition"
+                    />
                   </div>
                 </div>
               ))}

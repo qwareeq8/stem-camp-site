@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { DOCS, IR_DIR, HTML_DIR } from "./manifest.mjs";
+import { applyCorrections } from "./corrections.mjs";
 
 // Camp identity tokens, mirroring src/deck/theme.js (treesInk/treesAcc,
 // pyInk/pyAcc) and the site brand for program-wide documents.
@@ -779,7 +780,10 @@ function main() {
     // build_trees.mjs; guides and packets carry no embedded printables.
     if (doc.isStatic) continue;
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
-    const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
+    const ir = applyCorrections(
+      doc,
+      JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8")),
+    );
     const camp = CAMPS[doc.camp];
     const body = TEMPLATES[doc.template](ir, camp, doc);
     const html = `<!doctype html>

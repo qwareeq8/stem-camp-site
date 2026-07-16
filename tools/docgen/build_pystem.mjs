@@ -1,6 +1,9 @@
 // Generate print-ready PY-STEM station printables and staff run-sheets into
-// the doc-library PDF build dir (tools/out/docgen/pdf), using the site field-notebook print theme and brand fonts,
-// rendered with the same headless Chromium the document library uses. PY-STEM
+// the doc-library PDF build dir (tools/out/docgen/pdf), using the site
+// field-notebook print theme and brand fonts. Staff-only compilations are also
+// copied into camp-prep/print so the operator copies cannot drift from this
+// generator. All PDFs use the same headless Chromium renderer as the document
+// library. PY-STEM
 // palette (navy ink #1c3257, amber accent #A85F12). Measurement scales stay
 // pure black so every sheet survives grayscale printing.
 //
@@ -15,6 +18,7 @@ import { mazeBoardsHtml, MAZE_NOTE } from "./team_tools.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "..", "..");
 const PDF_DIR = path.join(repo, "tools", "out", "docgen", "pdf");
+const STAFF_PDF_DIR = path.join(repo, "camp-prep", "print");
 const fontsDir = path.join(repo, "tools", "out", "docgen", "fonts");
 const outDir = PDF_DIR;
 
@@ -48,10 +52,11 @@ body { --camp-ink:#1c3257; --camp-acc:#A85F12; --camp-tint:#F1F0EC; --ink:#222; 
 .pagebreak { break-before: page; }
 `;
 
-function docHtml(bodyHtml) {
+function docHtml(bodyHtml, landscape = false) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 ${FACES}
 ${themeCss}
+${landscape ? "@page { size: letter landscape; }" : ""}
 ${PALETTE}
 </style></head><body>${bodyHtml}</body></html>`;
 }
@@ -204,28 +209,39 @@ ${cards}
 }
 
 // ---------- PYS-11 BookBot route mat + cards ----------
+const BOOKBOT_ORDERS = [
+  { name: "Order 1", addresses: ["A2", "A5", "B1"], optimum: 12, order: "A2 → A5 → B1" },
+  { name: "Order 2", addresses: ["C3", "A3", "D6"], optimum: 18, order: "C3 → D6 → A3" },
+  { name: "Order 3", addresses: ["B4", "D4", "C1"], optimum: 14, order: "B4 → D4 → C1" },
+  { name: "Order 4", addresses: ["D2", "B5", "A6"], optimum: 18, order: "D2 → B5 → A6" },
+  { name: "Order 5", addresses: ["C5", "C2", "B6"], optimum: 16, order: "C2 → C5 → B6" },
+  { name: "Order 6", addresses: ["A1", "D1", "B3", "C4"], optimum: 14, order: "A1 → D1 → C4 → B3" },
+];
+
 function bookbotMat() {
   const rows = ["A", "B", "C", "D"], cols = [1, 2, 3, 4, 5, 6];
-  let cells = "";
-  for (const r of rows) for (const c of cols) cells += `<div class="bin"><span class="addr">${r}${c}</span></div>`;
+  let cells = `<div class="depot">DEPOT<span>one move to A1</span></div>`;
+  for (const r of rows) {
+    if (r !== "A") cells += `<div class="spacer" aria-hidden="true"></div>`;
+    for (const c of cols) cells += `<div class="bin"><span class="addr">${r}${c}</span></div>`;
+  }
   return `<div class="sheet"><style>
-.mat{display:grid;grid-template-columns:repeat(6,1fr);gap:7pt;margin-top:6pt;}
-.bin{border:1.4pt solid var(--camp-ink);border-radius:5pt;height:1.15in;position:relative;background:var(--camp-tint);}
+.mat{display:grid;grid-template-columns:repeat(7,1fr);gap:5pt;margin-top:6pt;}
+.bin{border:1.4pt solid var(--camp-ink);border-radius:5pt;height:1.05in;position:relative;background:var(--camp-tint);}
 .bin .addr{position:absolute;top:4pt;left:6pt;font-family:var(--mono);font-weight:700;color:var(--camp-ink);font-size:11pt;}
+.depot{border:1.8pt solid var(--camp-acc);border-radius:5pt;height:1.05in;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;color:var(--camp-acc);}
+.depot span{display:block;font-size:6.5pt;text-transform:uppercase;margin-top:3pt;text-align:center;}
+.spacer{height:1.05in;}
 .matkey{font-size:8.5pt;color:var(--ink2);margin-top:8pt;}
 </style>
 ${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Route mat (24 addressed bins)")}
-<p class="note">Print landscape and tape down, or copy the grid onto a table with painter tape. Rows are lettered A to D, columns numbered 1 to 6, so every bin has an address like <b>B3</b>. Place items by ADDRESS, not by subject &mdash; that is how a library BookBot (an automated storage and retrieval system) finds a book fast.</p>
+<p class="note">Use per-team copies for planning, then one shared tabletop mat for judging. Rows are lettered A to D and columns numbered 1 to 6, so every bin has an address like <b>B3</b>. Place items by ADDRESS, not by subject &mdash; that is how an automated storage and retrieval system finds a book fast.</p>
 <div class="mat">${cells}</div>
-<p class="matkey">Aisle rule: only one team "crane" in a column at a time. Plan a route that fills an order with the fewest column changes and no collisions.</p></div>`;
+<p class="matkey"><b>Judging rules:</b> Start and finish at DEPOT. One legal move goes between orthogonally adjacent bins (up, down, left, or right; never diagonal) or between DEPOT and A1. Retrieve a requested address when the pointer reaches it. Route cost is the total number of legal moves; a missed address or illegal jump makes the run incomplete. One team runs the shared judging mat at a time.</p></div>`;
 }
 function bookbotCards() {
-  const orders = [
-    ["Order 1", ["A2", "A5", "B1"]], ["Order 2", ["C3", "A3", "D6"]], ["Order 3", ["B4", "D4", "C1"]],
-    ["Order 4", ["D2", "B5", "A6"]], ["Order 5", ["C5", "C2", "B6"]], ["Order 6", ["A1", "D1", "B3", "C4"]],
-  ];
-  const cards = orders.map(([n, addrs]) => `<div class="oc"><div class="oc-h">${n}</div><div class="oc-a">${addrs.map((a) => `<span>${a}</span>`).join("")}</div>
-<div class="oc-p">Plan the shortest route. Route: ____________  Time: ______  Collisions: ______</div></div>`).join("");
+  const cards = BOOKBOT_ORDERS.map(({ name, addresses }) => `<div class="oc"><div class="oc-h">${name}</div><div class="oc-a">${addresses.map((a) => `<span>${a}</span>`).join("")}</div>
+<div class="oc-p">Start/finish: DEPOT &nbsp; Route: ____________________<br>Legal moves: ______ &nbsp; Time: ______ &nbsp; Missed/illegal: ______</div></div>`).join("");
   const tags = ["A", "B", "C", "D"].flatMap((r) => [1, 2, 3, 4, 5, 6].map((c) => `<span class="tag">${r}${c}</span>`)).join("");
   return `<div class="sheet"><style>
 .oc-grid{display:grid;grid-template-columns:1fr 1fr;gap:11pt;}
@@ -238,10 +254,23 @@ function bookbotCards() {
 .tag{font-family:var(--mono);font-weight:700;color:var(--camp-ink);border:1.2pt solid var(--camp-ink);border-radius:4pt;padding:2pt 8pt;font-size:10pt;}
 </style>
 ${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Order deck and bin address tags")}
-<p class="note">Hand a team one order card at a time. They plan the shortest collision-free route across the mat, then run it and log the time. The address tags below can be cut and taped onto real bins/cups if you build a physical mat.</p>
+<p class="note">Hand a team one order card at a time. They plan on their own copy, then run one at a time on the shared judging mat. Every route starts and ends at DEPOT, moves only between orthogonally adjacent bins, and is scored by legal-move count before time. The address tags below can label physical bins or cups.</p>
 <div class="oc-grid">${cards}</div>
 <div style="font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-top:11pt;">Cut-apart bin address tags</div>
 <div class="tags">${tags}</div></div>`;
+}
+
+function bookbotKey() {
+  const rows = BOOKBOT_ORDERS.map(({ name, optimum, order }) =>
+    `<tr><td>${name}</td><td>${optimum}</td><td>${order}</td></tr>`).join("");
+  return `<div class="sheet"><style>${CARD_CSS}
+.bb-score{border:1.2pt solid var(--camp-ink);border-radius:6pt;padding:8pt 10pt;margin-top:10pt;font-size:9pt;line-height:1.4;}
+</style>
+${head("PY-STEM 2026 &middot; PYS-11 BookBot Bin Logic", "Instructor route and scoring key")}
+<p class="note">Keep this page with the judge. Every listed route starts at DEPOT, visits each requested address, and returns to DEPOT. Other visit orders can tie the optimum.</p>
+<table class="bkey"><tr><th>Card</th><th>Minimum legal moves</th><th>One optimal visit order</th></tr>${rows}</table>
+<div class="bb-score"><b>Normalize the unequal cards:</b> award Efficiency as <b>max(0, 10 &minus; (team legal moves &minus; card minimum))</b>. Award Legal complete route (25) only when every requested address is retrieved using legal orthogonal moves and the pointer returns to DEPOT; otherwise award 0 for that criterion and 0 for Efficiency. Use elapsed time only as a tie-breaker after the 100-point rubric total.</div>
+</div>`;
 }
 
 // Shared predict-first card + instructor answer-key styles (self-contained per sheet).
@@ -265,7 +294,7 @@ function slinkyCards(part = "cards") {
     ["Count the round trips", "Send one sharp pulse down the stretched slinky. Predict how many times it will travel down and back before it fades out, then send it and count."],
     ["Tension change", "One teammate pulls the slinky a little tighter (do not overstretch). Predict whether the pulse comes back faster or slower than before, then time it."],
     ["Pinch a wall", "A teammate pinches the middle of the slinky to make a fixed point. Predict what the pulse does when it reaches the pinch, then send one and watch."],
-    ["Measure the speed", "Time 4 to 6 full round trips along your measured lane, then divide the total distance by the total time. Record the speed in metres per second."],
+    ["Measure the speed", "Time N full down-and-back round trips on a measured lane of length L. Total distance = 2 &times; L &times; N. Divide that distance by the total time and record the speed in metres per second."],
     ["Two pulses meet", "Two teammates each send a pulse from opposite ends at the same time. Predict what happens when the two pulses meet in the middle, then try it."],
     ["Big push or small push", "Send a small pulse, then a big one along the same lane. Predict whether the big push travels faster, slower, or the same speed, then time both."],
   ];
@@ -275,8 +304,8 @@ function slinkyCards(part = "cards") {
   const key = [
     ["Fades after several trips", "Friction and air drag remove energy each pass, so the count is a measurement, not a fixed number."],
     ["Tighter is faster", "Wave speed rises with tension (it grows with the square root of tension), so a tighter slinky returns the pulse sooner."],
-    ["Reflects, flipped", "The pinch acts as a fixed end, so the pulse bounces back inverted, just like it does off the held far end."],
-    ["Distance over time", "Speed = total distance divided by total time. Timing several round trips and dividing cancels most of the human timing error."],
+    ["Reflects back", "The returning compression travels away from the fixed pinch in the opposite direction. Do not describe a longitudinal compression as a flipped transverse crest."],
+    ["Distance over time", "For N full down-and-back trips on lane length L, total distance = 2 &times; L &times; N and speed = total distance divided by total time. Timing several trips reduces human timing error."],
     ["They pass through", "The two pulses cross by superposition: where they overlap the coils add for an instant, then each pulse continues on unchanged."],
     ["Same speed", "Wave speed depends on the slinky's tension and mass per length, not on how big the pulse is; the big one just carries more energy."],
   ];
@@ -292,19 +321,56 @@ ${head("PY-STEM 2026 &middot; PYS-06 SONAR Slinky Showdown", "Station challenge 
 }
 
 // ---------- PYS-12 accessibility ramp client spec cards ----------
+// One per-team foam board is 20 x 30 in (50.8 x 76.2 cm). Each client below
+// uses a 15 cm-wide deck cut along the 76.2 cm side, leaving a 35.8 cm-wide
+// strip for risers and supports. Running slope is rise / horizontal run; the
+// sloped deck is the hypotenuse, so deck = sqrt(run^2 + rise^2). We round the
+// cut length UP to a whole centimetre, then verify both the board budget and
+// the folded portability limit before rendering. Loads use whole pieces from
+// the shared set of eight 200 g hanging weights and never ride on the toy car.
+const RAMP_BOARD = Object.freeze({ lengthCm: 76.2, widthCm: 50.8, deckWidthCm: 15, weightPieces: 8 });
+const RAMP_CLIENTS = Object.freeze([
+  { who: "Community school", riseCm: 5, runPerRise: 12, weightPieces: 1, foldPanels: 2, maxPanelCm: 31 },
+  { who: "Public library", riseCm: 4, runPerRise: 14, weightPieces: 2, foldPanels: 2, maxPanelCm: 29 },
+  { who: "Health clinic", riseCm: 6, runPerRise: 12, weightPieces: 3, foldPanels: 3, maxPanelCm: 25 },
+  { who: "Science museum", riseCm: 4, runPerRise: 16, weightPieces: 4, foldPanels: 2, maxPanelCm: 33 },
+]);
+
+function rampClientMath(client) {
+  const runCm = client.riseCm * client.runPerRise;
+  const exactDeckCm = Math.hypot(runCm, client.riseCm);
+  const cutDeckCm = Math.ceil(exactDeckCm);
+  const foldedPanelCm = cutDeckCm / client.foldPanels;
+  if (cutDeckCm > RAMP_BOARD.lengthCm) {
+    throw new Error(`${client.who}: ${cutDeckCm} cm deck exceeds the ${RAMP_BOARD.lengthCm} cm board length`);
+  }
+  if (RAMP_BOARD.deckWidthCm > RAMP_BOARD.widthCm) {
+    throw new Error(`Ramp deck width exceeds the ${RAMP_BOARD.widthCm} cm board width`);
+  }
+  if (foldedPanelCm > client.maxPanelCm) {
+    throw new Error(`${client.who}: ${foldedPanelCm} cm folded panel exceeds ${client.maxPanelCm} cm`);
+  }
+  if (client.weightPieces > RAMP_BOARD.weightPieces) {
+    throw new Error(`${client.who}: load needs more than ${RAMP_BOARD.weightPieces} shared weights`);
+  }
+  return { ...client, runCm, exactDeckCm, cutDeckCm, foldedPanelCm };
+}
+
 function rampClientCards() {
-  const clients = [
-    ["Community school", "10 cm", "1:12", "a 200 g cart", "folds to fit inside a backpack", 120],
-    ["Public library", "8 cm", "1:14", "a 300 g cart", "one student can carry it alone", 112],
-    ["Health clinic", "12 cm", "1:12", "a 250 g cart", "sets up in under one minute", 144],
-    ["Science museum", "15 cm", "1:16", "a 200 g cart", "the ramp itself weighs under 200 g", 240],
-  ];
-  const cards = clients.map(([who, rise, slope, load, port], i) => `<div class="cl"><div class="cl-h"><span class="cl-n">Client ${String.fromCharCode(65 + i)}</span><span class="cl-w">${who}</span></div>
-<table class="cl-t"><tr><td>Rise to cover</td><td>${rise}</td></tr>
-<tr><td>Max slope</td><td>${slope}</td></tr>
-<tr><td>Load to carry</td><td>${load}</td></tr>
-<tr><td>Portability</td><td>${port}</td></tr></table></div>`).join("");
-  const lengths = clients.map(([, rise, slope, , , len], i) => `Client ${String.fromCharCode(65 + i)}: ${rise} at ${slope} needs about ${len} cm of ramp`).join("; ");
+  const clients = RAMP_CLIENTS.map(rampClientMath);
+  const cards = clients.map((client, i) => {
+    const loadG = client.weightPieces * 200;
+    return `<div class="cl"><div class="cl-h"><span class="cl-n">Client ${String.fromCharCode(65 + i)}</span><span class="cl-w">${client.who}</span></div>
+<table class="cl-t"><tr><td>Rise to cover</td><td>${client.riseCm} cm</td></tr>
+<tr><td>Maximum running slope</td><td>1:${client.runPerRise}</td></tr>
+<tr><td>Minimum horizontal run</td><td>${client.runCm} cm</td></tr>
+<tr><td>Deck cut size</td><td>${client.cutDeckCm} &times; ${RAMP_BOARD.deckWidthCm} cm</td></tr>
+<tr><td>Mid-span load test</td><td>${client.weightPieces} &times; 200 g = ${loadG} g</td></tr>
+<tr><td>Portability test</td><td>folds flat: ${client.foldPanels} panels; max ${client.maxPanelCm}&nbsp;cm each</td></tr></table></div>`;
+  }).join("");
+  const checks = clients.map((client, i) =>
+    `Client ${String.fromCharCode(65 + i)}: run ${client.riseCm} &times; ${client.runPerRise} = ${client.runCm} cm; deck &radic;(${client.runCm}&sup2; + ${client.riseCm}&sup2;) = ${client.exactDeckCm.toFixed(1)} cm, cut ${client.cutDeckCm} cm; folded panel ${client.cutDeckCm} &divide; ${client.foldPanels} = ${client.foldedPanelCm.toFixed(1)} cm`
+  ).join("<br>");
   return `<div class="sheet"><style>
 .cl-grid{display:grid;grid-template-columns:1fr 1fr;gap:13pt;}
 .cl{border:1.3pt solid var(--camp-ink);border-radius:7pt;padding:10pt 12pt;break-inside:avoid;}
@@ -315,11 +381,12 @@ function rampClientCards() {
 .cl-t td{padding:3pt 4pt;border-bottom:1pt solid var(--rule2);vertical-align:top;}
 .cl-t td:first-child{white-space:nowrap;color:var(--ink2);}
 .cl-t td:last-child{font-family:var(--mono);color:var(--camp-ink);font-weight:700;text-align:right;}
+.cl-check{font-size:7.8pt;line-height:1.35;color:var(--ink2);margin-top:9pt;}
 </style>
 ${head("PY-STEM 2026 &middot; PYS-12 Accessibility Ramp Rescue Lab", "Client spec cards")}
-<p class="note">Hand each team one client card. Every design must meet ALL four of its client's numbers. Slope is written as rise:run, so 1:12 means 12 cm of ramp length for every 1 cm of height. Ramp length = rise &times; the run number.</p>
+<p class="note">Hand each team one client card. Every design must meet every row. A 1:12 running slope means 12 cm of <b>horizontal run</b> for every 1 cm of rise; the sloped deck is slightly longer. Cut the deck from the 76.2 cm side of one 20 &times; 30 in foam board. Make tape hinges for folding, then brace them with the listed sticks, dowels, or binder clips for the load test. Hang weights at mid-span; use the unwound toy car only for the separate roll check.</p>
 <div class="cl-grid">${cards}</div>
-<p class="note" style="margin-top:12pt"><b>Length check (for the instructor):</b> ${lengths}.</p></div>`;
+<p class="cl-check"><b>Instructor math check:</b><br>${checks}. All cut lengths are at most ${RAMP_BOARD.lengthCm} cm; a ${RAMP_BOARD.deckWidthCm} cm-wide deck leaves ${(RAMP_BOARD.widthCm - RAMP_BOARD.deckWidthCm).toFixed(1)} cm of board width for supports.</p></div>`;
 }
 
 // ---------- PYS-04 stethoscope recovery heart-rate log ----------
@@ -355,9 +422,9 @@ function heartRateLog() {
 .hr-lab{font-family:var(--mono);font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:var(--camp-acc);margin-bottom:4pt;}
 </style>
 ${head("PY-STEM 2026 &middot; PYS-04 Stethoscope Sprint and Recovery", "Heart-rate recovery log")}
-<p class="note">Count heartbeats for 15 seconds and multiply by 4 to get beats per minute (bpm). With the person's consent, record a resting rate, then a rate right after one minute of light activity, then watch it recover. A faster drop back toward rest means better fitness. Fill both trials, then plot the points and connect them.</p>
-<table class="hr-t"><tr><th>When</th><th>Trial 1 count (15 s)</th><th>Trial 2 count (15 s)</th><th>Beats per minute</th></tr>${body}</table>
-<div class="hr-plot"><div class="hr-lab">Heart rate over time (bpm)</div>
+<p class="note"><b>Use the radial pulse at the wrist only; never take a neck pulse.</b> With consent, count twice for 15 seconds at each time point. Average bpm = (Trial 1 count + Trial 2 count) &times; 2. Plot that average. Light activity and measurement are optional; follow any health-plan or staff restriction. Stop immediately and tell an adult for dizziness, chest pain, unusual trouble breathing, or feeling unwell. This classroom trend is not a fitness or medical test.</p>
+<table class="hr-t"><tr><th>When</th><th>Trial 1 count (15 s)</th><th>Trial 2 count (15 s)</th><th>Average bpm<br>(sum &times; 2)</th></tr>${body}</table>
+<div class="hr-plot"><div class="hr-lab">Average heart rate over time (bpm)</div>
 <svg viewBox="0 0 ${W} ${H}">${gy}${gx}<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#222" stroke-width="1.4"/><line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="#222" stroke-width="1.4"/></svg></div></div>`;
 }
 
@@ -384,11 +451,13 @@ ${head("PY-STEM 2026 &middot; PYS-09 Hovercraft Hockey Hackathon", "Glide test, 
 <div class="hv-rules"><h4>Glide test (Glide performance, 30 points)</h4>
 <ol><li>Tape a start line and a launch line 30&nbsp;cm apart on a smooth floor or long table.</li>
 <li>Set the inflated hovercraft on the start line, open the cap, and give it one firm, level push so it crosses the launch line.</li>
-<li>Measure how far past the launch line it glides before it stops. Record the <b>best of three</b> pushes in centimetres.</li></ol></div>
+<li>Measure how far past the launch line it glides before it stops. Record the <b>best of three</b> pushes in centimetres.</li>
+<li>After every team finishes, record the field-best distance. Glide points = round(30 &times; your best distance &divide; field-best distance), capped at 30. If no puck crosses the line, every team earns 0 glide points.</li></ol></div>
 <div class="hv-rules"><h4>Target hockey (Target competition score, 25 points)</h4>
 <ol><li>Place the target sheet 1&nbsp;to 1.5&nbsp;m from a shooting line on the floor.</li>
 <li>Each team gets <b>five shots</b>: push the hovercraft from the shooting line so it comes to rest on the target.</li>
-<li>Score the ring the puck's centre stops on (5, 10, 20, or the 30 bullseye). Off the target scores 0. Add the five shots.</li>
+<li>Score the ring the puck's centre stops on (5, 10, 20, or the 30 bullseye). Off the target scores 0. Add the five shots for a raw total out of 150.</li>
+<li>Target competition points = round(raw five-shot total &divide; 6), capped at 25. Record this converted value on the 100-point rubric.</li>
 <li>Run it as a bracket: highest five-shot total advances. Ties take one extra shot.</li></ol></div>
 <div class="hv-target"><div class="hv-lab">Scoring target</div>
 <svg viewBox="0 0 520 500">${circles}${labels}<circle cx="${cx}" cy="${cy}" r="4" fill="#1c3257"/></svg></div></div>`;
@@ -476,7 +545,7 @@ ${head("PY-STEM 2026 &middot; PYB-04 Barcode Checksum Rescue", "Barcode cards an
 A product barcode has 12 digits. The last one is a <b>check digit</b> computed from the first 11 by a fixed rule, so a single mistyped digit no longer matches and the scanner rejects the code.
 <ol style="margin:5pt 0 0 16pt"><li>Add the digits in the odd positions (1st, 3rd, 5th, ...) and multiply that sum by 3.</li>
 <li>Add the digits in the even positions (2nd, 4th, ...).</li>
-<li>Add those two results, then find what you must add to reach the next multiple of 10. That is the check digit.</li></ol>
+<li>Add those two results, then find what you must add to reach a multiple of 10 (possibly add 0). That is the check digit.</li></ol>
 <div style="margin-top:6pt">Worked example for <b>${ex.replace(/(\d)(\d{5})(\d{5})/, "$1 $2 $3")}</b>: the rule gives a check digit of <b>${exChk}</b>, so the full valid code is ${ex}${exChk}. Card 1 uses it.</div></div>
 <div class="bcard-grid">${cards}</div></div>`;
 }
@@ -631,17 +700,17 @@ const SCIENCE = {
   "PYS-01": "Move a magnet under the board to drag a steel token through the maze with no contact (remote actuation, like a magnetically steered capsule endoscope).",
   "PYS-02": "Oobleck (cornstarch + water) stiffens under fast force and flows under slow force (shear thickening). Fast press protects; slow lean sinks.",
   "PYS-03": "A cam glued to a turning axle lifts a follower; a straw bearing keeps the follower sliding freely. Reliability is the whole game.",
-  "PYS-04": "A funnel and a sealed tube carry body sounds; measure pulse (wrist or neck) before and after exercise and watch recovery.",
+  "PYS-04": "A funnel and a sealed tube carry body sounds; with consent, use radial wrist pulse only to observe a before-and-after recovery trend. This is not a fitness or medical test.",
   "PYS-05": "A falling meter stick measures reaction time (t = sqrt(2d/g)). Use the median of >=10 trials, then test one strategy.",
   "PYS-06": "A pulse runs down a stretched metal slinky and reflects, like SONAR. Time several round trips and divide for a steadier speed.",
   "PYS-07": "Light travels straight, so a pinhole makes an inverted image. There is a BEST hole size; too tiny is dim AND blurry (diffraction).",
   "PYS-08": "You stay balanced while your center of mass stays over your base of support. Four INDOOR challenges replace the (nonexistent) ropes course.",
   "PYS-09": "A balloon air cushion cuts friction so a CD puck glides. A small opening glides longest; more lift is not always better.",
   "PYS-10": "A diffraction grating splits light. White LED = broad band, neon/gas = sharp lines, filament = smooth rainbow. Lines are fingerprints.",
-  "PYS-11": "Retrieve items by bin ADDRESS (A1..D6) with a smart, collision-free route, like a library BookBot (an automated storage/retrieval system).",
+  "PYS-11": "Retrieve items by bin ADDRESS (A1..D6) with a legal low-move route, like an automated storage/retrieval system. Start and finish at DEPOT; move only between adjacent bins.",
   "PYS-12": "A gentler ramp slope needs more length (ADA ~1:12). Build a portable ramp that holds a load and rolls a cart smoothly (universal design).",
   "PYB-01": "Pressure = force / area. Spread the same force over more area so the point no longer pierces the target.",
-  "PYB-02": "A domino chain models a nerve signal. Taped rigid blocks 'jump' like myelinated segments to cross gaps faster.",
+  "PYB-02": "A domino chain is a limited signal-propagation analogy. Myelin insulates sections of one axon; it does not bridge synapses between cells. Compare relay designs, then name the model's limits.",
   "PYB-03": "A movable pulley trades distance for force (mechanical advantage). Measure effort with a spring scale and compare to theory.",
   "PYB-04": "A check digit (mod-10) catches a mistyped barcode. Score correct catches against false alarms.",
   "PYB-05": "Ten ciphers, easiest to hardest (numbers, reverse, Caesar, Atbash, Morse, acrostic, grid, binary, a two-code finale). The decoder sheet is fair game; picking the right tool fast IS the skill.",
@@ -649,18 +718,18 @@ const SCIENCE = {
 const PREP = {
   "PYS-01": "Laminate the maze boards (this packet). Pre-test a paperclip and each washer through the lamination with the 6 mm driver; glue a few drivers into a bottle cap so they are non-mouthable. LOCK the 200 tiny 2x1 mm magnets away from kids.",
   "PYS-02": "Confirm/buy mixing bins + cups. Mix in-bag (gallon zip). Reference batch ~2:1 cornstarch:water. NEVER pour oobleck down a drain; whole bag to the trash. Corn-allergy: hand a sealed teacher-made pad.",
-  "PYS-03": "BUY low-temp glue guns + sticks + straight straws (none on hand). Run two guns at the staff station. Glue the cam so it cannot spin; the follower must slide free in a glued-in straw.",
-  "PYS-04": "On arrival OPEN the funnel set; if no tubing, use the aquarium tubing (buy list). Soak the tube end to press-fit the funnel. Pulse at wrist/neck is the reliable measure if the rig is faint. One earpiece per team; wipe.",
+  "PYS-03": "BUY low-temp glue guns + sticks + straight straws (none on hand). Run three to four low-temperature mini glue guns at one staff station; every gun stays staff-operated. Glue the cam so it cannot spin; the follower must slide free in a glued-in straw.",
+  "PYS-04": "On arrival OPEN the funnel set; if no tubing, use the aquarium tubing (buy list). Soak the tube end to press-fit the funnel. Use radial wrist pulse only if the rig is faint; never take a neck pulse. Measurement and light activity are optional. Wipe every shared contact surface between users.",
   "PYS-05": "Print the cm-to-ms strip (this packet). Median of >=10 trials; compare a strategy median-to-median.",
-  "PYS-06": "Needs ~6 x 6 m clear floor for four ~3 m slinky lanes. Metal slinky only. Keep it flat; never release it stretched.",
+  "PYS-06": "Run six teams in two waves across three measured ~3 m lanes (or shorter measured lanes if space is tight). Metal slinky only. Goggles on while stretched; keep it flat and held at both ends.",
   "PYS-07": "BUY push pins (clean aperture). Dim the room; aim at a flashlight or sunny window; look THROUGH a wax-paper screen. Frame the BEST hole, not the smallest.",
   "PYS-08": "Print the balance cards + COM template (this packet). Every challenge against a wall; clear the floor; spot the chair stand; the line stays flat.",
-  "PYS-09": "BUY low-temp glue (shared with PYS-03). Collect ~12-15 recycled CDs. Confirm a smooth hard floor (else tabletops). Adult inflates balloons; small cap opening glides best.",
+  "PYS-09": "BUY low-temp glue (shared with PYS-03). Collect about 14 to 16 recycled CDs. Confirm a smooth hard floor (else tabletops). Adult inflates balloons; small cap opening glides best.",
   "PYS-10": "BUY a true-NEON night light (our LED flashlights all look identical through a grating). Print the spectrum cards (this packet). Check if room ceiling lights are fluorescent (free lines) or LED.",
-  "PYS-11": "Print the route mat + order deck + address tags (this packet). One team per column at a time; log route, time, collisions.",
+  "PYS-11": "Print one planning mat per team plus one shared judging mat, order deck, and address tags. Mark DEPOT beside A1. One team judges at a time; log the ordered addresses, legal-move count, time, and any missed/illegal move.",
   "PYS-12": "Do NOT pile weights on the pull-back car. Step 1: unwound car roll-check (smooth/straight). Step 2: bridge the ramp between two desks and hang the 200 g weights at mid-span for the load test. Sequence teams through the one weight set.",
   "PYB-01": "Use the graph-paper pierce + traced-area method (on-hand EVA foam rebounds, so do not score dent depth). Same load every time.",
-  "PYB-02": "28 tiles is enough for this BACKUP if teams run sequentially. Tape paper down first so tiles do not slide; gaps < a tile's height.",
+  "PYB-02": "28 tiles support one shared BACKUP track, so six teams rotate sequentially. Tape paper down first so tiles do not slide. Present the rigid-block test as a limited relay analogy, not a literal myelin or synapse model.",
   "PYB-03": "One pulley kit = one team. Rotate it as a demo, OR buy the 8-set kit for 4 parallel teams. Keep the load heavy enough that the spring scale reads clearly.",
   "PYB-04": "Build the deck by changing exactly ONE digit per 'fake' (100% caught by mod-10); avoid differ-by-5 adjacent transpositions. Print a pre-computed answer key. Pin 12-digit UPC-A format.",
   "PYB-05": "Print the decoder sheet x6 and the ten slip pages x1, single-sided; cut each slip page into six, stack face down by round. Judge table gets the STAFF ONLY answer key and a score board. Never hand-type a ciphertext; the builder computes every slip from the plaintext.",
@@ -690,7 +759,7 @@ function runSheets() {
 .rs-list li{margin-bottom:2.5pt;}
 </style>
 ${head("PY-STEM 2026 &middot; Staff run-sheets", "Per-station facilitation, prep &amp; safety")}
-<p class="note">One block per station: the core science, what to set up or buy, and the facilitation moves that make it work. Built from the 2026-06-30 deep-research and handout audit. Keep with the instructor; not student-facing.</p>
+<p class="note">One block per station: the core science, what to set up or buy, and the facilitation moves that make it work. Reconciled for the 31-camper, six-team 2026 cohort. Keep with the instructor; not student-facing.</p>
 ${cards}</div>`;
 }
 
@@ -738,10 +807,10 @@ ${head("PY-STEM 2026 &middot; PYS-10 Spectra Sleuth Showdown", "Spectrum sketch 
 ${blocks}</div>`;
 }
 
-// Staff-only compilation of the four instructor answer keys. Stays out of
+// Staff-only compilation of the six instructor answer keys. Stays out of
 // public/files and files.json so answers never reach the public site library.
 function answerKeys() {
-  return [balanceCards("key"), slinkyCards("key"), museumClueCards("key"), barcodeDeck("key"), codeBreakKey()]
+  return [balanceCards("key"), slinkyCards("key"), bookbotKey(), museumClueCards("key"), barcodeDeck("key"), codeBreakKey()]
     .join(`<div style="break-before:page"></div>`);
 }
 
@@ -763,23 +832,27 @@ const SHEETS = [
   { slug: "PYB_04_Barcode_Card_Deck", body: barcodeDeck },
   { slug: "PYB_05_Code_Break_Decoder_Sheet", body: codeBreakDecoder },
   { slug: "PYB_05_Code_Break_Code_Slips", body: codeBreakSlips },
-  { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets },
-  { slug: "PY_STEM_Instructor_Answer_Keys", body: answerKeys },
+  { slug: "PY_STEM_Staff_Run_Sheets", body: runSheets, copyToStaffDir: true },
+  { slug: "PY_STEM_Instructor_Answer_Keys", body: answerKeys, copyToStaffDir: true },
 ];
 
 async function main() {
   const filter = process.argv[2];
   fs.mkdirSync(outDir, { recursive: true });
+  fs.mkdirSync(STAFF_PDF_DIR, { recursive: true });
   const browser = await chromium.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   const report = [];
   for (const sheet of SHEETS) {
     if (filter && !sheet.slug.toLowerCase().includes(filter.toLowerCase())) continue;
-    await page.setContent(docHtml(sheet.body()), { waitUntil: "load" });
+    await page.setContent(docHtml(sheet.body(), !!sheet.landscape), { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const outPath = path.join(outDir, `${sheet.slug}.pdf`);
     await page.pdf({ path: outPath, format: "Letter", printBackground: true, landscape: !!sheet.landscape,
       margin: { top: "0.55in", bottom: "0.55in", left: "0.65in", right: "0.65in" } });
+    if (sheet.copyToStaffDir) {
+      fs.copyFileSync(outPath, path.join(STAFF_PDF_DIR, `${sheet.slug}.pdf`));
+    }
     report.push(`${sheet.slug}.pdf  ${Math.round(fs.statSync(outPath).size / 1024)} KB`);
   }
   await browser.close();

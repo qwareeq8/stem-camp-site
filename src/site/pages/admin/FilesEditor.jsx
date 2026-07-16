@@ -1,14 +1,15 @@
 // Files editor: add, edit, reorder, and remove the downloadable camp resources.
 // Each file has a name, a category, a type, a public path, a human-readable
-// size, and a short description. The path is relative to public/, so the actual
+// stamped byte size, and a short description. The path is relative to public/, so the actual
 // file must be placed under public/files for the download link to resolve.
-import { useFileSize } from "../../lib/fileSize.js";
+import { useEffect } from "react";
+import { measuredBytesFromProbe, useFileProbe } from "../../lib/fileSize.js";
 import {
   useEditor, SaveBar, RowCard, AddButton, EmptyRows,
   TextField, SelectField, TextAreaField, makeId, updateAt, removeAt, moveAt,
 } from "./shared.jsx";
 
-const CATEGORY_OPTIONS = ["Activity", "Packet", "Scoring", "Signage", "Program", "Logistics"];
+const CATEGORY_OPTIONS = ["Activity", "Printable", "Packet", "Scoring", "Signage", "Program", "Logistics"];
 const TYPE_OPTIONS = ["pdf", "docx", "xlsx", "csv", "other"];
 const CAMP_OPTIONS = [
   { value: "", label: "Program-wide" },
@@ -19,17 +20,39 @@ const KIND_OPTIONS = [
   { value: "", label: "Standalone" },
   { value: "handout", label: "Handout (campers)" },
   { value: "guide", label: "Guide (facilitators)" },
+  { value: "print", label: "Printable (station)" },
 ];
 
-// Size is measured live from the served file, not stored, so this is a
-// read-only display of the file's current size (see lib/fileSize).
-function AutoSizeField({ path }) {
-  const size = useFileSize(path);
+// A live row may predate the editor's vocabulary. Keep an unmatched stored
+// value visible and selectable instead of letting the browser display the first
+// option while the draft silently holds something else.
+function withCurrentOption(options, current) {
+  if (!current) return options;
+  const hasCurrent = options.some((option) =>
+    (typeof option === "string" ? option : option.value) === current);
+  return hasCurrent ? options : [{ value: current, label: `Saved value: ${current}` }, ...options];
+}
+
+// Published files use stamped bytes; a newly entered path falls back to a HEAD
+// request. This field is a read-only formatted display (see lib/fileSize).
+function AutoSizeField({ path, bytes, onMeasured }) {
+  const probe = useFileProbe(path, bytes);
+  const measuredBytes = measuredBytesFromProbe(path, bytes, probe);
+  useEffect(() => {
+    if (measuredBytes > 0) onMeasured(measuredBytes);
+  }, [measuredBytes, onMeasured]);
+
+  let display = "Add a path";
+  if (path && probe.status === "pending") display = "Checking…";
+  else if (path && probe.status === "missing") display = "File not found";
+  else if (path && probe.status === "unavailable") display = "Size unavailable";
+  else if (path && probe.status === "ready") display = probe.size;
+
   return (
     <div className="field">
       <label>Size</label>
       <div className="input date-summary" aria-live="polite">
-        {path ? (size || "—") : "Add a path"}
+        {display}
       </div>
     </div>
   );
@@ -78,20 +101,24 @@ export default function FilesEditor() {
             label="Category"
             value={f.category}
             onChange={(v) => set(i, { category: v })}
-            options={CATEGORY_OPTIONS}
+            options={withCurrentOption(CATEGORY_OPTIONS, f.category)}
           />
           <SelectField
             label="Type"
             value={f.type}
             onChange={(v) => set(i, { type: v })}
-            options={TYPE_OPTIONS}
+            options={withCurrentOption(TYPE_OPTIONS, f.type)}
           />
-          <AutoSizeField path={f.path} />
+          <AutoSizeField
+            path={f.path}
+            bytes={f.bytes}
+            onMeasured={(measuredBytes) => set(i, { bytes: measuredBytes })}
+          />
           <div style={{ gridColumn: "1 / -1" }}>
             <TextField
               label="Path"
               value={f.path}
-              onChange={(v) => set(i, { path: v })}
+              onChange={(v) => set(i, { path: v, bytes: undefined })}
               placeholder="files/handout.pdf"
               mono
             />
@@ -101,7 +128,7 @@ export default function FilesEditor() {
               label="Camp"
               value={f.camp || ""}
               onChange={(v) => set(i, { camp: v })}
-              options={CAMP_OPTIONS}
+              options={withCurrentOption(CAMP_OPTIONS, f.camp)}
             />
             <TextField
               label="Activity code"
@@ -115,7 +142,7 @@ export default function FilesEditor() {
               label="Kind"
               value={f.kind || ""}
               onChange={(v) => set(i, { kind: v })}
-              options={KIND_OPTIONS}
+              options={withCurrentOption(KIND_OPTIONS, f.kind)}
             />
           </div>
           <div style={{ gridColumn: "1 / -1" }}>

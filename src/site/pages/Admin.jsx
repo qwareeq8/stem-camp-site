@@ -2,14 +2,14 @@
 // with the camp's Supabase account (email + password); Supabase issues a JWT held
 // in this browser. When signed in, a tabbed set of editors authors each
 // collection through friendly forms (with a raw-JSON Advanced tab as a fallback),
-// then Save upserts to the Supabase table under Row Level Security. Auth guards
+// then Save performs a revision-checked Supabase write under Row Level Security. Auth guards
 // writes only: the table's read policy makes all data publicly readable, so the
 // roster uses aliases and never real names or anything about minors.
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/auth.js";
 import {
   setCollection,
-  resetCollection,
+  clearAllCollectionOverlays,
   isSupabaseConfigured,
 } from "../lib/store.js";
 import { SAMPLE_DATA } from "../lib/sampleData.js";
@@ -41,13 +41,6 @@ const TABS = [
   { id: "prizes", label: "Prizes", Comp: PrizesEditor },
   { id: "files", label: "Files", Comp: FilesEditor },
   { id: "advanced", label: "Advanced", Comp: RawJsonEditor },
-];
-
-// Collections the "Reset all" button restores to the site's starting data.
-// (The "Load sample" button touches only the subset present in SAMPLE_DATA.)
-const ALL_COLLECTIONS = [
-  "teams", "members", "scores", "tickets", "catalog",
-  "schedule", "achievements", "prizes", "files", "config",
 ];
 
 function LoginGate({ login }) {
@@ -113,13 +106,15 @@ function LoginGate({ login }) {
                   className="icon"
                   onClick={() => setShow((s) => !s)}
                   aria-pressed={show}
-                  aria-label="Show password"
+                  aria-label={show ? "Hide password" : "Show password"}
                 >
                   {show ? <EyeOff size={14} aria-hidden="true" /> : <Eye size={14} aria-hidden="true" />}
                 </Btn>
               </div>
               <p id="admin-auth-hint" className="muted" style={{ fontSize: 12, marginTop: 6, marginBottom: 0 }}>
-                {configured ? "Use the camp admin account." : "Admin sign in is disabled until publishing is connected."}
+                {configured
+                  ? "Use the camp admin account. For shared-device safety, Admin locks again on reload or tab close."
+                  : "Admin sign in is disabled until publishing is connected."}
               </p>
             </div>
             <div className="row">
@@ -152,13 +147,26 @@ function LoginGate({ login }) {
 
 function Console({ logout }) {
   const [tab, setTab] = useState("setup");
-  // Bumped after a bulk data op (Load sample / Reset all) to remount the active
-  // editor so it re-reads the store instead of keeping a stale draft.
+  // Bumped after a bulk data op (Load sample / Clear browser previews) to
+  // remount the active editor so it re-reads the store instead of keeping a
+  // stale draft.
   const [version, setVersion] = useState(0);
   const [notice, setNotice] = useState(null);
   const tabRefs = useRef({});
   const active = TABS.find((t) => t.id === tab) || TABS[0];
   const ActiveEditor = active.Comp;
+
+  // Reloading also clears the intentionally memory-only Admin session. Give a
+  // dirty form the browser's standard leave-page warning before that happens.
+  useEffect(() => {
+    const confirmDirtyLeave = (event) => {
+      if (!anyDirtyDraft()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", confirmDirtyLeave);
+    return () => window.removeEventListener("beforeunload", confirmDirtyLeave);
+  }, []);
 
   // Switching tabs unmounts the active editor, so a dirty draft must be
   // confirmed away rather than silently discarded. Returns false on cancel.
@@ -180,22 +188,30 @@ function Console({ logout }) {
   }
 
   function loadSample() {
-    // Local overlay only: never writes to Supabase. Reversible with "Reset all".
+    if (anyDirtyDraft() && !window.confirm("Discard unsaved edits and load the browser-only sample data?")) return;
+    // Local overlay only: never writes to Supabase. Reversible with the clear
+    // browser previews action in Advanced.
     for (const [name, value] of Object.entries(SAMPLE_DATA)) setCollection(name, value);
     setVersion((v) => v + 1);
     setNotice({
       tone: "ok",
-      text: "Loaded sample data in this browser only. Open a tab and Save to publish it, or reset all data to clear the preview.",
+      text: "Loaded sample data in this browser only. Open a tab and Save to publish it, or clear browser previews to return to published data.",
     });
   }
 
-  function resetAll() {
-    for (const name of ALL_COLLECTIONS) resetCollection(name);
+  function clearBrowserPreviews() {
+    if (anyDirtyDraft() && !window.confirm("Discard unsaved edits and clear all browser-only previews?")) return;
+    clearAllCollectionOverlays();
     setVersion((v) => v + 1);
     setNotice({
       tone: "ok",
-      text: "Reset this browser to the site's starting data. Save a tab to publish that collection.",
+      text: "Cleared browser-only previews. Each collection now shows its last safely loaded published value, or the site's starting data when no published value was loaded.",
     });
+  }
+
+  function signOut() {
+    if (anyDirtyDraft() && !window.confirm("Discard unsaved edits and sign out?")) return;
+    logout();
   }
 
   return (
@@ -204,7 +220,7 @@ function Console({ logout }) {
       title="Data console"
       sub="Author the site's content through forms, then Save to publish. Saved changes reach visitors on their next page load, with no redeploy."
       actions={
-        <Btn variant="ghost" onClick={logout}>
+        <Btn variant="ghost" onClick={signOut}>
           <LogOut size={14} aria-hidden="true" /> Log out
         </Btn>
       }
@@ -214,7 +230,8 @@ function Console({ logout }) {
           <ShieldAlert size={15} aria-hidden="true" /> Public data warning
         </strong>
         Use aliases only. Never enter real camper names, personal details, private notes,
-        allergy information, or anything sensitive about minors.
+        allergy information, or anything sensitive about minors. Admin access is
+        memory-only and locks again when this page reloads or the tab closes.
       </div>
 
       {notice && (
@@ -248,7 +265,7 @@ function Console({ logout }) {
         <ActiveEditor
           key={`${tab}-${version}`}
           onLoadSample={loadSample}
-          onResetAll={resetAll}
+          onClearPreviews={clearBrowserPreviews}
         />
       </div>
     </Page>

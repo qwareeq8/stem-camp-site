@@ -1,4 +1,4 @@
-// Browser smoke of the modular deck audit page: render all 64, assert no
+// Browser smoke of the modular deck audit page: render all 66, assert no
 // render-error nodes and capture console errors plus a full-page screenshot.
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
@@ -22,4 +22,4 @@ await page.screenshot({ path: path.join(here, "out", "modular_audit.png"), fullP
 console.log("data-comp cells: " + count + ", render-error nodes: " + renderErr + ", console errors: " + errs.length);
 for (const e of errs.slice(0, 15)) console.log("  - " + e);
 await b.close();
-process.exit(count === 64 && renderErr === 0 ? 0 : 1);
+process.exit(count === 66 && renderErr === 0 ? 0 : 1);

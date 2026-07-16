@@ -6,73 +6,66 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getCollection,
+  getCollectionStatus,
   useCollection,
+  useCollectionStatus,
   commitCollection,
-  resetCollection,
+  retryCollection,
   isOverridden,
   isSupabaseConfigured,
+  SEED_DATA,
 } from "../../lib/store.js";
+import {
+  isWritableHydrationStatus,
+  sameHydrationRevision,
+} from "../../lib/supabaseConcurrency.js";
 import { validate } from "../../lib/schemas.js";
+import { verifyFileCollection } from "../../lib/fileSize.js";
 import { Card, Badge, Btn, SectionTitle, downloadJson } from "../../ui.jsx";
-import { Database, Save, RotateCcw, Download } from "lucide-react";
-import { useEditor, SaveBar, TextField, clone, reportDirtyDraft } from "./shared.jsx";
+import { Database, Save, RotateCcw, Download, RefreshCw } from "lucide-react";
+import { reportDirtyDraft } from "./shared.jsx";
 
 const COLLECTIONS = [
   "teams", "members", "scores", "tickets", "catalog",
   "schedule", "achievements", "prizes", "files", "config",
 ];
 
-function PublishingConnection() {
-  const ed = useEditor("config");
-  const cfg = ed.draft || {};
-  const supabase = cfg.supabase || {};
-  // Rebase every edit on the live config so this panel only authors the
-  // supabase block; a raw-JSON save of other config keys on this same screen
-  // is never reverted by saving here.
-  const setSupabase = (key, value) =>
-    ed.setDraft({ ...clone(getCollection("config")), supabase: { ...supabase, [key]: value } });
-
-  return (
-    <div className="adm-row" style={{ marginBottom: 16 }}>
-      <div className="adm-row-head">
-        <span className="mono" style={{ flex: 1 }}>Publishing connection</span>
-      </div>
-      <div className="notice" role="note" style={{ marginBottom: 12 }}>
-        Maintainer settings for publishing admin changes. Use only the publishable
-        key; never paste a secret or service-role key here.
-      </div>
-      <div className="adm-grid" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: 12 }}>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <TextField label="Project URL" value={supabase.url} onChange={(v) => setSupabase("url", v)} mono placeholder="https://YOUR-PROJECT.supabase.co" />
-        </div>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <TextField label="Publishable key" value={supabase.anonKey} onChange={(v) => setSupabase("anonKey", v)} mono />
-        </div>
-        <TextField label="Table name" value={supabase.table} onChange={(v) => setSupabase("table", v)} mono placeholder="collections" />
-      </div>
-      <SaveBar ed={ed} />
-    </div>
-  );
-}
-
-export default function RawJsonEditor({ onLoadSample, onResetAll }) {
+export default function RawJsonEditor({ onLoadSample, onClearPreviews }) {
   const [name, setName] = useState("teams");
-  const [text, setText] = useState(() => JSON.stringify(getCollection("teams"), null, 2));
+  const [text, setTextState] = useState(() => JSON.stringify(getCollection("teams"), null, 2));
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
   const [overridden, setOverridden] = useState(() => isOverridden("teams"));
+  const [stale, setStale] = useState(false);
   const configured = isSupabaseConfigured();
   const live = useCollection(name);
+  const hydration = useCollectionStatus(name);
+  const baseline = useRef(live);
+  const baseStatus = useRef(hydration);
+  const textRef = useRef(text);
+  const operation = useRef(false);
+  const baselineOverridden = useRef(isOverridden("teams"));
 
-  // True when the textarea no longer matches the stored value. Reported to the
-  // shared dirty registry so the console confirms before a tab switch.
+  function setText(next) {
+    const value = typeof next === "function" ? next(textRef.current) : next;
+    textRef.current = value;
+    setTextState(value);
+  }
+
+  // True when the textarea no longer matches the revision it was loaded from.
+  // Reported to the shared dirty registry so the console confirms before a tab
+  // switch.
   const dirty = useMemo(() => {
     try {
-      return JSON.stringify(JSON.parse(text)) !== JSON.stringify(live);
+      return JSON.stringify(JSON.parse(text)) !== JSON.stringify(baseline.current);
     } catch {
-      return text !== JSON.stringify(live, null, 2);
+      return text !== JSON.stringify(baseline.current, null, 2);
     }
-  }, [text, live]);
+  }, [text, live, hydration]);
+  const canSave = configured
+    && isWritableHydrationStatus(hydration)
+    && sameHydrationRevision(baseStatus.current, hydration)
+    && !stale;
   useEffect(() => {
     reportDirtyDraft(`raw:${name}`, dirty);
     return () => reportDirtyDraft(`raw:${name}`, false);
@@ -81,30 +74,54 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
   // The store value the textarea was rendered from. When the store moves
   // (hydrate, panel save) pristine text is refreshed so the editor never
   // trusts a pre-hydration snapshot; typed edits are never touched.
-  const baseline = useRef(live);
   useEffect(() => {
-    if (live === baseline.current) return;
-    if (text === JSON.stringify(baseline.current, null, 2)) {
+    const valueMoved = live !== baseline.current;
+    const statusMoved = hydration !== baseStatus.current;
+    if (!valueMoved && !statusMoved) return;
+    const pristine = text === JSON.stringify(baseline.current, null, 2)
+      && !baselineOverridden.current;
+    if (pristine) {
+      baseline.current = live;
+      baseStatus.current = hydration;
+      baselineOverridden.current = isOverridden(name);
       setText(JSON.stringify(live, null, 2));
       setOverridden(isOverridden(name));
+      setStale(false);
+      return;
     }
-    baseline.current = live;
-  }, [name, live, text]);
+    if (
+      isWritableHydrationStatus(hydration)
+      && (valueMoved || !sameHydrationRevision(baseStatus.current, hydration))
+    ) {
+      setStale(true);
+      setMessage({
+        tone: "warn",
+        text: "Live data changed while this JSON draft was open. Reload live data before saving.",
+      });
+    }
+  }, [name, live, hydration, text]);
 
   function select(next) {
-    if (next === name) return;
+    if (next === name || operation.current) return;
     // Guard against silently discarding unsaved edits: confirm before
     // switching collections while the text differs from the stored value.
     if (dirty && !window.confirm(`Discard unsaved edits to "${name}" and switch to "${next}"?`)) return;
     setName(next);
-    setText(JSON.stringify(getCollection(next), null, 2));
+    const nextLive = getCollection(next);
+    baseline.current = nextLive;
+    baseStatus.current = getCollectionStatus(next);
+    baselineOverridden.current = isOverridden(next);
+    setText(JSON.stringify(nextLive, null, 2));
     setOverridden(isOverridden(next));
+    setStale(false);
     setMessage(null);
   }
 
   async function onSave() {
+    if (operation.current) return;
+    const submittedText = textRef.current;
     let parsed;
-    try { parsed = JSON.parse(text); } catch (e) {
+    try { parsed = JSON.parse(submittedText); } catch (e) {
       setMessage({ tone: "warn", text: `Invalid JSON: ${e.message}` });
       return;
     }
@@ -112,29 +129,121 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
       setMessage({ tone: "warn", text: e.message });
       return;
     }
+    if (
+      name === "config"
+      && JSON.stringify(parsed.supabase || {}) !== JSON.stringify((baseline.current || {}).supabase || {})
+    ) {
+      setMessage({
+        tone: "warn",
+        text: "The publishing URL, key, and table are deployment-managed. Change the VITE_SUPABASE_* configuration, sign out, and reload instead of changing them in Admin.",
+      });
+      return;
+    }
     if (!configured) {
       setMessage({ tone: "warn", text: "Publishing is not connected. Ask the site maintainer to connect the admin backend before saving." });
       return;
     }
+    if (!isWritableHydrationStatus(hydration)) {
+      setMessage({
+        tone: "warn",
+        text: hydration.state === "loading" || hydration.state === "pending"
+          ? "Live data is still loading. Wait for it to finish before saving."
+          : "Live data did not load safely. Retry the live load before saving.",
+      });
+      return;
+    }
+    if (!canSave) {
+      setStale(true);
+      setMessage({ tone: "warn", text: "A newer live revision is available. Reload it before saving." });
+      return;
+    }
+    operation.current = true;
     setBusy(true);
     setMessage({ tone: "ok", text: `Saving ${name}...` });
     try {
-      await commitCollection(name, parsed);
-      setText(JSON.stringify(getCollection(name), null, 2));
+      if (name === "files") await verifyFileCollection(parsed);
+      await commitCollection(name, parsed, { baseStatus: baseStatus.current });
+      const fresh = getCollection(name);
+      const editedWhileSaving = textRef.current !== submittedText;
+      baseline.current = fresh;
+      baseStatus.current = getCollectionStatus(name);
+      baselineOverridden.current = false;
+      if (!editedWhileSaving) setText(JSON.stringify(fresh, null, 2));
       setOverridden(isOverridden(name));
-      setMessage({ tone: "ok", text: `Saved ${name}. Visitors see it on their next page load.` });
+      setStale(false);
+      setMessage({
+        tone: "ok",
+        text: editedWhileSaving
+          ? `Saved ${name}. JSON typed during the save remains in this unsaved draft.`
+          : `Saved ${name}. Visitors see it on their next page load.`,
+      });
     } catch (e) {
+      if (e.code === "COLLECTION_CONFLICT") setStale(true);
       setMessage({ tone: "warn", text: e.message });
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   }
 
-  function onReset() {
-    resetCollection(name);
-    setText(JSON.stringify(getCollection(name), null, 2));
+  async function onRetry() {
+    if (operation.current) return;
+    const textAtStart = textRef.current;
+    const wasPristine = !dirty && !baselineOverridden.current;
+    operation.current = true;
+    setBusy(true);
+    setMessage({ tone: "ok", text: `Reloading live ${name}...` });
+    try {
+      await retryCollection(name);
+      const freshStatus = getCollectionStatus(name);
+      const fresh = getCollection(name);
+      if (!isWritableHydrationStatus(freshStatus)) {
+        setMessage({
+          tone: "warn",
+          text: freshStatus.state === "invalid"
+            ? `Live ${name} data is invalid. Saving remains blocked.`
+            : `Could not load live ${name}. Saving remains blocked.`,
+        });
+        return;
+      }
+      const untouched = textRef.current === textAtStart;
+      if (wasPristine && untouched) {
+        baseline.current = fresh;
+        baseStatus.current = freshStatus;
+        baselineOverridden.current = false;
+        setText(JSON.stringify(fresh, null, 2));
+        setOverridden(false);
+        setStale(false);
+        setMessage({ tone: "ok", text: freshStatus.state === "absent" ? `No published ${name} row exists yet. The first Save will create it.` : `Reloaded live ${name}.` });
+        return;
+      }
+      setStale(true);
+      setMessage({
+        tone: "warn",
+        text: `Reloaded live ${name}, but kept your JSON draft unchanged. Reload live data to discard it before saving.`,
+      });
+    } finally {
+      operation.current = false;
+      setBusy(false);
+    }
+  }
+
+  function onReloadLive() {
+    if (!isWritableHydrationStatus(hydration)) return;
+    const fresh = getCollection(name);
+    baseline.current = fresh;
+    baseStatus.current = getCollectionStatus(name);
+    baselineOverridden.current = false;
+    setText(JSON.stringify(fresh, null, 2));
     setOverridden(isOverridden(name));
-    setMessage({ tone: "ok", text: `Reset "${name}" to the site's starting data in this browser. Save to publish it.` });
+    setStale(false);
+    setMessage({ tone: "ok", text: `Reloaded live ${name}. The previous JSON draft was discarded.` });
+  }
+
+  function onReset() {
+    setText(JSON.stringify(SEED_DATA[name], null, 2));
+    setStale(false);
+    setMessage({ tone: "ok", text: `Loaded the site's starting ${name} data into this draft. Save to publish it.` });
   }
 
   function onDownload() {
@@ -147,6 +256,19 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
     setMessage({ tone: "ok", text: `Downloaded ${name}.json.` });
   }
 
+  const needsRetry = configured && ["pending", "failed", "invalid", "conflict"].includes(hydration.state);
+  const loadBlocked = configured && ["failed", "invalid", "conflict"].includes(hydration.state);
+  let statusBadge = <Badge tone="ok">Saved</Badge>;
+  if (!configured || hydration.state === "seed-only") statusBadge = <Badge tone="warn">Not connected</Badge>;
+  else if (hydration.state === "pending" || hydration.state === "loading") statusBadge = <Badge tone="warn">Loading live data</Badge>;
+  else if (hydration.state === "failed") statusBadge = <Badge tone="warn">Load failed</Badge>;
+  else if (hydration.state === "invalid") statusBadge = <Badge tone="warn">Live data invalid</Badge>;
+  else if (hydration.state === "conflict") statusBadge = <Badge tone="warn">Write conflict</Badge>;
+  else if (stale) statusBadge = <Badge tone="warn">Newer live data</Badge>;
+  else if (dirty) statusBadge = <Badge tone="warn">Unsaved changes</Badge>;
+  else if (overridden) statusBadge = <Badge tone="warn">Preview only</Badge>;
+  else if (hydration.state === "absent") statusBadge = <Badge tone="warn">Not published yet</Badge>;
+
   return (
     <div>
       <div className="notice" role="note" style={{ marginBottom: 16 }}>
@@ -156,32 +278,44 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
 
       <div className="adm-row" style={{ marginBottom: 16 }}>
         <div className="adm-row-head">
-          <span className="mono" style={{ flex: 1 }}>Starting data and samples</span>
+          <span className="mono" style={{ flex: 1 }}>Browser previews and starting data</span>
         </div>
         <div className="row">
-          <Btn variant="ghost" onClick={onLoadSample}>
+          <Btn variant="ghost" onClick={onLoadSample} disabled={busy}>
             <Database size={14} aria-hidden="true" /> Load sample data
           </Btn>
-          <Btn variant="ghost" onClick={onResetAll}>
-            <RotateCcw size={14} aria-hidden="true" /> Reset all to starting data
+          <Btn variant="ghost" onClick={onClearPreviews} disabled={busy}>
+            <RotateCcw size={14} aria-hidden="true" /> Clear browser previews
           </Btn>
         </div>
         <p className="muted" style={{ fontSize: 13, margin: "10px 0 0" }}>
-          These affect this browser first. Save each collection you want visitors to see.
+          Sample data affects this browser first. Clearing previews restores the
+          last safely loaded published values, or starting data when none were loaded.
+          Use the selected-collection reset below to stage starting data for publishing.
         </p>
       </div>
 
-      <PublishingConnection />
+      <div className="notice info" role="note" style={{ marginBottom: 16 }}>
+        The publishing connection is deployment-managed through the
+        VITE_SUPABASE_* environment. Admin can edit public content, but it cannot
+        switch projects, keys, or tables during a signed-in browser session.
+      </div>
 
       <div className="field" style={{ maxWidth: 280 }}>
         <label htmlFor="raw-collection">Collection</label>
-        <select id="raw-collection" className="input" value={name} onChange={(e) => select(e.target.value)}>
+        <select id="raw-collection" className="input" value={name} onChange={(e) => select(e.target.value)} disabled={busy}>
           {COLLECTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
 
       <SectionTitle>{name}.json</SectionTitle>
       <Card>
+        {loadBlocked && (
+          <div className="adm-err" role="alert" style={{ marginBottom: 12 }}>
+            <strong>{hydration.state === "invalid" ? "Live data is invalid." : hydration.state === "conflict" ? "A newer live revision exists." : "Live data could not be loaded."}</strong>{" "}
+            Saving is blocked until Retry live data completes and the draft is reviewed.
+          </div>
+        )}
         <div className="field" style={{ marginBottom: 12 }}>
           <label htmlFor="raw-editor">JSON editor</label>
           <textarea
@@ -194,10 +328,20 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
             style={{ resize: "vertical", whiteSpace: "pre", overflowWrap: "normal", width: "100%" }}
           />
         </div>
-        <div className="row">
-          <Btn variant="accent" onClick={onSave} disabled={busy}>
+        <div className="row" aria-busy={busy || hydration.state === "loading" ? "true" : undefined}>
+          <Btn variant="accent" onClick={onSave} disabled={busy || !canSave}>
             <Save size={14} aria-hidden="true" /> {busy ? "Saving..." : "Save"}
           </Btn>
+          {needsRetry && (
+            <Btn variant="ghost" onClick={onRetry} disabled={busy}>
+              <RefreshCw size={14} aria-hidden="true" /> Retry live data
+            </Btn>
+          )}
+          {stale && isWritableHydrationStatus(hydration) && (
+            <Btn variant="ghost" onClick={onReloadLive} disabled={busy}>
+              <RefreshCw size={14} aria-hidden="true" /> Reload live data
+            </Btn>
+          )}
           <Btn variant="ghost" onClick={onReset} disabled={busy}>
             <RotateCcw size={14} aria-hidden="true" /> Reset selected to starting data
           </Btn>
@@ -205,7 +349,7 @@ export default function RawJsonEditor({ onLoadSample, onResetAll }) {
             <Download size={14} aria-hidden="true" /> Download selected JSON
           </Btn>
           <span className="spacer" />
-          {overridden ? <Badge tone="warn">Preview only</Badge> : <Badge tone="ok">Saved</Badge>}
+          {statusBadge}
         </div>
         {message && (
           <p role="status" aria-live="polite" className="mono"

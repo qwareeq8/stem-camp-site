@@ -34,7 +34,10 @@ const vp = MOBILE ? { width: 390, height: 844 } : { width: 1280, height: 900 };
 const SUFFIX = MOBILE ? "_m" : "";
 const b = await chromium.launch({ args: ["--no-sandbox"] });
 const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 1 });
-await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+// Use local fallbacks during deterministic screenshots without emitting a
+// synthetic Chromium console error for an intentionally aborted stylesheet.
+await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (route) =>
+  route.fulfill({ status: 200, contentType: "text/css", body: "" }));
 
 // SAMPLE=1 injects the demo data set as a local overlay before each page loads,
 // so the screenshots show a populated site (the shipped seed is intentionally

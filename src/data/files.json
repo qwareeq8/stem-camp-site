@@ -2,24 +2,38 @@
   {
     "id": "doc-master",
     "name": "Master Curriculum and Operations Guide",
-    "desc": "The full 2026 program: both camps, all stations, the design loop, scoring, and day-by-day operations.",
+    "desc": "Original reviewed May 2026 curriculum overview. It predates live PYS-00, PYS-02R, CRANK, PYB-05, and itinerary changes; use the live schedule, scoring addendum, and Admin for the operational record.",
     "type": "pdf",
     "path": "files/2026_STEM_Camps_Master_Curriculum_and_Operations_Guide.pdf",
     "camp": "",
     "code": "",
     "category": "Program",
-    "kind": ""
+    "kind": "",
+    "bytes": 41051
   },
   {
     "id": "doc-rewards",
     "name": "Reward and Competition Kit",
-    "desc": "Printable award certificates, the eight camp awards, and the best-9-of-12 competition rules.",
+    "desc": "The original reviewed kit: printable award certificates, eight camp awards, and best-9-of-12 competition rules.",
     "type": "pdf",
     "path": "files/Printable_Reward_and_Competition_Kit.pdf",
     "camp": "",
     "code": "",
     "category": "Program",
-    "kind": ""
+    "kind": "",
+    "bytes": 47814
+  },
+  {
+    "id": "doc-live-scoring-addendum",
+    "name": "2026 Live Scoring Addendum",
+    "desc": "Explains the live lowest-quarter and 300-point CRANK override without rewriting the original reviewed kit.",
+    "type": "pdf",
+    "path": "files/2026_Live_Scoring_Addendum.pdf",
+    "camp": "",
+    "code": "",
+    "category": "Printable",
+    "kind": "print",
+    "bytes": 48198
   },
   {
     "id": "doc-safety",
@@ -30,18 +44,20 @@
     "camp": "",
     "code": "",
     "category": "Program",
-    "kind": ""
+    "kind": "",
+    "bytes": 35505
   },
   {
     "id": "pk-trees-handout",
     "name": "Student Handout Packet",
-    "desc": "All twelve station handouts for campers in one printable booklet.",
+    "desc": "Twelve primary station handouts plus backup activities in one printable booklet.",
     "type": "pdf",
     "path": "files/From_Trees_to_Tech_Student_Handout_Packet.pdf",
     "camp": "trees",
     "code": "",
     "category": "Packet",
-    "kind": ""
+    "kind": "",
+    "bytes": 165248
   },
   {
     "id": "pk-trees-guide",
@@ -52,18 +68,20 @@
     "camp": "trees",
     "code": "",
     "category": "Packet",
-    "kind": ""
+    "kind": "",
+    "bytes": 128458
   },
   {
     "id": "pk-trees-scores",
     "name": "Score Sheets and Leaderboard",
-    "desc": "Printable rubric score sheets; every station rubric sums to 100 points.",
+    "desc": "Original reviewed 100-point station rubrics and best-9-of-12 leaderboard. It has no CRANK slip; use the live scoring addendum and Admin for 2026 live results.",
     "type": "pdf",
     "path": "files/From_Trees_to_Tech_Score_Sheets_and_Leaderboard.pdf",
     "camp": "trees",
     "code": "",
     "category": "Scoring",
-    "kind": ""
+    "kind": "",
+    "bytes": 39307
   },
   {
     "id": "pk-trees-signs",
@@ -74,18 +92,20 @@
     "camp": "trees",
     "code": "",
     "category": "Signage",
-    "kind": ""
+    "kind": "",
+    "bytes": 89148
   },
   {
     "id": "pk-pystem-handout",
     "name": "Student Handout Packet",
-    "desc": "All twelve station handouts for campers in one printable booklet.",
+    "desc": "Twelve primary station handouts plus backup activities in one printable booklet.",
     "type": "pdf",
     "path": "files/PY_STEM_Student_Handout_Packet.pdf",
     "camp": "pystem",
     "code": "",
     "category": "Packet",
-    "kind": ""
+    "kind": "",
+    "bytes": 170769
   },
   {
     "id": "pk-pystem-guide",
@@ -96,18 +116,20 @@
     "camp": "pystem",
     "code": "",
     "category": "Packet",
-    "kind": ""
+    "kind": "",
+    "bytes": 131398
   },
   {
     "id": "pk-pystem-scores",
     "name": "Score Sheets and Leaderboard",
-    "desc": "Printable rubric score sheets; every station rubric sums to 100 points.",
+    "desc": "Original reviewed 100-point station rubrics and best-9-of-12 leaderboard. It has no CRANK or live-addition slips; use the live scoring addendum and Admin for final standings.",
     "type": "pdf",
     "path": "files/PY_STEM_Score_Sheets_and_Leaderboard.pdf",
     "camp": "pystem",
     "code": "",
     "category": "Scoring",
-    "kind": ""
+    "kind": "",
+    "bytes": 38849
   },
   {
     "id": "pk-pystem-signs",
@@ -118,7 +140,8 @@
     "camp": "pystem",
     "code": "",
     "category": "Signage",
-    "kind": ""
+    "kind": "",
+    "bytes": 92752
   },
   {
     "id": "TTT-01-handout",
@@ -129,7 +152,8 @@
     "camp": "trees",
     "code": "TTT-01",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 42697
   },
   {
     "id": "TTT-01-guide",
@@ -140,7 +164,8 @@
     "camp": "trees",
     "code": "TTT-01",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 51037
   },
   {
     "id": "TTT-02-handout",
@@ -151,7 +176,8 @@
     "camp": "trees",
     "code": "TTT-02",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38596
   },
   {
     "id": "TTT-02-guide",
@@ -162,7 +188,8 @@
     "camp": "trees",
     "code": "TTT-02",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48383
   },
   {
     "id": "TTT-03-handout",
@@ -173,7 +200,8 @@
     "camp": "trees",
     "code": "TTT-03",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38560
   },
   {
     "id": "TTT-03-guide",
@@ -184,7 +212,8 @@
     "camp": "trees",
     "code": "TTT-03",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49854
   },
   {
     "id": "TTT-04-handout",
@@ -195,7 +224,8 @@
     "camp": "trees",
     "code": "TTT-04",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 40520
   },
   {
     "id": "TTT-04-guide",
@@ -206,7 +236,8 @@
     "camp": "trees",
     "code": "TTT-04",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49931
   },
   {
     "id": "TTT-05-handout",
@@ -217,7 +248,8 @@
     "camp": "trees",
     "code": "TTT-05",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38186
   },
   {
     "id": "TTT-05-guide",
@@ -228,7 +260,8 @@
     "camp": "trees",
     "code": "TTT-05",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48802
   },
   {
     "id": "TTT-06-handout",
@@ -239,7 +272,8 @@
     "camp": "trees",
     "code": "TTT-06",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38198
   },
   {
     "id": "TTT-06-guide",
@@ -250,7 +284,8 @@
     "camp": "trees",
     "code": "TTT-06",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49512
   },
   {
     "id": "TTT-07-handout",
@@ -261,7 +296,8 @@
     "camp": "trees",
     "code": "TTT-07",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38950
   },
   {
     "id": "TTT-07-guide",
@@ -272,7 +308,8 @@
     "camp": "trees",
     "code": "TTT-07",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49691
   },
   {
     "id": "TTT-08-handout",
@@ -283,7 +320,8 @@
     "camp": "trees",
     "code": "TTT-08",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39961
   },
   {
     "id": "TTT-08-guide",
@@ -294,7 +332,8 @@
     "camp": "trees",
     "code": "TTT-08",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49491
   },
   {
     "id": "TTT-09-handout",
@@ -305,7 +344,8 @@
     "camp": "trees",
     "code": "TTT-09",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39578
   },
   {
     "id": "TTT-09-guide",
@@ -316,7 +356,8 @@
     "camp": "trees",
     "code": "TTT-09",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 50181
   },
   {
     "id": "TTT-10-handout",
@@ -327,7 +368,8 @@
     "camp": "trees",
     "code": "TTT-10",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38819
   },
   {
     "id": "TTT-10-guide",
@@ -338,7 +380,8 @@
     "camp": "trees",
     "code": "TTT-10",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49501
   },
   {
     "id": "TTT-11-handout",
@@ -349,7 +392,8 @@
     "camp": "trees",
     "code": "TTT-11",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39753
   },
   {
     "id": "TTT-11-guide",
@@ -360,7 +404,8 @@
     "camp": "trees",
     "code": "TTT-11",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49049
   },
   {
     "id": "TTT-12-handout",
@@ -371,7 +416,8 @@
     "camp": "trees",
     "code": "TTT-12",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 40780
   },
   {
     "id": "TTT-12-guide",
@@ -382,7 +428,8 @@
     "camp": "trees",
     "code": "TTT-12",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 52066
   },
   {
     "id": "PYS-01-handout",
@@ -393,7 +440,8 @@
     "camp": "pystem",
     "code": "PYS-01",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37831
   },
   {
     "id": "PYS-01-guide",
@@ -404,7 +452,8 @@
     "camp": "pystem",
     "code": "PYS-01",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48742
   },
   {
     "id": "PYS-02-handout",
@@ -415,7 +464,8 @@
     "camp": "pystem",
     "code": "PYS-02",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38821
   },
   {
     "id": "PYS-02-guide",
@@ -426,7 +476,8 @@
     "camp": "pystem",
     "code": "PYS-02",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49215
   },
   {
     "id": "PYS-03-handout",
@@ -437,7 +488,8 @@
     "camp": "pystem",
     "code": "PYS-03",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37353
   },
   {
     "id": "PYS-03-guide",
@@ -448,7 +500,8 @@
     "camp": "pystem",
     "code": "PYS-03",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48506
   },
   {
     "id": "PYS-04-handout",
@@ -459,7 +512,8 @@
     "camp": "pystem",
     "code": "PYS-04",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38316
   },
   {
     "id": "PYS-04-guide",
@@ -470,7 +524,8 @@
     "camp": "pystem",
     "code": "PYS-04",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48907
   },
   {
     "id": "PYS-05-handout",
@@ -481,7 +536,8 @@
     "camp": "pystem",
     "code": "PYS-05",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37214
   },
   {
     "id": "PYS-05-guide",
@@ -492,7 +548,8 @@
     "camp": "pystem",
     "code": "PYS-05",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48314
   },
   {
     "id": "PYS-06-handout",
@@ -503,7 +560,8 @@
     "camp": "pystem",
     "code": "PYS-06",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39007
   },
   {
     "id": "PYS-06-guide",
@@ -514,7 +572,8 @@
     "camp": "pystem",
     "code": "PYS-06",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 50028
   },
   {
     "id": "PYS-07-handout",
@@ -525,7 +584,8 @@
     "camp": "pystem",
     "code": "PYS-07",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37954
   },
   {
     "id": "PYS-07-guide",
@@ -536,29 +596,32 @@
     "camp": "pystem",
     "code": "PYS-07",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48002
   },
   {
     "id": "PYS-08-handout",
     "name": "Low-Ropes Force Map Relay",
-    "desc": "Predict balance before the element proves you right",
+    "desc": "Predict balance and stability before the challenge proves you right",
     "type": "pdf",
     "path": "files/PYS_08_Low_Ropes_Force_Map_Relay_Student_Handout.pdf",
     "camp": "pystem",
     "code": "PYS-08",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39774
   },
   {
     "id": "PYS-08-guide",
     "name": "Low-Ropes Force Map Relay",
-    "desc": "Predict balance before the element proves you right",
+    "desc": "Predict balance and stability before the challenge proves you right",
     "type": "pdf",
     "path": "files/PYS_08_Low_Ropes_Force_Map_Relay_Instructor_Guide.pdf",
     "camp": "pystem",
     "code": "PYS-08",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49679
   },
   {
     "id": "PYS-09-handout",
@@ -569,7 +632,8 @@
     "camp": "pystem",
     "code": "PYS-09",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39179
   },
   {
     "id": "PYS-09-guide",
@@ -580,7 +644,8 @@
     "camp": "pystem",
     "code": "PYS-09",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49321
   },
   {
     "id": "PYS-10-handout",
@@ -591,7 +656,8 @@
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37186
   },
   {
     "id": "PYS-10-guide",
@@ -602,7 +668,8 @@
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48358
   },
   {
     "id": "PYS-11-handout",
@@ -613,7 +680,8 @@
     "camp": "pystem",
     "code": "PYS-11",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38485
   },
   {
     "id": "PYS-11-guide",
@@ -624,7 +692,8 @@
     "camp": "pystem",
     "code": "PYS-11",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49416
   },
   {
     "id": "PYS-12-handout",
@@ -635,7 +704,8 @@
     "camp": "pystem",
     "code": "PYS-12",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38636
   },
   {
     "id": "PYS-12-guide",
@@ -646,7 +716,8 @@
     "camp": "pystem",
     "code": "PYS-12",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49236
   },
   {
     "id": "TTB-01-handout",
@@ -657,7 +728,8 @@
     "camp": "trees",
     "code": "TTB-01",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38264
   },
   {
     "id": "TTB-01-guide",
@@ -668,7 +740,8 @@
     "camp": "trees",
     "code": "TTB-01",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 50031
   },
   {
     "id": "TTB-02-handout",
@@ -679,7 +752,8 @@
     "camp": "trees",
     "code": "TTB-02",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37944
   },
   {
     "id": "TTB-02-guide",
@@ -690,7 +764,8 @@
     "camp": "trees",
     "code": "TTB-02",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48945
   },
   {
     "id": "TTB-03-handout",
@@ -701,7 +776,8 @@
     "camp": "trees",
     "code": "TTB-03",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38534
   },
   {
     "id": "TTB-03-guide",
@@ -712,7 +788,8 @@
     "camp": "trees",
     "code": "TTB-03",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49245
   },
   {
     "id": "TTB-04-handout",
@@ -723,7 +800,8 @@
     "camp": "trees",
     "code": "TTB-04",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 38904
   },
   {
     "id": "TTB-04-guide",
@@ -734,7 +812,8 @@
     "camp": "trees",
     "code": "TTB-04",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 52643
   },
   {
     "id": "ttt-print-voltage-log",
@@ -745,7 +824,8 @@
     "camp": "trees",
     "code": "TTT-01",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 22592
   },
   {
     "id": "ttt-print-team-tools",
@@ -756,7 +836,8 @@
     "camp": "trees",
     "code": "TTT-02",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 42262
   },
   {
     "id": "ttt-print-standoff",
@@ -767,7 +848,8 @@
     "camp": "trees",
     "code": "TTT-02",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 21051
   },
   {
     "id": "ttt-print-droplane",
@@ -778,7 +860,8 @@
     "camp": "trees",
     "code": "TTT-03",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 53863
   },
   {
     "id": "ttt-print-greenhouse",
@@ -789,7 +872,8 @@
     "camp": "trees",
     "code": "TTT-05",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 35801
   },
   {
     "id": "ttt-print-pollinator",
@@ -800,7 +884,8 @@
     "camp": "trees",
     "code": "TTT-07",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 121061
   },
   {
     "id": "ttt-print-questpack",
@@ -811,7 +896,8 @@
     "camp": "trees",
     "code": "TTT-08",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 155966
   },
   {
     "id": "ttt-print-papergrid",
@@ -822,7 +908,8 @@
     "camp": "trees",
     "code": "TTT-09",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 40840
   },
   {
     "id": "ttt-print-treerings",
@@ -833,7 +920,8 @@
     "camp": "trees",
     "code": "TTT-10",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 147078
   },
   {
     "id": "ttt-print-stomata",
@@ -844,7 +932,8 @@
     "camp": "trees",
     "code": "TTT-12",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 21578
   },
   {
     "id": "ttb-print-clinometer",
@@ -855,7 +944,20 @@
     "camp": "trees",
     "code": "TTB-02",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 34234
+  },
+  {
+    "id": "ttb-print-heat-route",
+    "name": "Urban Heat Route Map and Field Log",
+    "desc": "Landscape route sketch, matched sun-and-shade log, and cool-corridor evidence sheet for TTB-03.",
+    "type": "pdf",
+    "path": "files/TTB_03_Urban_Heat_Route_Map_and_Field_Log.pdf",
+    "camp": "trees",
+    "code": "TTB-03",
+    "category": "Printable",
+    "kind": "print",
+    "bytes": 30589
   },
   {
     "id": "ttb-print-floatdata",
@@ -866,7 +968,8 @@
     "camp": "trees",
     "code": "TTB-04",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 19438
   },
   {
     "id": "PYB-01-handout",
@@ -877,7 +980,8 @@
     "camp": "pystem",
     "code": "PYB-01",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37806
   },
   {
     "id": "PYB-01-guide",
@@ -888,7 +992,8 @@
     "camp": "pystem",
     "code": "PYB-01",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48423
   },
   {
     "id": "PYB-02-handout",
@@ -899,7 +1004,8 @@
     "camp": "pystem",
     "code": "PYB-02",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37923
   },
   {
     "id": "PYB-02-guide",
@@ -910,7 +1016,8 @@
     "camp": "pystem",
     "code": "PYB-02",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 49056
   },
   {
     "id": "PYB-03-handout",
@@ -921,7 +1028,8 @@
     "camp": "pystem",
     "code": "PYB-03",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 36421
   },
   {
     "id": "PYB-03-guide",
@@ -932,29 +1040,32 @@
     "camp": "pystem",
     "code": "PYB-03",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 47892
   },
   {
     "id": "PYB-04-handout",
     "name": "Barcode Checksum Rescue",
-    "desc": "Catch the fake barcode before the wrong part ships",
+    "desc": "Catch the fake barcode before the warehouse ships the wrong part",
     "type": "pdf",
     "path": "files/PYB_04_Barcode_Checksum_Rescue_Student_Handout.pdf",
     "camp": "pystem",
     "code": "PYB-04",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 37403
   },
   {
     "id": "PYB-04-guide",
     "name": "Barcode Checksum Rescue",
-    "desc": "Catch the fake barcode before the wrong part ships",
+    "desc": "Catch the fake barcode before the warehouse ships the wrong part",
     "type": "pdf",
     "path": "files/PYB_04_Barcode_Checksum_Rescue_Instructor_Guide.pdf",
     "camp": "pystem",
     "code": "PYB-04",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 48418
   },
   {
     "id": "PYB-05-handout",
@@ -965,7 +1076,8 @@
     "camp": "pystem",
     "code": "PYB-05",
     "category": "Activity",
-    "kind": "handout"
+    "kind": "handout",
+    "bytes": 39660
   },
   {
     "id": "PYB-05-guide",
@@ -976,7 +1088,8 @@
     "camp": "pystem",
     "code": "PYB-05",
     "category": "Activity",
-    "kind": "guide"
+    "kind": "guide",
+    "bytes": 50167
   },
   {
     "id": "pys-print-maze",
@@ -987,7 +1100,8 @@
     "camp": "pystem",
     "code": "PYS-01",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 58471
   },
   {
     "id": "pys-print-reaction",
@@ -998,7 +1112,8 @@
     "camp": "pystem",
     "code": "PYS-05",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 25984
   },
   {
     "id": "pys-print-reaction-trials",
@@ -1009,7 +1124,8 @@
     "camp": "pystem",
     "code": "PYS-05",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 23242
   },
   {
     "id": "pys-print-balance",
@@ -1020,7 +1136,8 @@
     "camp": "pystem",
     "code": "PYS-08",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 27306
   },
   {
     "id": "pys-print-com",
@@ -1031,7 +1148,8 @@
     "camp": "pystem",
     "code": "PYS-08",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 23014
   },
   {
     "id": "pys-print-spectra",
@@ -1042,7 +1160,8 @@
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 48812
   },
   {
     "id": "pys-print-routemat",
@@ -1053,7 +1172,8 @@
     "camp": "pystem",
     "code": "PYS-11",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 32809
   },
   {
     "id": "pys-print-orderdeck",
@@ -1064,7 +1184,8 @@
     "camp": "pystem",
     "code": "PYS-11",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 41641
   },
   {
     "id": "pys-print-recovery",
@@ -1075,7 +1196,8 @@
     "camp": "pystem",
     "code": "PYS-04",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 26148
   },
   {
     "id": "pys-print-slinky",
@@ -1086,7 +1208,8 @@
     "camp": "pystem",
     "code": "PYS-06",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 30795
   },
   {
     "id": "pys-print-rampspec",
@@ -1097,7 +1220,8 @@
     "camp": "pystem",
     "code": "PYS-12",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 29938
   },
   {
     "id": "pys-print-hovertarget",
@@ -1108,7 +1232,8 @@
     "camp": "pystem",
     "code": "PYS-09",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 38405
   },
   {
     "id": "pys-print-museum",
@@ -1119,7 +1244,8 @@
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 29997
   },
   {
     "id": "pys-print-spectrum-sketch",
@@ -1130,7 +1256,8 @@
     "camp": "pystem",
     "code": "PYS-10",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 26923
   },
   {
     "id": "pys-print-barcode",
@@ -1141,7 +1268,8 @@
     "camp": "pystem",
     "code": "PYB-04",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 35627
   },
   {
     "id": "pys-print-decoder",
@@ -1152,7 +1280,8 @@
     "camp": "pystem",
     "code": "PYB-05",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 30802
   },
   {
     "id": "pys-print-codeslips",
@@ -1163,6 +1292,7 @@
     "camp": "pystem",
     "code": "PYB-05",
     "category": "Printable",
-    "kind": "print"
+    "kind": "print",
+    "bytes": 220803
   }
 ]

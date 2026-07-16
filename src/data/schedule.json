@@ -20,7 +20,7 @@
     "blocks": [
       { "start": "09:00", "end": "10:20", "title": "Xylem Pipeline Relay", "code": "TTT-04", "camp": "trees", "location": "Dixon 104" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
-      { "start": "10:40", "end": "12:00", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Ambler Greenhouse" },
+      { "start": "10:40", "end": "12:00", "title": "Greenhouse and edible garden tour", "location": "Ambler Greenhouse" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
       { "start": "13:00", "end": "14:20", "title": "Greenhouse Climate Controller", "code": "TTT-05", "camp": "trees", "location": "Dixon 104" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
@@ -50,9 +50,9 @@
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Minecraft Tree World Resilience Cup", "code": "TTT-09", "camp": "trees", "location": "Computer Lab" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:00", "end": "14:20", "title": "Ropes course with Holly", "location": "Ropes Course" },
+      { "start": "13:00", "end": "14:20", "title": "Ropes course", "location": "Ropes Course" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
-      { "start": "14:40", "end": "16:00", "title": "Ropes course with Holly", "location": "Ropes Course" }
+      { "start": "14:40", "end": "16:00", "title": "Ropes course", "location": "Ropes Course" }
     ]
   },
   {
@@ -75,7 +75,7 @@
     "theme": "Orientation and materials",
     "blocks": [
       { "start": "09:00", "end": "10:00", "title": "Welcome and safety briefing", "location": "College of Engineering" },
-      { "start": "10:00", "end": "10:20", "title": "Card Tower Kickoff", "code": "PYS-00", "camp": "pystem", "location": "College of Engineering" },
+      { "start": "10:00", "end": "10:20", "title": "Card Tower Kickoff", "code": "PYS-00", "camp": "pystem", "location": "College of Engineering", "note": "2026 live addition" },
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Magnetic Capsule Maze Cup", "code": "PYS-01", "camp": "pystem", "location": "College of Engineering" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
@@ -103,12 +103,12 @@
     "camp": "pystem",
     "theme": "Ambler Campus field trip",
     "blocks": [
-      { "start": "09:00", "end": "10:00", "title": "Bus to Ambler Campus", "location": "Departs 9:10 AM, arrives about 9:55 AM" },
-      { "start": "10:15", "end": "11:15", "title": "Greenhouse and edible garden tour with Ben Snyder", "location": "Ambler Greenhouse" },
+      { "start": "09:00", "end": "10:00", "title": "Bus to Ambler Campus", "location": "Main Campus to Ambler Campus" },
+      { "start": "10:15", "end": "11:15", "title": "Greenhouse and edible garden tour", "location": "Ambler Greenhouse" },
       { "start": "11:35", "end": "12:35", "title": "ESports room", "location": "Ambler Campus" },
       { "start": "12:35", "end": "13:00", "title": "Lunch" },
       { "start": "13:00", "end": "14:00", "title": "Open swim", "location": "Ambler Recreation Pool (1:00 to 2:00 PM)" },
-      { "start": "15:00", "end": "15:45", "title": "Bus to Main Campus", "location": "Departs 3:00 PM" }
+      { "start": "15:00", "end": "15:45", "title": "Bus to Main Campus", "location": "Ambler Campus to Main Campus" }
     ]
   },
   {
@@ -120,7 +120,7 @@
       { "start": "10:20", "end": "10:40", "title": "Break" },
       { "start": "10:40", "end": "12:00", "title": "Open gym time", "location": "College of Engineering" },
       { "start": "12:00", "end": "13:00", "title": "Lunch" },
-      { "start": "13:15", "end": "14:20", "title": "Oobleck Armor Arena: Rematch", "code": "PYS-02", "camp": "pystem", "location": "College of Engineering" },
+      { "start": "13:15", "end": "14:20", "title": "Oobleck Armor Arena: Rematch", "code": "PYS-02", "scoreCode": "PYS-02R", "camp": "pystem", "location": "College of Engineering", "note": "2026 live rematch" },
       { "start": "14:20", "end": "14:40", "title": "Break" },
       { "start": "14:40", "end": "16:00", "title": "Barcode Checksum Rescue", "code": "PYB-04", "camp": "pystem", "location": "College of Engineering" }
     ]
@@ -128,14 +128,14 @@
   {
     "day": "Fri, Jul 10",
     "camp": "pystem",
-    "theme": "Algorithms, light, and showcase",
+    "theme": "Algorithms, engineering, and showcase",
     "blocks": [
       { "start": "09:00", "end": "10:00", "title": "Friday Crank Championship Work Session" },
       { "start": "10:00", "end": "11:20", "title": "Automated Storage & Retrieval System (BookBot) Tour", "location": "Charles Library" },
       { "start": "11:20", "end": "11:40", "title": "Break" },
-      { "start": "11:40", "end": "12:00", "title": "Friday Crank Championship Judging Panel", "location": "College of Engineering" },
+      { "start": "11:40", "end": "12:00", "title": "Friday Crank Championship Judging Panel", "code": "CRANK", "camp": "pystem", "location": "College of Engineering", "note": "2026 live addition; scored to 300 and always counted" },
       { "start": "12:00", "end": "14:00", "title": "Lunch and Movie Time" },
-      { "start": "14:00", "end": "15:20", "title": "Code Break Cipher Relay", "code": "PYB-05", "camp": "pystem", "location": "College of Engineering" },
+      { "start": "14:00", "end": "15:20", "title": "Code Break Cipher Relay", "code": "PYB-05", "camp": "pystem", "location": "College of Engineering", "note": "2026 live addition" },
       { "start": "15:20", "end": "15:40", "title": "Break" },
       { "start": "15:40", "end": "16:00", "title": "Closing Ceremony", "location": "College of Engineering" }
     ]

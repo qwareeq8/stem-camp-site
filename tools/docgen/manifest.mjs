@@ -81,6 +81,7 @@ export const DOCS = files.map((entry) => {
     source: src === "REPO_CSV" ? path.join(here, "data", "buy_list.csv") : (src ? path.join(ARCHIVE, src) : null),
     isSheet,
     isStatic: templateFor(entry) === "static",
+    landscape: entry.id === "pys-print-routemat",
     out: outName,
     slug: outName.replace(/\.pdf$/, ""),
   };

@@ -2,6 +2,7 @@
 // name, a camp, and an optional emblem keyword and motto. The team id is
 // generated on add and kept out of the form UI; related collections reference it
 // behind the scenes.
+import { useState } from "react";
 import {
   Atom, Bot, Box, CircuitBoard, Cog, Compass, Cpu, FlaskConical, Hammer,
   HeartPulse, Leaf, Lightbulb, Magnet, Microscope, RadioTower, Rocket, Sprout,
@@ -11,6 +12,12 @@ import {
   useEditor, useRefData, SaveBar, RowCard, AddButton, EmptyRows,
   TextField, SelectField, IconChoiceField, makeId, updateAt, removeAt, moveAt,
 } from "./shared.jsx";
+import { useCollection, useCollectionStatus } from "../../lib/store.js";
+import { isWritableHydrationStatus } from "../../lib/supabaseConcurrency.js";
+import {
+  hasTeamReferences,
+  teamReferenceSummary,
+} from "../../lib/crossCollectionIntegrity.js";
 
 const EMBLEM_OPTIONS = [
   { value: "circuit", label: "Circuit", Icon: CircuitBoard },
@@ -36,7 +43,15 @@ const EMBLEM_OPTIONS = [
 
 export default function TeamsEditor() {
   const ed = useEditor("teams");
-  const { camps } = useRefData();
+  const { camps, members } = useRefData();
+  const scores = useCollection("scores") || [];
+  const tickets = useCollection("tickets") || [];
+  const achievements = useCollection("achievements") || [];
+  const membersStatus = useCollectionStatus("members");
+  const scoresStatus = useCollectionStatus("scores");
+  const ticketsStatus = useCollectionStatus("tickets");
+  const achievementsStatus = useCollectionStatus("achievements");
+  const [removalMessage, setRemovalMessage] = useState("");
   const campOptions = camps.length
     ? camps.map((c) => ({ value: c.id, label: c.name }))
     : [{ value: "trees", label: "From Trees to Tech" }, { value: "pystem", label: "PY-STEM" }];
@@ -53,7 +68,51 @@ export default function TeamsEditor() {
   );
 
   function addTeam() {
+    setRemovalMessage("");
     ed.setDraft([...teams, { id: makeId("t"), name: "", camp: campOptions[0].value, emblem: "circuit", motto: "" }]);
+  }
+
+  function removeTeam(team, index) {
+    const unresolvedCollections = [
+      ["Roster", membersStatus],
+      ["Scores", scoresStatus],
+      ["Tickets", ticketsStatus],
+      ["Awards", achievementsStatus],
+    ].filter(([, status]) => !isWritableHydrationStatus(status));
+
+    if (unresolvedCollections.length > 0) {
+      setRemovalMessage(
+        `Cannot remove ${team.name || team.id || "this team"}. `
+        + `Live ${unresolvedCollections.map(([name]) => name).join(", ")} data is not safely loaded, so its references cannot be checked. `
+        + "Open those tabs and retry the live data before deleting a team.",
+      );
+      return;
+    }
+
+    const references = teamReferenceSummary(team.id, {
+      members,
+      scores,
+      tickets,
+      achievements,
+    });
+    if (hasTeamReferences(references)) {
+      const labels = [
+        [references.members, "roster alias", "roster aliases"],
+        [references.scores, "score", "scores"],
+        [references.tickets, "ticket entry", "ticket entries"],
+        [references.achievementRecipients, "award recipient", "award recipients"],
+      ]
+        .filter(([count]) => count > 0)
+        .map(([count, singular, plural]) => `${count} ${count === 1 ? singular : plural}`);
+      setRemovalMessage(
+        `Cannot remove ${team.name || team.id || "this team"}. It is still used by ${labels.join(", ")}. `
+        + "Remove or reassign those records on the Roster, Scores, Tickets, and Awards tabs first.",
+      );
+      return;
+    }
+
+    setRemovalMessage("");
+    ed.setDraft(removeAt(teams, index));
   }
 
   return (
@@ -63,12 +122,19 @@ export default function TeamsEditor() {
         to connect activity to that crew.
       </div>
 
+      {removalMessage && (
+        <div className="adm-err" role="alert" style={{ marginBottom: 16 }}>
+          {removalMessage}
+        </div>
+      )}
+
       {teams.length === 0 && <EmptyRows>No teams yet. Add the first team to get started.</EmptyRows>}
 
       {teams.map((t, i) => (
         <RowCard
           key={t.id || i}
-          onRemove={() => ed.setDraft(removeAt(teams, i))}
+          entityLabel={t.name || t.id || `team ${i + 1}`}
+          onRemove={() => removeTeam(t, i)}
           onUp={i > 0 ? () => ed.setDraft(moveAt(teams, i, -1)) : undefined}
           onDown={i < teams.length - 1 ? () => ed.setDraft(moveAt(teams, i, 1)) : undefined}
           cols="1fr"

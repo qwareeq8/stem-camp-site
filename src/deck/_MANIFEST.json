@@ -234,7 +234,7 @@
       "imports": {
         "react": 0,
         "lucide": 0,
-        "modules": 14
+        "modules": 6
       }
     },
     {
@@ -796,6 +796,17 @@
       }
     },
     {
+      "file": "components/extras/ExtraCipherRule.jsx",
+      "defines": [
+        "ExtraCipherRule"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 2,
+        "modules": 3
+      }
+    },
+    {
       "file": "components/extras/ExtraDetect.jsx",
       "defines": [
         "ExtraDetect"
@@ -807,6 +818,17 @@
       }
     },
     {
+      "file": "components/extras/ExtraEncode.jsx",
+      "defines": [
+        "ExtraEncode"
+      ],
+      "imports": {
+        "react": 2,
+        "lucide": 3,
+        "modules": 3
+      }
+    },
+    {
       "file": "components/extras/index.js",
       "defines": [
         "EXTRAS"
@@ -814,7 +836,7 @@
       "imports": {
         "react": 0,
         "lucide": 0,
-        "modules": 50
+        "modules": 33
       }
     },
     {
@@ -833,7 +855,6 @@
     {
       "file": "Home.jsx",
       "defines": [
-        "HomeMotif",
         "StationCard",
         "BackupCard",
         "Home"
@@ -915,7 +936,9 @@
     "ExtraPulley",
     "ExtraVector",
     "ExtraChecksum",
+    "ExtraCipherRule",
     "ExtraDetect",
+    "ExtraEncode",
     "DemoMudwatt",
     "DemoCapillary",
     "DemoOobleck",

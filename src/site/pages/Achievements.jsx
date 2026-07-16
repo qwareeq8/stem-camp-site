@@ -2,6 +2,7 @@
 // Competition Kit, plus the per-camp standings. Driven by the data layer
 // (achievements, prizes, teams, roster aliases) -- no hardcoded seeds.
 import { useCollection } from "../lib/store.js";
+import { resolveAchievementRecipients } from "../lib/crossCollectionIntegrity.js";
 import { Page, Card, Badge, SectionTitle, Empty } from "../ui.jsx";
 import { Search, ShieldCheck, Wrench, Users, RefreshCw, Sparkles, Lightbulb, TrendingUp, Award } from "lucide-react";
 
@@ -27,35 +28,6 @@ export default function Achievements() {
   const teams = useCollection("teams");
   const members = useCollection("members");
 
-  const teamById = Object.fromEntries(teams.map((t) => [t.id, t]));
-  const memberById = Object.fromEntries(members.map((m) => [m.id, m]));
-
-  function awardRecipients(earnedBy) {
-    const grouped = new Map();
-    for (const raw of earnedBy || []) {
-      let type = "team";
-      let id = "";
-      let count = 1;
-      if (typeof raw === "string") {
-        id = raw;
-        if (memberById[id]) type = "member";
-      } else if (raw && typeof raw === "object") {
-        type = raw.type || (raw.memberId ? "member" : "team");
-        id = raw.id || raw.memberId || raw.teamId || "";
-        count = Math.max(1, Number(raw.count) || 1);
-      }
-      const member = type === "member" ? memberById[id] : null;
-      const team = type === "member" ? teamById[member?.teamId] : teamById[id];
-      const name = type === "member" ? member?.name : team?.name;
-      if (!name) continue;
-      const key = `${type}:${id}`;
-      const existing = grouped.get(key);
-      if (existing) existing.count += count;
-      else grouped.set(key, { key, name, count, camp: team?.camp });
-    }
-    return [...grouped.values()];
-  }
-
   return (
     <Page
       eyebrow="Field log"
@@ -63,12 +35,12 @@ export default function Achievements() {
       sub="The camp's daily and final awards, and how the per-camp standings are decided."
     >
       <div className="notice" role="note" style={{ marginBottom: 18 }}>
-        Every activity is scored out of 100 points for design, clean data, teamwork, and explanation, not just
-        the fastest finish. The one exception is the Friday Crank Championship, worth up to 300 points
-        because teams built their machines all week; it always counts and is never canceled. A team's lowest quarter of scores is canceled (shown crossed out on the
+        This page preserves the 2026 live-event override. Ordinary entries are scored out of 100 points for design, clean data, teamwork, and explanation, not just
+        the fastest finish. The Friday Crank Championship is worth up to 300 points
+        because teams built their machines all week; it always counts and is never canceled. A team&apos;s lowest quarter of other entered scores is canceled (shown crossed out on the
         leaderboard) and the rest count toward the standings, and a 20-point
         redesign improvement or a strong evidence defense earns a comeback bonus. Standings are posted as the
-        top three plus a growth award per camp; individual score slips stay private.
+        top three plus a growth award per camp; individual score slips stay private. The original reviewed kit used best 9 of 12 primary stations, before the live additions.
       </div>
 
       <SectionTitle>Daily and final awards</SectionTitle>
@@ -78,8 +50,11 @@ export default function Achievements() {
         <div className="grid auto">
           {achievements.map((a) => {
             const Icon = ICONS[a.icon] || Award;
-            const earned = awardRecipients(a.earnedBy);
+            const earned = resolveAchievementRecipients(a.earnedBy, teams, members);
             const earnedCount = earned.reduce((sum, recipient) => sum + recipient.count, 0);
+            const missingCount = earned
+              .filter((recipient) => recipient.missing)
+              .reduce((sum, recipient) => sum + recipient.count, 0);
             return (
               <Card key={a.id} ticks className="award-card">
                 <div className="row" style={{ marginBottom: 12 }}>
@@ -100,7 +75,11 @@ export default function Achievements() {
                     <Icon size={20} strokeWidth={1.75} />
                   </span>
                   <span className="spacer" />
-                  <span className="meta">{earnedCount} earned</span>
+                  <span className="meta">
+                    {missingCount > 0
+                      ? `${earnedCount} recorded / ${missingCount} missing`
+                      : `${earnedCount} earned`}
+                  </span>
                 </div>
                 <h3 style={{ fontSize: 21, marginBottom: 6 }}>{a.name}</h3>
                 <p className="muted" style={{ margin: 0, fontSize: 14 }}>{a.desc}</p>
@@ -110,7 +89,10 @@ export default function Achievements() {
                   ) : (
                     earned.map((recipient) => {
                       return (
-                        <Badge key={recipient.key} tone={recipient.camp === "trees" ? "trees" : "py"}>
+                        <Badge
+                          key={recipient.key}
+                          tone={recipient.missing ? "warn" : recipient.camp === "trees" ? "trees" : recipient.camp === "pystem" ? "py" : undefined}
+                        >
                           {recipient.name}{recipient.count > 1 ? ` x${recipient.count}` : ""}
                         </Badge>
                       );

@@ -73,13 +73,13 @@ function Home({ onSelect, camp, setCamp }) {
   return (
     <div className="deck-landing" style={{ position: "relative" }}>
       {/* camp switcher: two site-style cards */}
-      <div role="tablist" aria-label="Choose camp" className="grid"
+      <div role="group" aria-label="Choose camp" className="grid"
         style={{ gridTemplateColumns: isNarrow ? "1fr" : "1fr 1fr", marginBottom: 6 }}>
         {(["trees", "pystem"]).map((k) => {
           const active = camp === k;
           const t = CAMP[k];
           return (
-            <button key={k} role="tab" aria-selected={active}
+            <button key={k} aria-pressed={active}
               className={`card card-link focusable camp-tile${active ? " is-active" : ""}`}
               style={{ "--camp-acc": t.acc }}
               onClick={() => { setCamp(k); setFilter("all"); }}>
@@ -87,7 +87,7 @@ function Home({ onSelect, camp, setCamp }) {
                 <span className={`badge ${k === "trees" ? "trees" : "py"}`}>{k === "trees" ? "Trees" : "PY-STEM"}</span>
                 <span className="meta">{k === "trees" ? "Camp I" : "Camp II"}</span>
               </div>
-              <h3 style={{ fontSize: 24, color: t.acc, marginBottom: 4 }}>{t.label}</h3>
+              <h2 style={{ fontSize: 24, color: t.acc, marginBottom: 4 }}>{t.label}</h2>
               <div style={{ ...f.sans(400, 13.5, { lh: 1.5 }), color: T.mute }}>{t.sub}</div>
             </button>
           );

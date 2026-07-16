@@ -1,16 +1,20 @@
-// Verify the generated PDFs against the extracted IR.
+// Verify the shipped PDFs against the extracted IR.
 // Three gates per document:
 //   1. fidelity: every IR text fragment appears in the PDF text,
 //   2. orphan headings: no page ends on a section heading or eyebrow,
 //   3. kept tables: any table short enough to stay whole sits on one page.
 // Uses pdftotext (poppler). Exits nonzero when any gate fails.
 //
-//   node tools/docgen/check_pdfs.mjs            # all documents
-//   node tools/docgen/check_pdfs.mjs TTT-01     # only matching slugs
+//   node tools/docgen/check_pdfs.mjs             # all shipped documents
+//   node tools/docgen/check_pdfs.mjs TTT-01      # only matching slugs
+//   node tools/docgen/check_pdfs.mjs --built     # check tools/out instead
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { DOCS, IR_DIR, PDF_DIR } from "./manifest.mjs";
+import { applyCorrections } from "./corrections.mjs";
+
+const PUBLIC_PDF_DIR = path.resolve(PDF_DIR, "..", "..", "..", "..", "public", "files");
 
 // Squash text to a comparable form: lowercase alphanumerics only. This rides
 // over ligatures, soft hyphens, currency formatting, and line wrapping.
@@ -106,18 +110,48 @@ function pdfPages(pdfPath, mode) {
   return raw.split("\f").filter((p) => p.trim());
 }
 
+function pageSize(pdfPath) {
+  const info = execFileSync("pdfinfo", [pdfPath]).toString();
+  const match = /^Page size:\s+([\d.]+) x ([\d.]+) pts/m.exec(info);
+  return match ? { width: Number(match[1]), height: Number(match[2]) } : null;
+}
+
 function main() {
-  const filter = process.argv[2];
+  const args = process.argv.slice(2);
+  const built = args.includes("--built");
+  const filter = args.find((arg) => !arg.startsWith("--"));
+  const pdfDir = built ? PDF_DIR : PUBLIC_PDF_DIR;
   let failures = 0;
   let checked = 0;
   for (const doc of DOCS) {
     if (filter && !doc.slug.includes(filter) && !doc.id.includes(filter)) continue;
-    // Static printables are drawn straight to PDF and have no extracted IR.
-    if (doc.isStatic) continue;
-    const ir = JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8"));
-    const pdfPath = path.join(PDF_DIR, doc.out);
+    const pdfPath = path.join(pdfDir, doc.out);
+    if (!fs.existsSync(pdfPath)) {
+      failures++;
+      checked++;
+      process.stdout.write(`FAIL ${doc.out}\n   - PDF is missing from ${pdfDir}\n`);
+      continue;
+    }
     const pages = pdfPages(pdfPath, "layout");
     const readingPages = pdfPages(pdfPath, "reading");
+    if (doc.isStatic) {
+      checked++;
+      if (!pages.length || !readingPages.join("").trim()) {
+        failures++;
+        process.stdout.write(`FAIL ${doc.out}\n   - static printable has no extractable page text\n`);
+      } else if (doc.landscape) {
+        const size = pageSize(pdfPath);
+        if (!size || size.width <= size.height) {
+          failures++;
+          process.stdout.write(`FAIL ${doc.out}\n   - printable must be landscape\n`);
+        }
+      }
+      continue;
+    }
+    const ir = applyCorrections(
+      doc,
+      JSON.parse(fs.readFileSync(path.join(IR_DIR, `${doc.slug}.json`), "utf8")),
+    );
     const pagesSquashed = readingPages.map(squash);
     const all = pagesSquashed.join("");
     const { frags, headings, tables, writeLabels } = irFragments(ir);
@@ -189,7 +223,7 @@ function main() {
       if (problems.length > 8) process.stdout.write(`   ... ${problems.length - 8} more\n`);
     }
   }
-  process.stdout.write(`checked ${checked} documents, ${failures} with findings\n`);
+  process.stdout.write(`checked ${checked} ${built ? "built" : "shipped"} documents, ${failures} with findings\n`);
   process.exit(failures ? 1 : 0);
 }
 

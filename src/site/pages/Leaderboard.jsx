@@ -3,7 +3,7 @@
 // via teamTotals(); nothing is hardcoded.
 import { useState } from "react";
 import { useCollection } from "../lib/store.js";
-import { teamTotals, maxTotal, ticketBalances, splitScores } from "../lib/scoring.js";
+import { rankedTeamTotalsByCamp, maxTotal, ticketBalances, splitScores } from "../lib/scoring.js";
 import { Page, Card, Badge, SectionTitle, Progress, CampBadge, Empty } from "../ui.jsx";
 
 const FILTERS = [
@@ -19,20 +19,20 @@ export default function Leaderboard() {
   const balances = ticketBalances(tickets);
   const [filter, setFilter] = useState("all");
 
-  // Rank across all teams first so positions are absolute, then narrow the view.
-  // Competition ranking: tied totals share a rank and the next rank skips past them.
-  const allRows = teamTotals(teams, scores);
-  const ranked = [];
-  allRows.forEach((r, i) => {
-    const rank = i > 0 && r.total === allRows[i - 1].total ? ranked[i - 1].rank : i + 1;
-    ranked.push({ ...r, rank });
-  });
+  // Each session has its own station set (including PY-STEM's 300-point CRANK),
+  // so competition ranks are calculated within camp and never across camps.
+  const ranked = rankedTeamTotalsByCamp(teams, scores);
   const rows = ranked.filter((r) => filter === "all" || r.camp === filter);
-  const ceiling = maxTotal(allRows);
+  const ceilings = Object.fromEntries(
+    ["trees", "pystem"].map((camp) => [camp, maxTotal(ranked.filter((row) => row.camp === camp))]),
+  );
   // Bars are proportional to the leader's total, so tightly-bunched totals read as a
   // tight race instead of a blowout; the numeric Total column carries the exact figure.
   // Until any station is judged the ceiling is 0, so every bar stays empty.
-  const barPct = (total) => (ceiling > 0 ? Math.round((total / ceiling) * 100) : 0);
+  const barPct = (row) => {
+    const ceiling = ceilings[row.camp] || 0;
+    return ceiling > 0 ? Math.round((row.total / ceiling) * 100) : 0;
+  };
 
   // Group raw score entries by team for the per-station breakdown.
   const byTeam = {};
@@ -44,7 +44,7 @@ export default function Leaderboard() {
     <Page
       eyebrow="Standings"
       title="Leaderboard"
-      sub="Every activity is scored out of 100 except the Friday Crank Championship, which is worth up to 300 and always counts; a team's lowest quarter of other scores is canceled and does not count toward the total (canceled scores show crossed out below). Rank is absolute across both camps; use the filter to focus on one."
+      sub="This historical leaderboard preserves the 2026 live-event override: ordinary entries are out of 100, CRANK is worth up to 300 and always counts, and each team's lowest quarter of other entered scores is canceled. The original reviewed kit used best 9 of 12 primary stations before the live additions."
       actions={
         <div className="row" role="group" aria-label="Filter by camp">
           {FILTERS.map((f) => (
@@ -86,14 +86,14 @@ export default function Leaderboard() {
                         <span className="lb-name" style={{ fontWeight: lead ? 700 : 600 }}>{t.name}</span>
                         <CampBadge camp={t.camp} />
                       </div>
-                      <div className="lb-progress-m"><Progress value={barPct(t.total)} max={100} /></div>
+                      <div className="lb-progress-m"><Progress value={barPct(t)} max={100} /></div>
                       {t.motto && <div className="muted lb-motto" style={{ fontSize: 12 }}>{t.motto}</div>}
                       <div className="mono muted" style={{ fontSize: 11, marginTop: 2 }}>
                         {t.stations} stations scored
                         {t.dropped > 0 && <> &middot; lowest {t.dropped} canceled</>}
                       </div>
                     </td>
-                    <td><Progress value={barPct(t.total)} max={100} /></td>
+                    <td><Progress value={barPct(t)} max={100} /></td>
                     <td className="mono" style={{ textAlign: "right", fontSize: lead ? 22 : 18, fontWeight: 600 }}>
                       {t.total}
                     </td>

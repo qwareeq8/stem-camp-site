@@ -4,16 +4,16 @@
 // the nav and its slides scroll inside the deck card instead of sliding under the
 // sticky site nav. On mount the app hydrates every data collection from Supabase
 // (PostgREST) so
-// visitors see committed changes without a redeploy; any failure silently leaves
-// the bundled seed in place, so the public site always renders.
+// visitors see committed changes without a redeploy. A failed or invalid live
+// read leaves the bundled fallback in place and raises a visible accuracy banner.
 //
 // The deck and the admin console are loaded lazily (React.lazy + Suspense): the
-// deck's ~76 station modules and the admin's form editors are pulled as separate
+// deck's 66 Demo/Extra modules and the admin's form editors are pulled as separate
 // async chunks only when their route is visited, so the initial bundle that every
 // visitor downloads stays small.
 import { Suspense, lazy, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { hydrateAll } from "./lib/store.js";
+import { hydrateAll, useCollectionStatus } from "./lib/store.js";
 import Nav from "./Nav.jsx";
 import Footer from "./Footer.jsx";
 import Home from "./pages/Home.jsx";
@@ -41,6 +41,47 @@ function RouteFallback() {
   );
 }
 
+const PUBLIC_STATUS_LABELS = [
+  ["teams", "teams"],
+  ["members", "roster"],
+  ["scores", "scores"],
+  ["tickets", "tickets"],
+  ["catalog", "store"],
+  ["schedule", "schedule"],
+  ["achievements", "awards"],
+  ["prizes", "prizes"],
+  ["files", "files"],
+  ["config", "site setup"],
+];
+
+function DataFallbackBanner() {
+  const statuses = {
+    teams: useCollectionStatus("teams"),
+    members: useCollectionStatus("members"),
+    scores: useCollectionStatus("scores"),
+    tickets: useCollectionStatus("tickets"),
+    catalog: useCollectionStatus("catalog"),
+    schedule: useCollectionStatus("schedule"),
+    achievements: useCollectionStatus("achievements"),
+    prizes: useCollectionStatus("prizes"),
+    files: useCollectionStatus("files"),
+    config: useCollectionStatus("config"),
+  };
+  const unavailable = PUBLIC_STATUS_LABELS
+    .map(([name, label]) => ({ status: statuses[name], label }))
+    .filter(({ status }) => status.state === "failed" || status.state === "invalid")
+    .map(({ label }) => label);
+  if (!unavailable.length) return null;
+  return (
+    <div className="data-fallback" role="alert">
+      <div className="container">
+        <strong>Live data unavailable.</strong>{" "}
+        Bundled fallback is showing for {unavailable.join(", ")}. Do not treat it as the final live record until the connection is restored.
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   useEffect(() => {
     // Fire-and-forget: live data on success, bundled seed on any failure.
@@ -48,10 +89,13 @@ export default function App() {
   }, []);
   // The deck route is viewport-locked (see the layout note above); every other
   // route scrolls normally with a footer.
-  const isDeck = useLocation().pathname === "/deck";
+  const pathname = useLocation().pathname;
+  const isDeck = pathname === "/deck";
+  const showDataStatus = !isDeck && pathname !== "/admin";
   return (
     <>
       <Nav />
+      {showDataStatus && <DataFallbackBanner />}
       <main className={isDeck ? "main-deck" : undefined}>
         <Suspense fallback={<RouteFallback />}>
           <Routes>

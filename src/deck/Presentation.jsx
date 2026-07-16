@@ -195,7 +195,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
       </div>
 
       {/* content */}
-      <main style={{ flex: 1, padding: "26px 0 24px" }}>
+      <div style={{ flex: 1, padding: "26px 0 24px" }}>
         <SlideFrame page={page} accent={C} phase={phaseLabel} code={act.code} campKey={campKey}>
 
           {sl.type === "title" && (
@@ -281,7 +281,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
                 {act.buildMin} minutes
               </p>
               <div style={{ position: "relative", width: 260, height: 260, marginTop: 10 }}>
-                <svg width="260" height="260" style={{ transform: "rotate(-90deg)" }}>
+                <svg aria-hidden="true" width="260" height="260" style={{ transform: "rotate(-90deg)" }}>
                   <circle cx="130" cy="130" r="118" fill="none" stroke={T.rule12} strokeWidth="1.5" />
                   <circle cx="130" cy="130" r="118" fill="none"
                     stroke={tSec <= 60 && tSec > 0 && tTotal > 60 ? T.warn : T.primary}
@@ -364,7 +364,7 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
             </div>
           )}
         </SlideFrame>
-      </main>
+      </div>
 
       {/* nav */}
       <nav style={{
@@ -378,13 +378,13 @@ function Presentation({ act, accent, campKey, onBack, onJump }) {
         </button>
         <div style={{ display: "flex", gap: 4, flex: 1, minWidth: 0, overflow: "hidden", justifyContent: "center" }}>
           {slides.map((_, i) => (
-            // 28px transparent hit target around the 4px visual bar, so the dots
-            // meet the minimum touch-target size without changing the look.
+            // At least a 24px transparent hit target around the 4px visual bar
+            // keeps every dot directly tappable without changing the look.
             <button key={i} onClick={() => setPage(i)} className="focusable"
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === page ? "true" : undefined}
               style={{
-                height: 28, minWidth: 20,
+                height: 28, minWidth: 24,
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 border: "none", padding: 0, background: "transparent",
                 cursor: "pointer",

@@ -3,23 +3,14 @@
 // the hero rather than using the shared <Page> header used by the other pages.
 import { Link } from "react-router-dom";
 import { useConfig, useCollection } from "../lib/store.js";
-import { teamTotals } from "../lib/scoring.js";
+import { rankedTeamTotalsByCamp } from "../lib/scoring.js";
+import { isScheduleComplete, upcomingSchedule } from "../lib/scheduleTiming.js";
+import {
+  BACKUP_STATION_COUNT,
+  PRIMARY_STATION_COUNT,
+  PRIMARY_STATIONS_BY_CAMP,
+} from "../lib/stationCounts.js";
 import { Card, Stat, Badge, Btn, SectionTitle, CampBadge } from "../ui.jsx";
-import { TREES_DECK, PY_DECK, TREESB_DECK, PYB_DECK } from "../../deck/data/decks.js";
-
-const PRIMARY = TREES_DECK.filter((a) => !a.welcome).length + PY_DECK.filter((a) => !a.welcome).length;
-const BACKUPS = TREESB_DECK.length + PYB_DECK.length;
-const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-const EASTERN = "America/New_York";
-const EASTERN_PARTS = new Intl.DateTimeFormat("en-US", {
-  timeZone: EASTERN,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
 
 function campusLabel(campus) {
   if (!campus) return "";
@@ -36,49 +27,6 @@ function hostedByLabel(value) {
   return `Hosted by ${clean}`;
 }
 
-function minutesOfDay(value) {
-  const m = /^(\d{1,2}):(\d{2})$/.exec(value || "");
-  if (!m) return 0;
-  return Number(m[1]) * 60 + Number(m[2]);
-}
-
-function easternNow(now = new Date()) {
-  const parts = Object.fromEntries(EASTERN_PARTS.formatToParts(now).map((p) => [p.type, p.value]));
-  return {
-    key: `${parts.year}-${parts.month}-${parts.day}`,
-    minutes: Number(parts.hour) * 60 + Number(parts.minute),
-  };
-}
-
-function dateFromLabel(label, year) {
-  const m = /\b([A-Z][a-z]{2})\s+(\d{1,2})\b/.exec(label || "");
-  if (!m || MONTHS[m[1]] === undefined) return null;
-  const y = Number(year) || 2026;
-  const month = String(MONTHS[m[1]] + 1).padStart(2, "0");
-  const day = String(Number(m[2])).padStart(2, "0");
-  return `${y}-${month}-${day}`;
-}
-
-function upcomingSchedule(schedule, year, now = new Date()) {
-  const current = easternNow(now);
-  const days = (schedule || [])
-    .map((day) => ({ ...day, dateKey: day.date || dateFromLabel(day.day, year) }))
-    .filter((day) => day.dateKey)
-    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
-  if (!days.length) return null;
-
-  const idx = days.findIndex((day) => day.dateKey >= current.key);
-  const upcoming = idx === -1 ? days[days.length - 1] : days[idx];
-  const isToday = upcoming.dateKey === current.key;
-  if (!isToday) return upcoming;
-
-  // Today: show only the blocks still to come. Once the whole day has wrapped,
-  // advance to the next camp day; the final day keeps its full plan as a recap.
-  const blocks = (upcoming.blocks || []).filter((b) => minutesOfDay(b.end) >= current.minutes);
-  if (blocks.length) return { ...upcoming, blocks };
-  return idx + 1 < days.length ? days[idx + 1] : upcoming;
-}
-
 export default function Home() {
   const cfg = useConfig();
   const camps = cfg.camps || [];
@@ -86,9 +34,15 @@ export default function Home() {
   const members = useCollection("members");
   const scores = useCollection("scores");
   const schedule = useCollection("schedule");
-  const rows = teamTotals(teams, scores);
-  const top = rows.slice(0, 3);
-  const day0 = upcomingSchedule(schedule, cfg.year);
+  const rankedRows = rankedTeamTotalsByCamp(teams, scores);
+  const leadersByCamp = camps.map((camp) => ({
+    camp,
+    rows: rankedRows.filter((row) => row.camp === camp.id && row.rank <= 3),
+  }));
+  const hasLeaders = leadersByCamp.some((group) => group.rows.length > 0);
+  const now = new Date();
+  const day0 = upcomingSchedule(schedule, cfg.year, now);
+  const scheduleComplete = isScheduleComplete(schedule, cfg.year, now);
   const hostedBy = hostedByLabel(cfg.location);
 
   return (
@@ -132,17 +86,17 @@ export default function Home() {
 
         {/* quick stats */}
         <div className="grid cols-4" style={{ marginBottom: 8 }}>
-          <Card><Stat num={PRIMARY} label="Stations" /></Card>
+          <Card><Stat num={PRIMARY_STATION_COUNT} label="Stations" /></Card>
           <Card><Stat num={teams.length} label="Teams" /></Card>
           <Card><Stat num={members.length} label="Campers and staff" /></Card>
-          <Card><Stat num={BACKUPS} label="Backup stations" /></Card>
+          <Card><Stat num={BACKUP_STATION_COUNT} label="Backup stations" /></Card>
         </div>
 
         {/* camps */}
         <SectionTitle>The two camps</SectionTitle>
         <div className="grid cols-2">
           {camps.map((c) => {
-            const n = (c.id === "trees" ? TREES_DECK : PY_DECK).filter((a) => !a.welcome).length;
+            const n = PRIMARY_STATIONS_BY_CAMP[c.id] ?? 0;
             const campus = campusLabel(c.campus);
             return (
               <Card key={c.id} to="/deck" padLg className="card-link">
@@ -174,17 +128,22 @@ export default function Home() {
           <div>
             <SectionTitle>Top of the leaderboard</SectionTitle>
             <Card>
-              {top.length === 0 ? (
+              {!hasLeaders ? (
                 <div className="muted" style={{ fontSize: 14 }}>No standings yet. Scores appear once stations are judged.</div>
               ) : (
-                top.map((t, i) => (
-                  <div key={t.id} className="row" style={{ padding: "9px 0", borderBottom: i < top.length - 1 ? "1px solid var(--rule12)" : "none" }}>
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 22, width: 26 }}>{i + 1}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{t.name}</div>
-                      <CampBadge camp={t.camp} />
+                leadersByCamp.map(({ camp, rows: leaders }) => leaders.length > 0 && (
+                  <div key={camp.id} style={{ marginBottom: 12 }}>
+                    <div className="row" style={{ paddingBottom: 4 }}>
+                      <CampBadge camp={camp.id} />
+                      <span className="mono muted" style={{ fontSize: 10.5 }}>ranked within camp</span>
                     </div>
-                    <span className="mono" style={{ fontSize: 18 }}>{t.total}</span>
+                    {leaders.map((team, index) => (
+                      <div key={team.id} className="row" style={{ padding: "7px 0", borderBottom: index < leaders.length - 1 ? "1px solid var(--rule12)" : "none" }}>
+                        <span style={{ fontFamily: "var(--serif)", fontSize: 22, width: 26 }}>{team.rank}</span>
+                        <div style={{ flex: 1, fontWeight: 600 }}>{team.name}</div>
+                        <span className="mono" style={{ fontSize: 18 }}>{team.total}</span>
+                      </div>
+                    ))}
                   </div>
                 ))
               )}
@@ -192,7 +151,7 @@ export default function Home() {
             </Card>
           </div>
           <div>
-            <SectionTitle>{day0 ? `Up next: ${day0.day}` : "Schedule"}</SectionTitle>
+            <SectionTitle>{day0 ? `Up next: ${day0.day}` : scheduleComplete ? "2026 camps complete" : "Schedule"}</SectionTitle>
             <Card>
               {day0 ? (
                 <>
@@ -205,6 +164,14 @@ export default function Home() {
                     </div>
                   ))}
                   <Link to="/schedule" className="mono see-more" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Full schedule &rarr;</Link>
+                </>
+              ) : scheduleComplete ? (
+                <>
+                  <div style={{ fontWeight: 600, marginBottom: 6 }}>The 2026 camp sessions are complete.</div>
+                  <div className="muted" style={{ fontSize: 14 }}>
+                    Review the full two-week plan, station sequence, and field visits in the schedule archive.
+                  </div>
+                  <Link to="/schedule" className="mono see-more" style={{ fontSize: 11, display: "inline-block", marginTop: 10 }}>Review the schedule &rarr;</Link>
                 </>
               ) : <div className="muted">No schedule yet.</div>}
             </Card>

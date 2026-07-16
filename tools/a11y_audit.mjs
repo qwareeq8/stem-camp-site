@@ -27,13 +27,13 @@ await new Promise((r) => server.listen(0, r));
 const port = server.address().port;
 const base = `http://localhost:${port}`;
 
-const ROUTES = ["/", "/schedule", "/leaderboard", "/teams", "/achievements", "/files", "/admin", "/deck"];
+const ROUTES = ["/", "/schedule", "/leaderboard", "/teams", "/store", "/achievements", "/files", "/admin", "/deck"];
 const VIEWPORTS = [
   { name: "desktop", width: 1280, height: 900 },
   { name: "mobile", width: 390, height: 844 },
 ];
 
-const out = { perRoute: {}, fontReqAborted: false };
+const out = { perRoute: {}, fontReqStubbed: false };
 
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 
@@ -47,8 +47,12 @@ const isNotFound = async (page) =>
 
 for (const vp of VIEWPORTS) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1 });
-  // Mirror shoot.mjs: abort Google Fonts; record that it happened.
-  await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (r) => { out.fontReqAborted = true; r.abort(); });
+  // Keep the audit deterministic and offline without manufacturing a browser
+  // console error. The empty stylesheet is intentional; local fallbacks render.
+  await ctx.route(/fonts\.(googleapis|gstatic)\.com/, (route) => {
+    out.fontReqStubbed = true;
+    route.fulfill({ status: 200, contentType: "text/css", body: "" });
+  });
 
   for (const route of ROUTES) {
     const key = `${route} [${vp.name}]`;
@@ -69,6 +73,15 @@ for (const vp of VIEWPORTS) {
       const hs = [...document.querySelectorAll("main h1, main h2, main h3, main h4, main h5, main h6")];
       return hs.map((h) => ({ tag: h.tagName.toLowerCase(), text: (h.textContent || "").trim().slice(0, 60) }));
     });
+    rec.info.headingSkips = rec.info.headings.reduce((skips, heading, index, headings) => {
+      if (index === 0) return skips;
+      const previousLevel = Number(headings[index - 1].tag.slice(1));
+      const level = Number(heading.tag.slice(1));
+      if (level > previousLevel + 1) {
+        skips.push({ from: headings[index - 1], to: heading });
+      }
+      return skips;
+    }, []);
     rec.info.h1Count = await page.evaluate(() => document.querySelectorAll("main h1").length);
     rec.info.h1AllCount = await page.evaluate(() => document.querySelectorAll("h1").length);
 
@@ -114,6 +127,27 @@ for (const vp of VIEWPORTS) {
         }
       }
       return bad.slice(0, 10);
+    });
+
+    // WCAG 2.2's direct size threshold is 24x24 CSS pixels. This basic probe
+    // reports visible controls below either dimension; reviewers can then
+    // adjudicate the spacing, inline, and equivalent-control exceptions.
+    rec.info.undersizedTargets = await page.evaluate(() => {
+      const bad = [];
+      for (const el of document.querySelectorAll("button, input:not([type=hidden]), select, textarea, a.btn, [role=button]")) {
+        const r = el.getBoundingClientRect();
+        if (r.width <= 0 || r.height <= 0) continue;
+        if (r.width < 24 || r.height < 24) {
+          bad.push({
+            tag: el.tagName.toLowerCase(),
+            cls: (el.className || "").toString().slice(0, 60),
+            label: (el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60),
+            width: Math.round(r.width * 10) / 10,
+            height: Math.round(r.height * 10) / 10,
+          });
+        }
+      }
+      return bad;
     });
 
     // Form controls without an associated label.
